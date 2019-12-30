@@ -4,6 +4,7 @@ import { ApiUrls } from '@/constants/apis';
 import store from '@/store/index';
 
 @Module({
+  dynamic: true,
   store: store,
   name: 'user',
   namespaced: true,

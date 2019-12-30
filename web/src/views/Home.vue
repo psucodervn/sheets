@@ -1,17 +1,17 @@
 <template>
   <div class="home">
-    <horizontal-bar-chart :chart-data="getChartData" :options="chartOptions" v-if="isMobile"/>
-    <bar-chart :chart-data="getChartData" :options="chartOptions" v-else/>
+    <horizontal-bar-chart :chart-data="chartData" :options="chartOptions" v-if="isMobile"/>
+    <bar-chart :chart-data="chartData" :options="chartOptions" v-else/>
   </div>
 </template>
 
 <script lang="ts">
   // @ is an alias to /src
-  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { Component, Vue } from 'vue-property-decorator';
   import { IUserBalance } from '@/model/user';
   import BarChart from '@/components/BarChart.vue';
   import { UserModule } from '@/store/user';
-  import { ChartData, ChartDataSets, ChartOptions } from 'chart.js';
+  import { ChartData, ChartOptions } from 'chart.js';
   import HorizontalBarChart from '@/components/HorizontalBarChart.vue';
 
   @Component({
@@ -20,7 +20,7 @@
   export default class Home extends Vue {
     isMobile: boolean = false;
 
-    get getChartData(): ChartData {
+    get chartData(): ChartData {
       const labels = this.users.map((u: IUserBalance) => u.user.name);
       const values = this.users.map((u: IUserBalance) => ~~(u.balance.value / 1000));
       const max = Math.max(1000, ...values), min = Math.min(-1000, ...values);
@@ -34,7 +34,7 @@
         return this.percentToColor(percent);
       });
 
-      const data = {
+      return {
         labels: labels,
         datasets: [{
           label: 'Balance',
@@ -44,7 +44,6 @@
           borderColor: colors.map(c => c.border),
         }],
       };
-      return data;
     }
 
     get chartOptions(): ChartOptions {
