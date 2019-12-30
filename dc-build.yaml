@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  api:
+    build:
+      context: ./api
+    image: ${IMAGE}
+
+  web:
+    build:
+      context: ./web
+      target: production-stage
+    image: ${IMAGE}

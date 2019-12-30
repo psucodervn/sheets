@@ -1,0 +1,8 @@
+:80 {
+  tls off
+  ratelimit * /r 5 5 second
+  proxy /api/ http://api:8080/ {
+    without /api
+  }
+  proxy / http://web:80/
+}

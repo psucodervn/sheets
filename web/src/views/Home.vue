@@ -1,0 +1,121 @@
+<template>
+  <div class="home">
+    <horizontal-bar-chart :chart-data="getChartData" :options="chartOptions" v-if="isMobile"/>
+    <bar-chart :chart-data="getChartData" :options="chartOptions" v-else/>
+  </div>
+</template>
+
+<script lang="ts">
+  // @ is an alias to /src
+  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { IUserBalance } from '@/model/user';
+  import BarChart from '@/components/BarChart.vue';
+  import { UserModule } from '@/store/user';
+  import { ChartData, ChartDataSets, ChartOptions } from 'chart.js';
+  import HorizontalBarChart from '@/components/HorizontalBarChart.vue';
+
+  @Component({
+    components: { BarChart, HorizontalBarChart },
+  })
+  export default class Home extends Vue {
+    isMobile: boolean = false;
+
+    get getChartData(): ChartData {
+      const labels = this.users.map((u: IUserBalance) => u.user.name);
+      const values = this.users.map((u: IUserBalance) => ~~(u.balance.value / 1000));
+      const max = Math.max(1000, ...values), min = Math.min(-1000, ...values);
+      const colors = values.map((val) => {
+        let percent;
+        if (val >= 0) {
+          percent = val / max * 50 + 50;
+        } else {
+          percent = 50 - val / min * 50;
+        }
+        return this.percentToColor(percent);
+      });
+
+      const data = {
+        labels: labels,
+        datasets: [{
+          label: 'Balance',
+          data: values,
+          borderWidth: 1,
+          backgroundColor: colors.map(c => c.fill),
+          borderColor: colors.map(c => c.border),
+        }],
+      };
+      return data;
+    }
+
+    get chartOptions(): ChartOptions {
+      return {
+        title: { display: false },
+        legend: { display: false },
+        plugins: {
+          datalabels: {
+            labels: {
+              user: {
+                // color: 'green',
+                align: this.isMobile ? 'start' : 'end',
+                formatter: (value, ctx) => {
+                  return ctx.chart.data.labels![ctx.dataIndex];
+                },
+              },
+              balance: {
+                // color: 'green',
+                align: this.isMobile ? 'end' : 'start',
+              },
+            },
+          },
+        },
+      };
+    };
+
+    get users(): IUserBalance[] {
+      return UserModule.users;
+    }
+
+    async mounted() {
+      this.handleResize();
+      try {
+        await UserModule.fetchUsers();
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
+
+    created() {
+      window.addEventListener('resize', this.handleResize);
+    }
+
+    destroyed() {
+      window.removeEventListener('resize', this.handleResize);
+    }
+
+    async handleResize() {
+      this.isMobile = window.innerWidth < 800;
+    }
+
+    percentToColor(percent: number) {
+      let r, g, b = 0;
+      if (percent < 50) {
+        r = 230;
+        g = Math.round(5.1 * percent);
+      } else {
+        g = 190;
+        r = Math.round(510 - 5.10 * percent);
+      }
+      let h = r * 0x10000 + g * 0x100 + b;
+      return { fill: `rgba(${r}, ${g}, ${b}, 0.4)`, border: `rgba(${r}, ${g}, ${b}, 0.9)` };
+      // return '#' + ('000000' + h.toString(16)).slice(-6);
+    }
+  };
+</script>
+
+<style>
+  canvas {
+    margin: auto;
+    max-width: 900px;
+    max-height: 80vh;
+  }
+</style>

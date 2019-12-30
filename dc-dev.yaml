@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  caddy:
+    image: psucoder/caddy:no-stats
+    restart: always
+    environment:
+      ACME_AGREE: "true"
+    volumes:
+      - ./caddy/Caddyfile:/etc/Caddyfile
+    ports:
+      - 80:80
+      - 443:443
+
+  web:
+    build:
+      context: ./web
+      target: develop-stage
+    command: /bin/sh -c 'yarn && yarn serve'
+    environment:
+      PORT: 80
+    volumes:
+      # - ./web/.eslintrc.js:/app/.eslintrc.js:delegated
+      - ./web/babel.config.js:/app/babel.config.js:delegated
+      - ./web/package.json:/app/package.json:delegated
+      - ./web/public:/app/public:delegated
+      - ./web/src:/app/src:delegated
+      - ./web/tsconfig.json:/app/tsconfig.json:delegated
+      - ./web/vue.config.js:/app/vue.config.js:delegated
+
+  api:
+    image: golang:1.13.5
+    command: ["go", "run", "/app/main.go"]
+    working_dir: /app
+    env_file: .env
+    volumes:
+      - ./api:/app:delegated
+      - ./api/conf/credentials.json:/conf/credentials.json
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache:delegated
