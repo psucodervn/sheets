@@ -11,7 +11,7 @@
   import { IUserBalance } from '@/model/user';
   import BarChart from '@/components/BarChart.vue';
   import { UserModule } from '@/store/user';
-  import { ChartData, ChartOptions } from 'chart.js';
+  import { ChartData, ChartOptions, CommonAxe } from 'chart.js';
   import HorizontalBarChart from '@/components/HorizontalBarChart.vue';
 
   @Component({
@@ -21,7 +21,7 @@
     isMobile: boolean = false;
 
     get chartData(): ChartData {
-      const labels = this.users.map((u: IUserBalance) => u.user.name);
+      const labels = this.users.map((u: IUserBalance) => this.isMobile ? ' ' : u.user.name);
       const values = this.users.map((u: IUserBalance) => ~~(u.balance.value / 1000));
       const max = Math.max(1000, ...values), min = Math.min(-1000, ...values);
       const colors = values.map((val) => {
@@ -47,27 +47,61 @@
     }
 
     get chartOptions(): ChartOptions {
-      return {
+      const axes: CommonAxe[] = [{
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Balance (x1000 vnđ)',
+        },
+        gridLines: {
+          display: true,
+        },
+        ticks: {
+          suggestedMin: -1000,
+          suggestedMax: 1000,
+          stepSize: 200,
+        },
+      }];
+
+      const opts: ChartOptions = {
         title: { display: false },
         legend: { display: false },
+        responsive: true,
+        scales: {},
         plugins: {
           datalabels: {
+            formatter: (value) => {
+              return Number(value).toLocaleString();
+            },
             labels: {
               user: {
-                // color: 'green',
                 align: this.isMobile ? 'start' : 'end',
+                font: {
+                  weight: 'bold',
+                },
                 formatter: (value, ctx) => {
-                  return ctx.chart.data.labels![ctx.dataIndex];
+                  return this.users[ctx.dataIndex].user.name + (this.isMobile ? (': ' + value) : '');
                 },
               },
               balance: {
-                // color: 'green',
+                display: !this.isMobile,
+                font: {
+                  weight: 'bold',
+                },
                 align: this.isMobile ? 'end' : 'start',
               },
             },
           },
         },
       };
+
+      if (!this.isMobile) {
+        opts.scales!.yAxes = axes;
+      } else {
+        opts.scales!.xAxes = axes;
+      }
+
+      return opts;
     };
 
     get users(): IUserBalance[] {
@@ -115,6 +149,6 @@
   canvas {
     margin: auto;
     max-width: 900px;
-    max-height: 80vh;
+    max-height: 85vh;
   }
 </style>
