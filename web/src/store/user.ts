@@ -1,11 +1,8 @@
-import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import { IUser, IUserBalance } from '@/model/user';
+import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { IUserBalance } from '@/model/user';
 import { ApiUrls } from '@/constants/apis';
-import store from '@/store/index';
 
 @Module({
-  dynamic: true,
-  store: store,
   name: 'user',
   namespaced: true,
 })
@@ -23,6 +20,3 @@ export class UserStore extends VuexModule {
     this.users = users;
   }
 }
-
-export const UserModule = getModule(UserStore);
-store.registerModule('user', UserStore, { preserveState: true });

@@ -10,14 +10,14 @@
   import { Component, Vue } from 'vue-property-decorator';
   import { IUserBalance } from '@/model/user';
   import BarChart from '@/components/BarChart.vue';
-  import { UserModule } from '@/store/user';
   import { ChartData, ChartOptions, CommonAxe } from 'chart.js';
   import HorizontalBarChart from '@/components/HorizontalBarChart.vue';
+  import { UserModule } from '@/store';
 
   @Component({
     components: { BarChart, HorizontalBarChart },
   })
-  export default class Home extends Vue {
+  export default class Overview extends Vue {
     isMobile: boolean = false;
 
     get chartData(): ChartData {
@@ -133,7 +133,7 @@
       let r, g, b = 0;
       if (percent < 50) {
         r = 230;
-        g = Math.round(5.1 * percent);
+        g = Math.round(5.1 * percent / 2);
       } else {
         g = 190;
         r = Math.round(510 - 5.10 * percent);

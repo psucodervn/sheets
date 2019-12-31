@@ -1,6 +1,6 @@
 const Routes = {
-  Home: 'home',
-  About: 'about',
+  Overview: 'overview',
+  Transactions: 'transactions',
 };
 
 export {
