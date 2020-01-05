@@ -7,6 +7,7 @@ services:
       ACME_AGREE: "true"
     volumes:
       - ./caddy/Caddyfile:/etc/Caddyfile
+      - ./caddy/certs:/etc/certs
     ports:
       - 80:80
       - 443:443

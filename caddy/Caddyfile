@@ -1,5 +1,5 @@
-:80 {
-  tls off
+:80, :443 {
+  tls /etc/certs/localhost+2.pem /etc/certs/localhost+2-key.pem
   ratelimit * /r 5 5 second
   proxy /api/ http://api:8080/ {
     without /api

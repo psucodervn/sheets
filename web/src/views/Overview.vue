@@ -19,17 +19,20 @@
   })
   export default class Overview extends Vue {
     isMobile: boolean = false;
+    max: number = 0;
+    min: number = 0;
 
     get chartData(): ChartData {
       const labels = this.users.map((u: IUserBalance) => this.isMobile ? ' ' : u.user.name);
       const values = this.users.map((u: IUserBalance) => ~~(u.balance.value / 1000));
-      const max = Math.max(1000, ...values), min = Math.min(-1000, ...values);
+      this.max = Math.max(1000, ...values) + 50;
+      this.min = Math.min(-1000, ...values) - 50;
       const colors = values.map((val) => {
         let percent;
         if (val >= 0) {
-          percent = val / max * 50 + 50;
+          percent = val / this.max * 50 + 50;
         } else {
-          percent = 50 - val / min * 50;
+          percent = 50 - val / this.min * 50;
         }
         return this.percentToColor(percent);
       });
@@ -57,8 +60,8 @@
           display: true,
         },
         ticks: {
-          suggestedMin: -1000,
-          suggestedMax: 1000,
+          suggestedMin: this.min,
+          suggestedMax: this.max,
           stepSize: 200,
         },
       }];
