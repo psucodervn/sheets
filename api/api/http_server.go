@@ -1,8 +1,6 @@
-package http
+package api
 
 import (
-	"api/balance"
-	balanceHttp "api/balance/delivery/http"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/psucodervn/go/logger"
@@ -13,7 +11,7 @@ type Server struct {
 	e *echo.Echo
 }
 
-func NewServer(balanceUseCase balance.UseCase) *Server {
+func NewServer() *Server {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -25,11 +23,12 @@ func NewServer(balanceUseCase balance.UseCase) *Server {
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{"success": true, "message": "OK"})
 	})
+	e.GET("/routes", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, e.Routes())
+	})
 
 	p := prometheus.NewPrometheus("http", nil)
 	p.Use(e)
-
-	balanceHttp.BindEchoHandler(e, balanceUseCase)
 
 	srv := &Server{e: e}
 	return srv
@@ -40,4 +39,10 @@ func (s *Server) Serve(addr string, tls bool) error {
 		return s.e.StartAutoTLS(addr)
 	}
 	return s.e.Start(addr)
+}
+
+func (s *Server) Bind(handlers ...EchoHandler) {
+	for i := range handlers {
+		handlers[i].Bind(s.e)
+	}
 }

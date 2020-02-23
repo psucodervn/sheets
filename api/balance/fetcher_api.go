@@ -1,9 +1,8 @@
-package repository
+package balance
 
 import (
-	"api/balance"
 	"api/config"
-	"api/models"
+	"api/model"
 	"context"
 	"errors"
 	"fmt"
@@ -25,20 +24,20 @@ type ApiFetcher struct {
 	sheetID string
 }
 
-func (f *ApiFetcher) ListUsers(ctx context.Context) ([]models.User, error) {
+func (f *ApiFetcher) ListUsers(ctx context.Context) ([]model.User, error) {
 	userBalances, err := f.ListUserBalances(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var users []models.User
+	var users []model.User
 	for i := range userBalances {
 		users = append(users, userBalances[i].User)
 	}
 	return users, nil
 }
 
-func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]models.Transaction, error) {
+func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]model.Transaction, error) {
 	users, err := f.ListUsers(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list users: %w", err)
@@ -53,11 +52,11 @@ func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]models.Transaction
 	}
 
 	log.Debug().Int("transaction_count", len(rows.Values)).Msg("")
-	var res []models.Transaction
+	var res []model.Transaction
 	for i := range rows.Values {
 		raw := rows.Values[i]
 		tx, err := toTransaction(raw, users)
-		if errors.Is(err, balance.ErrEmptyTransaction) {
+		if errors.Is(err, ErrEmptyTransaction) {
 			continue
 		}
 		if err != nil {
@@ -69,7 +68,7 @@ func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]models.Transaction
 	return res, nil
 }
 
-func toTransaction(raw []interface{}, users []models.User) (tx *models.Transaction, err error) {
+func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction, err error) {
 	defer func() {
 		if err != nil {
 			return
@@ -83,28 +82,28 @@ func toTransaction(raw []interface{}, users []models.User) (tx *models.Transacti
 	totalCount := toFloat64(raw[17])
 	totalValue := toFloat64(raw[1])
 	if int(totalCount) <= 0 {
-		return nil, balance.ErrEmptyTransaction
+		return nil, ErrEmptyTransaction
 	}
 
 	// calc senders
-	senders := []models.UserTransaction{
+	senders := []model.UserTransaction{
 		{Name: toString(raw[2]), Amount: toFloat64(raw[1])},
 	}
 	// calc receivers
 	userCount := len(users)
-	var receivers []models.UserTransaction
+	var receivers []model.UserTransaction
 	for i := 0; i < userCount; i++ {
 		cnt := toFloat64(raw[i+4])
 		if int(cnt) <= 0 {
 			continue
 		}
-		receivers = append(receivers, models.UserTransaction{
+		receivers = append(receivers, model.UserTransaction{
 			Name:   users[i].Name,
 			Amount: totalValue * cnt / totalCount,
 		})
 	}
 
-	tx = &models.Transaction{
+	tx = &model.Transaction{
 		Description: toString(raw[3]),
 		Value:       totalValue,
 		Senders:     senders,
@@ -127,7 +126,7 @@ func toFloat64(i interface{}) float64 {
 	return 0
 }
 
-func (f *ApiFetcher) ListUserBalances(ctx context.Context) ([]models.UserBalance, error) {
+func (f *ApiFetcher) ListUserBalances(ctx context.Context) ([]model.UserBalance, error) {
 	rows, err := f.svc.Values.
 		Get(f.sheetID, RangeBalance).
 		ValueRenderOption("UNFORMATTED_VALUE").
@@ -136,18 +135,18 @@ func (f *ApiFetcher) ListUserBalances(ctx context.Context) ([]models.UserBalance
 		return nil, fmt.Errorf("get value: %w", err)
 	}
 
-	var res []models.UserBalance
+	var res []model.UserBalance
 	if len(rows.Values) != 2 {
-		return nil, balance.ErrInvalidDataFormat
+		return nil, ErrInvalidDataFormat
 	}
 
 	userCount := len(rows.Values[0])
 	for i := 0; i < userCount; i++ {
 		name := rows.Values[1][i].(string)
 		val := rows.Values[0][i].(float64)
-		res = append(res, models.UserBalance{
-			User:    models.User{Name: name},
-			Balance: models.Balance{Value: val},
+		res = append(res, model.UserBalance{
+			User:    model.User{Name: name},
+			Balance: model.Balance{Value: val},
 		})
 	}
 

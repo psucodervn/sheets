@@ -1,14 +1,17 @@
-package http
+package balance
 
 import (
-	"api/balance"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
 type Handler struct {
-	uc balance.UseCase
+	uc Service
+}
+
+func (h *Handler) Bind(e *echo.Echo) {
+	e.GET("/users", h.getUsers)
 }
 
 func (h *Handler) getUsers(c echo.Context) error {
@@ -25,11 +28,6 @@ func (h *Handler) getUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
-func NewHandler(uc balance.UseCase) *Handler {
+func NewHandler(uc Service) *Handler {
 	return &Handler{uc: uc}
-}
-
-func BindEchoHandler(e *echo.Echo, uc balance.UseCase) {
-	h := NewHandler(uc)
-	e.GET("/users", h.getUsers)
 }
