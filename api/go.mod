@@ -1,15 +1,14 @@
 module api
 
-go 1.13.5
+go 1.14
 
 require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo-contrib v0.8.1-0.20200115200653-2d4a7f3c41d8
 	github.com/labstack/echo/v4 v4.1.11
-	github.com/markbates/goth v1.61.1
-	github.com/psucodervn/go v0.5.0
-	github.com/rs/zerolog v1.17.2
-	github.com/spf13/cobra v0.0.5
-	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6 // indirect
-	google.golang.org/api v0.15.0
+	github.com/markbates/goth v1.61.2
+	github.com/psucodervn/go v0.6.0
+	github.com/rs/zerolog v1.18.0
+	github.com/spf13/cobra v0.0.6
+	google.golang.org/api v0.19.0
 )

@@ -14,7 +14,7 @@ type ApiConfig struct {
 type GoogleConfig struct {
 	SheetID         string `envconfig:"SHEET_ID" required:"true"`
 	CredentialsFile string `envconfig:"CREDENTIALS_FILE" required:"true"`
-	Auth            GoogleAuthConfig
+	// Auth            GoogleAuthConfig
 }
 
 type GoogleAuthConfig struct {

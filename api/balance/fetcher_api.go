@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	RangeBalance     = "201911!T1:AF2"
-	RangeTransaction = "201911!A5:R"
+	RangeBalance     = "201911!U1:AH2"
+	RangeTransaction = "201911!A5:S"
 	RangeUser        = "201911!E2:Q2"
 )
 

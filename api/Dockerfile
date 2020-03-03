@@ -1,7 +1,7 @@
 ARG BINARY=main
 ARG DIR=/app
 
-FROM golang:1.13.5-alpine AS builder
+FROM golang:1.14-alpine AS builder
 ARG BINARY
 ARG DIR
 
