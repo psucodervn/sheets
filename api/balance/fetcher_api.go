@@ -6,17 +6,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
+
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
-	"io/ioutil"
 )
 
 const (
-	RangeBalance     = "201911!U1:AH2"
-	RangeTransaction = "201911!A5:S"
-	RangeUser        = "201911!E2:Q2"
+	RangeBalance     = "Current!U1:AH2"
+	RangeTransaction = "Current!A5:S"
+	RangeUser        = "Current!E2:Q2"
 )
 
 type ApiFetcher struct {
