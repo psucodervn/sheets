@@ -1,16 +1,43 @@
 package model
 
-import "time"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+)
 
 type Transaction struct {
-	Description string            `json:"description"`
-	Value       float64           `json:"value"`
-	Time        time.Time         `json:"time"`
-	Senders     []UserTransaction `json:"senders"`
-	Receivers   []UserTransaction `json:"receivers"`
+	Model
+	Summary     string           `json:"summary"`
+	Description string           `json:"description"`
+	TotalValue  float64          `json:"totalValue"`
+	Time        time.Time        `json:"time" gorm:"not null"`
+	Senders     UserTransactions `json:"senders" gorm:"not null;type:jsonb;default:'[]'"`
+	Receivers   UserTransactions `json:"receivers" gorm:"not null;type:jsonb;default:'[]'"`
 }
 
 type UserTransaction struct {
-	Name   string  `json:"name"`
-	Amount float64 `json:"amount"`
+	ID   string  `json:"id,omitempty"`
+	Name string  `json:"name,omitempty"`
+	Val  float64 `json:"value,omitempty"`
+}
+
+type UserTransactions []UserTransaction
+
+func (u UserTransactions) Value() (driver.Value, error) {
+	if u == nil {
+		return json.Marshal(UserTransactions{})
+	}
+	return json.Marshal(u)
+}
+
+func (u *UserTransactions) Scan(src interface{}) error {
+	bytes, ok := src.([]byte)
+	if !ok {
+		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", src))
+	}
+
+	return json.Unmarshal(bytes, u)
 }

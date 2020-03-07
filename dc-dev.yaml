@@ -37,3 +37,17 @@ services:
       - ./api:/app:delegated
       - ./api/conf/credentials.json:/conf/credentials.json
       - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache:delegated
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    ports:
+    - 8432:5432
+
+volumes:
+  pgdata:

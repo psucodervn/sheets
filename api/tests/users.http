@@ -1,0 +1,7 @@
+GET http://localhost/api/users
+
+###
+
+GET http://localhost/api/users/abcd
+
+###

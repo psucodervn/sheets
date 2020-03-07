@@ -3,7 +3,9 @@ package cmd
 import (
 	"api/api"
 	"api/balance"
+	"api/cmd/importer"
 	"api/config"
+	"api/pkg/database"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
@@ -29,18 +31,12 @@ var (
 )
 
 func runApiServer(cfg config.ApiConfig) error {
-	fetcher := balance.NewApiFetcherFromEnv()
-	balanceSvc := balance.NewBaseService(fetcher)
-	balanceHandler := balance.NewHandler(balanceSvc)
+	db := database.MustNewPostgresGorm(cfg.Postgres)
 
-	// authCfg := cfg.Google.Auth
-	// googleAuthProvider := google.New(
-	// 	authCfg.ClientID, authCfg.ClientSecret, authCfg.CallbackURL,
-	// 	"https://www.googleapis.com/auth/userinfo.email",
-	// 	"https://www.googleapis.com/auth/userinfo.profile",
-	// )
-	//
-	// authHandler := auth.NewHandler(googleAuthProvider)
+	fetcher := balance.NewApiFetcherFromEnv()
+	userRepo := balance.NewPostgresUserRepository(db)
+	balanceSvc := balance.NewBaseService(fetcher, userRepo)
+	balanceHandler := balance.NewHandler(balanceSvc)
 
 	srv := api.NewServer()
 	srv.Bind(
@@ -48,6 +44,10 @@ func runApiServer(cfg config.ApiConfig) error {
 		// authHandler,
 	)
 	return srv.Serve(cfg.Address, cfg.TLS)
+}
+
+func init() {
+	rootCmd.AddCommand(importer.Command())
 }
 
 func Execute() error {

@@ -21,7 +21,7 @@ func NewServer() *Server {
 		return uri == "/healthz" || uri == "/metrics"
 	}))
 	e.GET("/healthz", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, echo.Map{"success": true, "message": "OK"})
+		return c.JSON(http.StatusOK, Response{Success: true, Message: "OK"})
 	})
 	e.GET("/routes", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, e.Routes())

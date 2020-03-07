@@ -16,7 +16,7 @@ import (
 
 const (
 	RangeBalance     = "Current!U1:AH2"
-	RangeTransaction = "Current!A5:S"
+	RangeTransaction = "Current!A4:S"
 	RangeUser        = "Current!E2:Q2"
 )
 
@@ -26,16 +26,30 @@ type ApiFetcher struct {
 }
 
 func (f *ApiFetcher) ListUsers(ctx context.Context) ([]model.User, error) {
-	userBalances, err := f.ListUserBalances(ctx)
+	rows, err := f.svc.Values.
+		Get(f.sheetID, RangeBalance).
+		ValueRenderOption("UNFORMATTED_VALUE").
+		Do()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get value: %w", err)
 	}
 
-	var users []model.User
-	for i := range userBalances {
-		users = append(users, userBalances[i].User)
+	var res []model.User
+	if len(rows.Values) != 2 {
+		return nil, ErrInvalidDataFormat
 	}
-	return users, nil
+
+	userCount := len(rows.Values[0])
+	for i := 0; i < userCount; i++ {
+		name := rows.Values[1][i].(string)
+		val := rows.Values[0][i].(float64)
+		res = append(res, model.User{
+			Name:    name,
+			Balance: model.Balance{Val: val},
+		})
+	}
+
+	return res, nil
 }
 
 func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]model.Transaction, error) {
@@ -80,7 +94,7 @@ func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction
 		}
 	}()
 
-	totalCount := toFloat64(raw[17])
+	totalCount := toFloat64(raw[18])
 	totalValue := toFloat64(raw[1])
 	if int(totalCount) <= 0 {
 		return nil, ErrEmptyTransaction
@@ -88,7 +102,7 @@ func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction
 
 	// calc senders
 	senders := []model.UserTransaction{
-		{Name: toString(raw[2]), Amount: toFloat64(raw[1])},
+		{Name: toString(raw[2]), Val: toFloat64(raw[1])},
 	}
 	// calc receivers
 	userCount := len(users)
@@ -99,14 +113,14 @@ func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction
 			continue
 		}
 		receivers = append(receivers, model.UserTransaction{
-			Name:   users[i].Name,
-			Amount: totalValue * cnt / totalCount,
+			Name: users[i].Name,
+			Val:  totalValue * cnt / totalCount,
 		})
 	}
 
 	tx = &model.Transaction{
 		Description: toString(raw[3]),
-		Value:       totalValue,
+		TotalValue:  totalValue,
 		Senders:     senders,
 		Receivers:   receivers,
 	}
@@ -147,7 +161,7 @@ func (f *ApiFetcher) ListUserBalances(ctx context.Context) ([]model.UserBalance,
 		val := rows.Values[0][i].(float64)
 		res = append(res, model.UserBalance{
 			User:    model.User{Name: name},
-			Balance: model.Balance{Value: val},
+			Balance: model.Balance{Val: val},
 		})
 	}
 
@@ -165,7 +179,7 @@ func NewApiFetcher(credentialsJSON []byte, sheetID string) *ApiFetcher {
 }
 
 func NewApiFetcherFromEnv() *ApiFetcher {
-	var cfg config.GoogleConfig
+	var cfg config.GoogleDocsConfig
 	envconfig.MustProcess("GOOGLE", &cfg)
 
 	b, err := ioutil.ReadFile(cfg.CredentialsFile)
