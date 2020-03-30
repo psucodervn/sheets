@@ -3,7 +3,6 @@ package cmd
 import (
 	"api/api"
 	"api/balance"
-	"api/cmd/importer"
 	"api/config"
 	"api/pkg/database"
 	"api/point"
@@ -11,6 +10,7 @@ import (
 	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"time"
 )
 
 var (
@@ -40,6 +40,19 @@ func runApiServer(cfg config.ApiConfig) error {
 	balanceSvc := balance.NewBaseService(fetcher, userRepo, txRepo)
 	balanceHandler := balance.NewHandler(balanceSvc)
 
+	importer := balance.NewImporter(fetcher, userRepo, txRepo)
+	importFn := func() {
+		if err := importer.Run(); err != nil {
+			log.Err(err).Msg("import failed")
+		}
+	}
+	go func() {
+		importFn()
+		for range time.Tick(1 * time.Minute) {
+			importFn()
+		}
+	}()
+
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
 	pointHandler := point.NewHttpHandler(pointSvc)
 
@@ -49,10 +62,6 @@ func runApiServer(cfg config.ApiConfig) error {
 		pointHandler,
 	)
 	return srv.Serve(cfg.Address, cfg.TLS)
-}
-
-func init() {
-	rootCmd.AddCommand(importer.Command())
 }
 
 func Execute() error {

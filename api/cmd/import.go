@@ -1,4 +1,4 @@
-package importer
+package cmd
 
 import (
 	"api/balance"
@@ -22,10 +22,10 @@ func runImporter(cmd *cobra.Command, args []string) error {
 	userRepo := balance.NewPostgresUserRepository(db)
 	txRepo := balance.NewPostgresTransactionRepository(db)
 
-	importer := NewImporter(fetcher, userRepo, txRepo)
+	importer := balance.NewImporter(fetcher, userRepo, txRepo)
 	return importer.Run()
 }
 
-func Command() *cobra.Command {
-	return importCmd
+func init() {
+	rootCmd.AddCommand(importCmd)
 }

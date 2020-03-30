@@ -1,19 +1,18 @@
-package importer
+package balance
 
 import (
-	"api/balance"
 	"api/model"
 	"context"
 	"golang.org/x/sync/errgroup"
 )
 
 type Importer struct {
-	fetcher  balance.Fetcher
-	userRepo balance.UserRepository
-	txRepo   balance.TransactionRepository
+	fetcher  Fetcher
+	userRepo UserRepository
+	txRepo   TransactionRepository
 }
 
-func NewImporter(fetcher balance.Fetcher, userRepo balance.UserRepository, txRepo balance.TransactionRepository) *Importer {
+func NewImporter(fetcher Fetcher, userRepo UserRepository, txRepo TransactionRepository) *Importer {
 	return &Importer{fetcher: fetcher, userRepo: userRepo, txRepo: txRepo}
 }
 
