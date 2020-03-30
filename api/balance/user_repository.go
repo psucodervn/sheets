@@ -12,6 +12,17 @@ type PostgresUserRepository struct {
 	db *gorm.DB
 }
 
+func (r *PostgresUserRepository) FindByName(ctx context.Context, name string) (*model.User, error) {
+	var u model.User
+	if err := r.db.Where("name = ?", name).First(&u).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return &u, nil
+}
+
 func (r *PostgresUserRepository) Save(ctx context.Context, user model.User) (*model.User, error) {
 	err := r.db.Save(&user).Error
 	return &user, err

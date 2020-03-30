@@ -10,13 +10,22 @@ var _ Service = &BaseService{}
 type BaseService struct {
 	fetcher  Fetcher
 	userRepo UserRepository
+	txRepo   TransactionRepository
 }
 
-func (u *BaseService) FindByID(ctx context.Context, id string) (*model.User, error) {
+func (u *BaseService) FindTransaction(ctx context.Context, id string) (*model.Transaction, error) {
+	return u.txRepo.FindByID(ctx, id)
+}
+
+func (u *BaseService) FindTransactions(ctx context.Context, args *model.Query) ([]model.Transaction, error) {
+	return u.txRepo.Find(ctx, args)
+}
+
+func (u *BaseService) FindUserByID(ctx context.Context, id string) (*model.User, error) {
 	return u.userRepo.FindByID(ctx, id)
 }
 
-func (u *BaseService) Find(ctx context.Context, args *model.Query) ([]model.User, error) {
+func (u *BaseService) FindUsers(ctx context.Context, args *model.Query) ([]model.User, error) {
 	// return u.fetcher.ListUsers(ctx)
 	return u.userRepo.Find(ctx, args)
 }
@@ -29,9 +38,10 @@ func (u *BaseService) ListTransactions(ctx context.Context) ([]model.Transaction
 	return u.fetcher.ListTransactions(ctx)
 }
 
-func NewBaseService(fetcher Fetcher, userRepo UserRepository) *BaseService {
+func NewBaseService(fetcher Fetcher, userRepo UserRepository, txRepo TransactionRepository) *BaseService {
 	return &BaseService{
 		fetcher:  fetcher,
 		userRepo: userRepo,
+		txRepo:   txRepo,
 	}
 }

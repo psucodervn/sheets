@@ -1,5 +1,5 @@
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import { IUserBalance } from '@/model/user';
+import { IUser } from '@/model/user';
 import { ApiUrls } from '@/constants/apis';
 
 @Module({
@@ -7,16 +7,16 @@ import { ApiUrls } from '@/constants/apis';
   namespaced: true,
 })
 export class UserStore extends VuexModule {
-  users: IUserBalance[] = [];
+  users: IUser[] = [];
 
   @Action({ commit: 'setUsers', rawError: true })
   async fetchUsers() {
     const result = await fetch(ApiUrls.FetchUsers);
-    return await result.json();
+    return (await result.json()).data;
   }
 
   @Mutation
-  async setUsers(users: IUserBalance[]) {
+  async setUsers(users: IUser[]) {
     this.users = users;
   }
 }

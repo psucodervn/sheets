@@ -3,25 +3,29 @@ import Vue from 'vue';
 import './styles/quasar.scss';
 import '@quasar/extras/material-icons/material-icons.css';
 import {
-  Quasar,
-  QLayout,
-  QHeader,
+  QBtn,
   QDrawer,
-  QPageContainer,
+  QFooter,
+  QHeader,
+  QIcon,
+  QItem,
+  QItemLabel,
+  QItemSection,
+  QLayout,
+  QList,
   QPage,
+  QPageContainer,
+  QRouteTab,
+  QTab,
+  QTabs,
   QToolbar,
   QToolbarTitle,
-  QBtn,
-  QIcon,
-  QList,
-  QItem,
-  QItemSection,
-  QItemLabel, QTabs, QTab, QRouteTab, QFooter,
+  Quasar,
 } from 'quasar';
 
 Vue.use(Quasar, {
   config: {
-    dark: 'auto',
+    dark: 'off',
   },
   components: {
     QLayout,

@@ -1,21 +1,19 @@
-export interface IUser {
-  name: string;
-}
-
 export interface IBalance {
   value: number;
 }
 
-export interface IUserBalance {
-  user: IUser;
+export interface IUser {
+  name: string;
   balance: IBalance;
 }
 
 export class User implements IUser {
   name: string;
+  balance: IBalance;
 
-  constructor(name: string) {
+  constructor(name: string, balance: Balance) {
     this.name = name;
+    this.balance = balance;
   }
 }
 
@@ -24,15 +22,5 @@ export class Balance implements IBalance {
 
   constructor(value: number) {
     this.value = value;
-  }
-}
-
-export class UserBalance implements IUserBalance {
-  user: IUser;
-  balance: IBalance;
-
-  constructor(user: IUser, balance: IBalance) {
-    this.user = user;
-    this.balance = balance;
   }
 }

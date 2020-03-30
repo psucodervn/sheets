@@ -6,6 +6,7 @@ import (
 	"api/cmd/importer"
 	"api/config"
 	"api/pkg/database"
+	"api/point"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
@@ -35,13 +36,17 @@ func runApiServer(cfg config.ApiConfig) error {
 
 	fetcher := balance.NewApiFetcherFromEnv()
 	userRepo := balance.NewPostgresUserRepository(db)
-	balanceSvc := balance.NewBaseService(fetcher, userRepo)
+	txRepo := balance.NewPostgresTransactionRepository(db)
+	balanceSvc := balance.NewBaseService(fetcher, userRepo, txRepo)
 	balanceHandler := balance.NewHandler(balanceSvc)
+
+	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
+	pointHandler := point.NewHttpHandler(pointSvc)
 
 	srv := api.NewServer()
 	srv.Bind(
 		balanceHandler,
-		// authHandler,
+		pointHandler,
 	)
 	return srv.Serve(cfg.Address, cfg.TLS)
 }

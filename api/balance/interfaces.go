@@ -15,13 +15,17 @@ type Service interface {
 	ListUserBalances(ctx context.Context) ([]model.UserBalance, error)
 	ListTransactions(ctx context.Context) ([]model.Transaction, error)
 
-	Find(ctx context.Context, args *model.Query) ([]model.User, error)
-	FindByID(ctx context.Context, id string) (*model.User, error)
+	FindUsers(ctx context.Context, args *model.Query) ([]model.User, error)
+	FindUserByID(ctx context.Context, id string) (*model.User, error)
+
+	FindTransactions(ctx context.Context, args *model.Query) ([]model.Transaction, error)
+	FindTransaction(ctx context.Context, id string) (*model.Transaction, error)
 }
 
 type UserRepository interface {
 	Find(ctx context.Context, args *model.Query) ([]model.User, error)
 	FindByID(ctx context.Context, id string) (*model.User, error)
+	FindByName(ctx context.Context, name string) (*model.User, error)
 	Save(ctx context.Context, user model.User) (*model.User, error)
 }
 

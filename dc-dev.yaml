@@ -29,7 +29,7 @@ services:
       - ./web/vue.config.js:/app/vue.config.js:delegated
 
   api:
-    image: golang:1.13.5
+    image: golang:1.14-alpine
     command: ["go", "run", "/app/main.go"]
     working_dir: /app
     env_file: .env
