@@ -1,0 +1,7 @@
+GET http://localhost/api/transactions
+
+###
+
+GET http://localhost/api/transactions/bpi888lh5s5kpp7npodg
+
+###

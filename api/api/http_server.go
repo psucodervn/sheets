@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/psucodervn/go/logger"
+	"github.com/psucodervn/go/validator"
 	"net/http"
 )
 
@@ -26,6 +27,7 @@ func NewServer() *Server {
 	e.GET("/routes", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, e.Routes())
 	})
+	e.Validator = validator.NewStructValidator()
 
 	p := prometheus.NewPrometheus("http", nil)
 	p.Use(e)

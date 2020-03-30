@@ -7,9 +7,11 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@quasar/extras": "^1.0.0",
     "chart.js": "^2.9.3",
     "chartjs-plugin-datalabels": "^0.7.0",
     "core-js": "^3.4.4",
+    "quasar": "^1.0.0",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",
     "vue-chartjs": "^3.5.0",
@@ -28,7 +30,11 @@
     "@vue/cli-plugin-typescript": "^4.1.0",
     "@vue/cli-plugin-vuex": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
+    "babel-plugin-transform-imports": "1.5.0",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^8.0.0",
     "typescript": "~3.5.3",
+    "vue-cli-plugin-quasar": "^2.0.0",
     "vue-template-compiler": "^2.6.10"
   }
 }

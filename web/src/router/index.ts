@@ -1,23 +1,29 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
+import VueRouter, { RouteConfig } from 'vue-router';
 import { Routes } from '@/router/names';
-import Overview from '@/views/Overview.vue';
 
 Vue.use(VueRouter);
 
-const routes = [
+const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: Routes.Overview,
-    component: Overview,
-  },
-  {
-    path: '/transactions',
-    name: Routes.Transactions,
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "transactions" */ '@/views/Transactions.vue'),
+    component: () => import('@/layouts/Layout.vue'),
+    redirect: '/balance',
+    children: [
+      {
+        path: '/balance',
+        name: Routes.Balance,
+        component: () => import('@/views/Balance.vue'),
+      },
+      {
+        path: '/points',
+        name: Routes.Points,
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "points" */ '@/views/Points.vue'),
+      },
+    ],
   },
 ];
 

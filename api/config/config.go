@@ -10,6 +10,7 @@ type ApiConfig struct {
 	TLS      bool   `default:"false"`
 	Google   GoogleDocsConfig
 	Postgres PostgresConfig
+	Jira     JiraConfig
 }
 
 type GoogleDocsConfig struct {
@@ -41,4 +42,10 @@ type MigrationConfig struct {
 type ImporterConfig struct {
 	Google   GoogleDocsConfig
 	Postgres PostgresConfig
+}
+
+type JiraConfig struct {
+	Username string `required:"true"`
+	Password string `required:"true"`
+	Host     string `required:"true"`
 }

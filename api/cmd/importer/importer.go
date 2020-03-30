@@ -63,6 +63,9 @@ func (s *Importer) saveUsers(ctx context.Context, users []model.User) error {
 	for i, _ := range users {
 		i := i
 		wg.Go(func() error {
+			if u, _ := s.userRepo.FindByName(ctx, users[i].Name); u != nil {
+				users[i].ID = u.ID
+			}
 			newUser, err := s.userRepo.Save(ctx, users[i])
 			if err != nil {
 				return err
@@ -84,6 +87,7 @@ func (s *Importer) saveTransactions(ctx context.Context, txs []model.Transaction
 	for i := range txs {
 		tx := txs[i]
 		wg.Go(func() error {
+			tx.Summary = tx.Description
 			for j := range tx.Senders {
 				tx.Senders[j].ID = mu[tx.Senders[j].Name].ID
 			}
