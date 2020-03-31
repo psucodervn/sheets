@@ -50,7 +50,7 @@ func (s *RestService) UserPoints(ctx context.Context, month, year int) ([]model.
 		SetResult(&searchResponse{}).
 		SetQueryParam("maxResults", "1000").
 		SetQueryParam("fields", "assignee,project,customfield_10106,summary").
-		SetQueryParam("jql", "status = Done AND resolved >= 2020-03-01 AND resolved <= 2020-03-31").
+		SetQueryParam("jql", "status = Done AND resolved > 2020-02-29 AND resolved < 2020-04-01").
 		Get("/rest/api/2/search")
 	if err != nil {
 		return nil, err
