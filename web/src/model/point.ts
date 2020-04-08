@@ -23,16 +23,19 @@ export interface IUserPoint {
   name: string;
   displayName: string;
   pointTotal: number;
+  issues: Issue[];
 }
 
 export class UserPoint implements IUserPoint {
   displayName: string;
   name: string;
   pointTotal: number;
+  issues: Issue[];
 
-  constructor(displayName: string, name: string, pointTotal: number) {
+  constructor(displayName: string, name: string, pointTotal: number, issues: Issue[]) {
     this.displayName = displayName;
     this.name = name;
     this.pointTotal = pointTotal;
+    this.issues = issues;
   }
 }

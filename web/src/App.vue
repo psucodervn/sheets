@@ -5,25 +5,16 @@
 </template>
 
 <style>
+  body {
+    background-color: #f9f9f9;
+  }
+
   #app {
-    font-family: "Avenir", Helvetica, Arial, sans-serif;
+    font-family: "JetBrains Mono", monospace;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
-    color: #2c3e50;
-  }
-
-  #nav {
-    padding: 30px;
-  }
-
-  #nav a {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #2c3e50;
-  }
-
-  #nav a.router-link-exact-active {
-    color: #42b983;
+    margin: 0 auto;
+    max-width: 375px;
   }
 </style>

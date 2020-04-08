@@ -46,3 +46,32 @@ func Test_getFloat64(t *testing.T) {
 		})
 	}
 }
+
+func Test_getTimeBound(t *testing.T) {
+	type args struct {
+		month int
+		year  int
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want  string
+		want1 string
+	}{
+		{args: args{year: 2020, month: 3}, want: "2020-03-01", want1: "2020-04-01"},
+		{args: args{year: 2020, month: 1}, want: "2020-01-01", want1: "2020-02-01"},
+		{args: args{year: 2020, month: 12}, want: "2020-12-01", want1: "2021-01-01"},
+		{args: args{year: 2020, month: 4}, want: "2020-04-01", want1: "2020-05-01"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := getTimeBound(tt.args.month, tt.args.year)
+			if got != tt.want {
+				t.Errorf("getTimeBound() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("getTimeBound() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}

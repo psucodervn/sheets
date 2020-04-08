@@ -3,52 +3,21 @@
     <q-page-container>
       <router-view/>
     </q-page-container>
-    <q-footer>
+    <q-header class="shadow-2 bg-dark">
       <q-tabs dense>
         <q-route-tab exact inline-label label="Balance" to="/"/>
-        <q-route-tab
-          exact
-          inline-label
-          label="Points"
-          to="/points"
-        />
+        <q-route-tab exact inline-label label="Points" to="/points"/>
       </q-tabs>
-    </q-footer>
+    </q-header>
   </q-layout>
 </template>
 
-<script>
-  import { openURL } from 'quasar';
+<script lang="ts">
+  import { Vue } from 'vue-property-decorator';
 
-  export default {
-    name: 'Layout',
-    data() {
-      return {
-        leftDrawerOpen: this.$q.platform.is.desktop,
-        navs: [
-          {
-            label: 'Todo',
-            icon: 'list',
-            to: '/',
-          },
-          {
-            label: 'Settings',
-            icon: 'settings',
-            to: '/settings',
-          },
-        ],
-      };
-    },
-    methods: {
-      openURL,
-    },
-  };
+  export default class Layout extends Vue {
+  }
 </script>
 
 <style lang="scss">
-  .q-drawer {
-    .q-router-link--exact-active {
-      color: white !important;
-    }
-  }
 </style>

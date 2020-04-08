@@ -5,7 +5,8 @@ import App from './App.vue';
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
-import './quasar';
+import '@/quasar';
+import '@/styles/fonts.scss';
 
 Chart.plugins.register(ChartDataLabels);
 // @ts-ignore

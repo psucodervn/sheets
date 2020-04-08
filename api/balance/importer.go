@@ -93,6 +93,12 @@ func (s *Importer) saveTransactions(ctx context.Context, txs []model.Transaction
 			for j := range tx.Receivers {
 				tx.Receivers[j].ID = mu[tx.Receivers[j].Name].ID
 			}
+			if _, err := s.txRepo.FindByTimeAndTotalValueAndSummary(ctx, tx.Time, tx.TotalValue, tx.Summary); err == nil {
+				// duplicate, ignore
+				return nil
+			} else if err != ErrNotFound {
+				return err
+			}
 			_, err := s.txRepo.Save(ctx, tx)
 			return err
 		})

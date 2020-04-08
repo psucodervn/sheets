@@ -4,10 +4,12 @@ import './styles/quasar.scss';
 import '@quasar/extras/material-icons/material-icons.css';
 import {
   QBtn,
+  QDate,
   QDrawer,
   QFooter,
   QHeader,
   QIcon,
+  QInput,
   QItem,
   QItemLabel,
   QItemSection,
@@ -15,8 +17,12 @@ import {
   QList,
   QPage,
   QPageContainer,
+  QPopupProxy,
   QRouteTab,
+  QSelect,
+  QSpace,
   QTab,
+  QTable,
   QTabs,
   QToolbar,
   QToolbarTitle,
@@ -25,7 +31,7 @@ import {
 
 Vue.use(Quasar, {
   config: {
-    dark: 'off',
+    dark: 'auto',
   },
   components: {
     QLayout,
@@ -45,6 +51,12 @@ Vue.use(Quasar, {
     QTabs,
     QTab,
     QRouteTab,
+    QTable,
+    QSelect,
+    QSpace,
+    QDate,
+    QInput,
+    QPopupProxy,
   },
   directives: {},
   plugins: {},

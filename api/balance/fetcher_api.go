@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog/log"
@@ -68,8 +69,14 @@ func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]model.Transaction,
 
 	log.Debug().Int("transaction_count", len(rows.Values)).Msg("")
 	var res []model.Transaction
+	t := float64(43894) // magic
 	for i := range rows.Values {
 		raw := rows.Values[i]
+		if toFloat64(raw[0]) > 0 {
+			t = toFloat64(raw[0])
+		} else {
+			raw[0] = t
+		}
 		tx, err := toTransaction(raw, users)
 		if errors.Is(err, ErrEmptyTransaction) {
 			continue
@@ -124,6 +131,10 @@ func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction
 		Senders:     senders,
 		Receivers:   receivers,
 	}
+
+	begin := time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)
+	tx.Time = begin.Add(time.Duration(time.Duration(raw[0].(float64)-2) * 24 * time.Hour))
+
 	return tx, nil
 }
 

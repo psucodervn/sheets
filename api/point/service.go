@@ -3,7 +3,9 @@ package point
 import (
 	"api/model"
 	"context"
+	"fmt"
 	"github.com/go-resty/resty/v2"
+	"time"
 )
 
 type Service interface {
@@ -46,11 +48,14 @@ type searchResponse struct {
 }
 
 func (s *RestService) UserPoints(ctx context.Context, month, year int) ([]model.UserPoint, error) {
+	lower, upper := getTimeBound(month, year)
+	jql := fmt.Sprintf(`status = Done AND resolved >= %s AND resolved < %s`, lower, upper)
+
 	resp, err := s.restyClient.R().
 		SetResult(&searchResponse{}).
 		SetQueryParam("maxResults", "1000").
 		SetQueryParam("fields", "assignee,project,customfield_10106,summary").
-		SetQueryParam("jql", "status = Done AND resolved > 2020-02-29 AND resolved < 2020-04-01").
+		SetQueryParam("jql", jql).
 		Get("/rest/api/2/search")
 	if err != nil {
 		return nil, err
@@ -89,6 +94,13 @@ func (s *RestService) UserPoints(ctx context.Context, month, year int) ([]model.
 	}
 
 	return ups, nil
+}
+
+func getTimeBound(month int, year int) (string, string) {
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	finish := time.Date(year, time.Month(month+1), 1, 0, 0, 0, 0, time.UTC)
+	//start = start.Add(-24 * time.Hour)
+	return start.Format("2006-01-02"), finish.Format("2006-01-02")
 }
 
 func getFloat64(v *float64) float64 {

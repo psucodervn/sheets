@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 TAG=$(git describe --abbrev=0 --tags)
+TAG=$(git rev-parse --short HEAD)
 if [[ -z "${TAG}" ]]; then
   TAG=$(git rev-parse --short HEAD)
 fi

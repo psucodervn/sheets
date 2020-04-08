@@ -20,10 +20,9 @@ func (h *HttpHandler) Bind(e *echo.Echo) {
 }
 
 func (h *HttpHandler) getPoints() echo.HandlerFunc {
-	// TODO: add validation
 	type request struct {
-		Month int `json:"month"`
-		Year  int `json:"year"`
+		Month int `json:"month" validate:"required,min=1,max=12"`
+		Year  int `json:"year" validate:"required,min=2019,max=2020"`
 	}
 
 	return func(c echo.Context) error {

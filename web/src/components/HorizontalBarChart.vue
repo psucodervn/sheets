@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Component, Mixins, Prop } from 'vue-property-decorator';
   import { HorizontalBar, mixins } from 'vue-chartjs';
-  import { ChartData, ChartOptions } from 'chart.js';
+  import { ChartOptions } from 'chart.js';
 
   const { reactiveProp } = mixins;
 
