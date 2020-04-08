@@ -1,16 +1,18 @@
 <template>
   <q-page class="q-pa-md">
-    <p>Balance</p>
-    <q-table
-      :columns="columns"
-      :data="users"
-      :loading="loading"
-      :pagination.sync="pagination"
-      binary-state-sort
-      dense
-      hide-bottom
-      row-key="name"
-    />
+    <q-pull-to-refresh @refresh="fetchData">
+      <p>Balance</p>
+      <q-table
+        :columns="columns"
+        :data="users"
+        :loading="loading"
+        :pagination.sync="pagination"
+        binary-state-sort
+        dense
+        hide-bottom
+        row-key="name"
+      />
+    </q-pull-to-refresh>
   </q-page>
 </template>
 
@@ -52,7 +54,7 @@
     private pagination: TablePagination = { sortBy: 'balance', rowsPerPage: -1, descending: true };
     private loading = false;
 
-    async fetchData() {
+    async fetchData(done?: Function) {
       try {
         this.loading = true;
         await UserModule.fetchUsers();
@@ -60,6 +62,9 @@
         console.log(e.message);
       } finally {
         this.loading = false;
+        if (done) {
+          done();
+        }
       }
     }
 

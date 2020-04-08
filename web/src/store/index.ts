@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import { UserStore } from '@/store/user';
 import { getModule } from 'vuex-module-decorators';
-import { PointStore } from '@/store/points';
+import { PointStore } from '@/store/point';
 
 Vue.use(Vuex);
 

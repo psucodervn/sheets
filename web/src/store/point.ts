@@ -1,7 +1,8 @@
 import { Action, Module, Mutation, MutationAction, VuexModule } from 'vuex-module-decorators';
 import { ApiUrls } from '@/constants/apis';
 import { IUserPoint } from '@/model/point';
-import { Month, Months } from '@/constants/datetime';
+import { Months } from '@/constants/datetime';
+import { Month } from '@/types/datetime';
 
 @Module({
   name: 'point',

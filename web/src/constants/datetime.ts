@@ -1,8 +1,3 @@
-interface Month {
-  label: string;
-  value: number;
-}
-
 const Months = [
   { label: 'January', value: 1 },
   { label: 'February', value: 2 },
@@ -19,6 +14,5 @@ const Months = [
 ];
 
 export {
-  Month,
   Months,
 };

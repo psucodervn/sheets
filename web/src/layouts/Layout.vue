@@ -3,12 +3,12 @@
     <q-page-container>
       <router-view/>
     </q-page-container>
-    <q-header class="shadow-2 bg-dark">
+    <q-footer class="shadow-2 bg-dark">
       <q-tabs dense>
-        <q-route-tab exact inline-label label="Balance" to="/"/>
-        <q-route-tab exact inline-label label="Points" to="/points"/>
+        <q-route-tab exact inline-label label="Balance" to="/balance"/>
+        <q-route-tab exact inline-label label="Point" to="/point"/>
       </q-tabs>
-    </q-header>
+    </q-footer>
   </q-layout>
 </template>
 
