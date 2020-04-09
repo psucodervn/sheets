@@ -32,7 +32,7 @@ import {
 
 Vue.use(Quasar, {
   config: {
-    dark: 'auto',
+    dark: true,
   },
   components: {
     QLayout,

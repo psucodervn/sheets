@@ -29,7 +29,7 @@
   @Component
   export default class PointTimeFilter extends Vue {
     months = Months;
-    years = [2019, 2020, 2021];
+    years = [2019, 2020];
 
     get year() {
       return PointModule.year;

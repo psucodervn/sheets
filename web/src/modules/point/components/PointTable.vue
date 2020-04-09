@@ -1,7 +1,7 @@
 <template>
   <q-table
     :columns="columns"
-    :data="users"
+    :data="items"
     :loading="loading"
     :pagination.sync="pagination"
     binary-state-sort
@@ -16,11 +16,11 @@
   import { TableColumn, TablePagination } from '@/types/datatable';
   import { IUserPoint } from '@/model/point';
   import { formatPoint } from '@/utils/formatter';
-  import { PointModule } from '@/store';
 
   @Component
   export default class PointTable extends Vue {
     @Prop({ type: Boolean, required: true }) loading!: boolean;
+    @Prop({ type: Array, required: true }) users!: IUserPoint[];
 
     columns: Array<TableColumn> = [
       { name: 'name', label: 'Name', field: 'displayName', sortable: true, align: 'left' },
@@ -37,9 +37,9 @@
       sortBy: 'points', descending: true, rowsPerPage: -1,
     };
 
-    get users(): IUserPoint[] {
+    get items(): IUserPoint[] {
       try {
-        return PointModule.users.sort(
+        return this.users.sort(
           (a: IUserPoint, b: IUserPoint) => -(a.pointTotal - b.pointTotal),
         );
       } catch (e) {

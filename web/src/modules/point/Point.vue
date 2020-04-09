@@ -4,7 +4,7 @@
       <p>Story Points</p>
       <PointTimeFilter/>
       <q-space class="q-pa-sm"/>
-      <PointTable :loading="loading"/>
+      <PointTable :loading="loading" :users="users"/>
     </q-pull-to-refresh>
   </q-page>
 </template>
@@ -31,6 +31,10 @@
       return PointModule.month;
     }
 
+    get users() {
+      return PointModule.users;
+    }
+
     @Watch('year')
     @Watch('month')
     async fetchData(done?: Function) {
@@ -41,7 +45,7 @@
         console.log(e.message);
       } finally {
         this.loading = false;
-        if (done) {
+        if (typeof done === 'function') {
           done();
         }
       }

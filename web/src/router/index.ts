@@ -13,7 +13,7 @@ const routes: Array<RouteConfig> = [
       {
         path: '/balance',
         name: Routes.Balance,
-        component: () => import('@/views/Balance.vue'),
+        component: () => import('@/modules/balance/Balance.vue'),
       },
       {
         path: '/point',
