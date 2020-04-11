@@ -1,0 +1,47 @@
+<template>
+  <div class="bar row justify-between items-stretch q-ma-sm">
+    <q-btn @click="goBack" class="btn" rounded>
+      <q-icon name="arrow_back_ios" v-if="canBack"/>
+    </q-btn>
+    <div class="title ellipsis q-my-auto">
+      {{ title }}
+    </div>
+    <div class="btn">
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+  import { Component, Vue } from 'vue-property-decorator';
+
+  @Component({})
+  export default class NavigationBar extends Vue {
+    get title(): string {
+      return this.$navigation.title;
+    }
+
+    get canBack(): boolean {
+      return !this.$route.meta.root;
+    }
+
+    goBack() {
+      if (this.canBack) {
+        this.$router.back();
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .bar {
+    /*border: #21BA45 dashed 1px;*/
+
+    .btn {
+      width: 38px;
+
+      i {
+        width: 15px;
+      }
+    }
+  }
+</style>

@@ -1,6 +1,7 @@
 const Routes = {
-  Balance: 'balance',
-  Point: 'point',
+  Balance: '/balance',
+  Point: '/point',
+  PointIssues: '/point/issues/:name',
 };
 
 export {

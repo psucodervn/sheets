@@ -1,9 +1,8 @@
 <template>
-  <q-page class="home q-pa-md">
+  <q-page class="q-px-sm">
     <q-pull-to-refresh @refresh="fetchData">
-      <p>Story Points</p>
       <PointTimeFilter/>
-      <q-space class="q-pa-sm"/>
+      <q-space class="q-py-xs"/>
       <PointTable :loading="loading" :users="users"/>
     </q-pull-to-refresh>
   </q-page>
@@ -11,14 +10,13 @@
 
 <script lang="ts">
   import { Component, Vue, Watch } from 'vue-property-decorator';
-  import BarChart from '@/components/BarChart.vue';
-  import HorizontalBarChart from '@/components/HorizontalBarChart.vue';
   import { PointModule } from '@/store';
   import PointTimeFilter from '@/modules/point/components/PointTimeFilter.vue';
   import PointTable from '@/modules/point/components/PointTable.vue';
+  import NavigationBar from '@/components/NavigationBar.vue';
 
   @Component({
-    components: { PointTable, PointTimeFilter, BarChart, HorizontalBarChart },
+    components: { NavigationBar, PointTable, PointTimeFilter },
   })
   export default class Points extends Vue {
     private loading = false;
@@ -52,6 +50,7 @@
     }
 
     async mounted() {
+      this.$navigation.title = 'Story Points';
       await this.fetchData();
     }
   }

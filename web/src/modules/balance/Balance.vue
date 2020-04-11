@@ -1,7 +1,6 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-px-sm">
     <q-pull-to-refresh @refresh="fetchData">
-      <p>Balance</p>
       <q-table
         :columns="columns"
         :data="users"
@@ -19,14 +18,12 @@
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   import { IUser } from '@/model/user';
-  import BarChart from '@/components/BarChart.vue';
-  import HorizontalBarChart from '@/components/HorizontalBarChart.vue';
   import { UserModule } from '@/store';
   import { formatCurrency } from '@/utils/formatter';
   import { TableColumn, TablePagination } from '@/types/datatable';
 
   @Component({
-    components: { BarChart, HorizontalBarChart },
+    components: {},
   })
   export default class Balance extends Vue {
     get users(): IUser[] {
@@ -69,6 +66,7 @@
     }
 
     async mounted() {
+      this.$navigation.title = 'Balance';
       await this.fetchData();
     }
   }

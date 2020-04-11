@@ -1,5 +1,3 @@
-import Chart from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Vue from 'vue';
 import App from './App.vue';
 import './registerServiceWorker';
@@ -7,16 +5,10 @@ import router from './router';
 import store from './store';
 import '@/quasar';
 import '@/styles/fonts.scss';
-
-Chart.plugins.register(ChartDataLabels);
-// @ts-ignore
-Chart.helpers.merge(Chart.defaults.global.plugins.datalabels, {
-  align: 'end',
-  anchor: 'end',
-});
-
+import Navigation from '@/plugins/navigation';
 
 Vue.config.productionTip = false;
+Vue.use(Navigation);
 
 new Vue({
   router,

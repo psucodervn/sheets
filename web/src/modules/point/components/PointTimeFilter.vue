@@ -8,7 +8,7 @@
       outlined
       v-model="month"
     ></q-select>
-    <q-space class="q-pa-sm"/>
+    <q-space class="q-pa-xs"/>
     <q-select
       :options="years"
       class="col"

@@ -7,25 +7,37 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    component: () => import('@/layouts/Layout.vue'),
-    redirect: '/balance',
+    component: () => import(/* webpackChunkName: "layout" */ '@/layouts/Layout.vue'),
+    redirect: Routes.Balance,
     children: [
       {
-        path: '/balance',
+        path: Routes.Balance,
         name: Routes.Balance,
-        component: () => import('@/modules/balance/Balance.vue'),
+        component: () => import(/* webpackChunkName: "balance" */ '@/modules/balance/Balance.vue'),
+        meta: {
+          root: true,
+        },
       },
       {
-        path: '/point',
+        path: Routes.Point,
         name: Routes.Point,
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () => import(/* webpackChunkName: "point" */ '@/modules/point/Point.vue'),
+        meta: {
+          root: true,
+        },
+      },
+      {
+        path: Routes.PointIssues,
+        name: Routes.PointIssues,
+        component: () => import(/* webpackChunkName: "issues" */ '@/modules/point/Issues.vue'),
       },
     ],
   },
 ];
+
+routes.push({
+  path: '*', redirect: '/',
+});
 
 const router = new VueRouter({
   mode: 'history',
