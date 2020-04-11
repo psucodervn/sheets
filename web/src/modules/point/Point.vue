@@ -1,11 +1,9 @@
 <template>
-  <q-page class="q-px-sm">
-    <q-pull-to-refresh @refresh="fetchData">
-      <PointTimeFilter/>
-      <q-space class="q-py-xs"/>
-      <PointTable :loading="loading" :users="users"/>
-    </q-pull-to-refresh>
-  </q-page>
+  <q-pull-to-refresh @refresh="fetchData">
+    <PointTimeFilter/>
+    <q-space class="q-py-xs"/>
+    <PointTable :loading="loading" :users="users"/>
+  </q-pull-to-refresh>
 </template>
 
 <script lang="ts">

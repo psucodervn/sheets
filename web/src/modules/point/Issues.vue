@@ -1,11 +1,11 @@
 <template>
-  <q-page class="q-px-sm">
-  </q-page>
+  <issue-table :issues="issues"/>
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Watch } from 'vue-property-decorator';
   import IssueTable from '@/modules/point/components/IssueTable.vue';
+  import { PointModule } from '@/store';
 
   @Component({
     components: {
@@ -13,12 +13,22 @@
     },
   })
   export default class Issues extends Vue {
+    displayName = 'V';
+
     get name() {
       return this.$route.params.name;
     }
 
-    mounted() {
-      this.$navigation.title = `${this.name}'s Issues`;
+    get issues() {
+      const u = PointModule.users.find(u => u.name === this.name);
+      if (!u) return [];
+      this.displayName = u.displayName;
+      return u.issues;
+    }
+
+    @Watch('displayName', { immediate: true })
+    setHeader() {
+      this.$navigation.title = `${this.displayName}'s Issues`;
     }
   }
 </script>

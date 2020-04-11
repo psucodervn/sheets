@@ -1,9 +1,9 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <navigation-bar title="Story Points"/>
-    <q-page-container>
+    <q-page class="container q-px-sm">
+      <navigation-bar/>
       <router-view/>
-    </q-page-container>
+    </q-page>
     <q-footer class="shadow-2 bg-dark">
       <q-tabs dense>
         <q-route-tab
@@ -16,14 +16,9 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import NavigationBar from '@/components/NavigationBar.vue';
   import { Routes } from '@/router/names';
 
-  @Component({
-    components: {
-      NavigationBar,
-    },
-  })
+  @Component({})
   export default class Layout extends Vue {
     tabs = [
       { label: 'Balance', to: Routes.Balance },
@@ -32,5 +27,8 @@
   }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  .container {
+    border: transparent dashed 1px;
+  }
 </style>

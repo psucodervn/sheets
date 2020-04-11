@@ -1,7 +1,7 @@
 <template>
   <q-table
     :columns="columns"
-    :data="items"
+    :data="issues"
     :pagination.sync="pagination"
     binary-state-sort
     dense
@@ -18,11 +18,14 @@
 
   @Component({})
   export default class IssueTable extends Vue {
-    @Prop({ type: Array, required: true }) items!: IIssue[];
+    @Prop({ type: Array, required: true }) issues!: IIssue[];
 
+    // TODO: implement custom sort for issue's key
     columns: Array<TableColumn> = [
-      { name: 'key', label: 'Key', field: 'key' },
-      { name: 'summary', label: 'Summary', field: 'summary' },
+      { name: 'key', label: 'Key', field: 'key', align: 'left', sortable: true },
+      {
+        name: 'summary', label: 'Summary', field: 'summary', align: 'left', sortable: true,
+      },
     ];
     pagination: TablePagination = {
       sortBy: 'points', descending: true, rowsPerPage: -1,

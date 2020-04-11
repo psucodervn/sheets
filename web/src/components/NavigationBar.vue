@@ -1,5 +1,5 @@
 <template>
-  <div class="bar row justify-between items-stretch q-ma-sm">
+  <div class="q-py-xs bar row justify-between items-stretch">
     <q-btn @click="goBack" class="btn" rounded>
       <q-icon name="arrow_back_ios" v-if="canBack"/>
     </q-btn>

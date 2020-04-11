@@ -13,7 +13,6 @@
     font-family: "JetBrains Mono", monospace;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
     margin: 0 auto;
     max-width: 375px;
   }

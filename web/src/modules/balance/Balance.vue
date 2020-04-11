@@ -1,18 +1,16 @@
 <template>
-  <q-page class="q-px-sm">
-    <q-pull-to-refresh @refresh="fetchData">
-      <q-table
-        :columns="columns"
-        :data="users"
-        :loading="loading"
-        :pagination.sync="pagination"
-        binary-state-sort
-        dense
-        hide-bottom
-        row-key="name"
-      />
-    </q-pull-to-refresh>
-  </q-page>
+  <q-pull-to-refresh @refresh="fetchData">
+    <q-table
+      :columns="columns"
+      :data="users"
+      :loading="loading"
+      :pagination.sync="pagination"
+      binary-state-sort
+      dense
+      hide-bottom
+      row-key="name"
+    />
+  </q-pull-to-refresh>
 </template>
 
 <script lang="ts">

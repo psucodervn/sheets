@@ -8,7 +8,15 @@
     dense
     hide-bottom
     row-key="name"
-  />
+  >
+    <template v-slot:body-cell-name="props">
+      <q-td :props="props" @click="goToIssues(props.row.name)">
+        <span :to="`/point/issues/${props.row.name}`" class="name">
+          {{ props.value }}
+        </span>
+      </q-td>
+    </template>
+  </q-table>
 </template>
 
 <script lang="ts">
@@ -16,6 +24,7 @@
   import { TableColumn, TablePagination } from '@/types/datatable';
   import { IUserPoint } from '@/model/point';
   import { formatPoint } from '@/utils/formatter';
+  import { Routes } from '@/router/names';
 
   @Component
   export default class PointTable extends Vue {
@@ -39,12 +48,28 @@
 
     get items(): IUserPoint[] {
       try {
-        return this.users.sort(
-          (a: IUserPoint, b: IUserPoint) => -(a.pointTotal - b.pointTotal),
-        );
+        return this.users.sort((a: IUserPoint, b: IUserPoint) => {
+          if (a.pointTotal !== b.pointTotal) {
+            return -(a.pointTotal - b.pointTotal);
+          } else if (a.issues.length !== b.issues.length) {
+            return -(a.issues.length - b.issues.length);
+          } else {
+            return a.name > b.name ? 1 : -1;
+          }
+        });
       } catch (e) {
         return [];
       }
     }
+
+    goToIssues(name: string) {
+      this.$router.push({ name: Routes.PointIssues, params: { name } });
+    }
   };
 </script>
+
+<style lang="scss" scoped>
+  span.name {
+    cursor: pointer;
+  }
+</style>
