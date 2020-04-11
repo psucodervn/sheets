@@ -20,4 +20,6 @@ echo "Build ${IMAGE}";
 docker-compose -f dc-build.yaml build ${SERVICE}
 docker-compose -f dc-build.yaml push ${SERVICE}
 
+./up.sh ${SERVICE} ${TAG}
+
 exit 0

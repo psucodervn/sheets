@@ -3,7 +3,7 @@
     <q-btn @click="goBack" class="btn" rounded>
       <q-icon name="arrow_back_ios" v-if="canBack"/>
     </q-btn>
-    <div class="title ellipsis q-my-auto">
+    <div class="title ellipsis">
       {{ title }}
     </div>
     <div class="btn">
@@ -43,5 +43,9 @@
         width: 15px;
       }
     }
+  }
+
+  .title {
+    margin: auto 0;
   }
 </style>

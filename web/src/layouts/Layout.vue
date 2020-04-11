@@ -1,9 +1,11 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-page class="container q-px-sm">
-      <navigation-bar/>
-      <router-view/>
-    </q-page>
+    <q-page-container>
+      <q-page class="container q-px-sm">
+        <navigation-bar/>
+        <router-view/>
+      </q-page>
+    </q-page-container>
     <q-footer class="shadow-2 bg-dark">
       <q-tabs dense>
         <q-route-tab
