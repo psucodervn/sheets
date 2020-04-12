@@ -1,3 +1,5 @@
+import { RawLocation } from 'vue-router';
+
 let installed = false;
 let _Vue: any;
 
@@ -10,6 +12,7 @@ export default class Navigation {
     Vue.prototype.$navigation = new Vue({
       data: {
         title: '',
+        to: null,
       },
     });
   }
@@ -18,6 +21,7 @@ export default class Navigation {
 
 declare class CNavigation {
   title: string;
+  to: RawLocation | null;
 }
 
 declare module 'vue/types/vue' {

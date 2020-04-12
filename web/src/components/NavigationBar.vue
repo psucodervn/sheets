@@ -21,12 +21,12 @@
     }
 
     get canBack(): boolean {
-      return !this.$route.meta.root;
+      return this.$navigation.to !== null;
     }
 
     goBack() {
       if (this.canBack) {
-        this.$router.back();
+        this.$router.push(this.$navigation.to!);
       }
     }
   }

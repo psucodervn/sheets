@@ -49,6 +49,7 @@
 
     async mounted() {
       this.$navigation.title = 'Story Points';
+      this.$navigation.to = null;
       await this.fetchData();
     }
   }

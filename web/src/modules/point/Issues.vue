@@ -6,6 +6,7 @@
   import { Component, Vue, Watch } from 'vue-property-decorator';
   import IssueTable from '@/modules/point/components/IssueTable.vue';
   import { PointModule } from '@/store';
+  import { Routes } from '@/router/names';
 
   @Component({
     components: {
@@ -29,6 +30,10 @@
     @Watch('displayName', { immediate: true })
     setHeader() {
       this.$navigation.title = `${this.displayName}'s Issues`;
+    }
+
+    mounted() {
+      this.$navigation.to = { name: Routes.Point };
     }
   }
 </script>

@@ -65,6 +65,7 @@
 
     async mounted() {
       this.$navigation.title = 'Balance';
+      this.$navigation.to = null;
       await this.fetchData();
     }
   }
