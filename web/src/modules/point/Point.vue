@@ -19,10 +19,6 @@
   export default class Points extends Vue {
     private loading = false;
 
-    get year() {
-      return PointModule.year;
-    }
-
     get month() {
       return PointModule.month;
     }
@@ -31,12 +27,11 @@
       return PointModule.users;
     }
 
-    @Watch('year')
     @Watch('month')
     async fetchData(done?: Function) {
       try {
         this.loading = true;
-        await PointModule.fetchPoints({ year: this.year, month: this.month.value });
+        await PointModule.fetchPoints({ month: this.month });
       } catch (e) {
         console.log(e.message);
       } finally {

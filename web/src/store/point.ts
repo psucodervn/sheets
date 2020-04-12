@@ -1,8 +1,8 @@
 import { Action, Module, Mutation, MutationAction, VuexModule } from 'vuex-module-decorators';
 import { ApiUrls } from '@/constants/apis';
 import { IUserPoint } from '@/model/point';
-import { Months } from '@/constants/datetime';
 import { Month } from '@/types/datetime';
+import { toMonth } from '@/utils/datetime';
 
 @Module({
   name: 'point',
@@ -10,12 +10,11 @@ import { Month } from '@/types/datetime';
 })
 export class PointStore extends VuexModule {
   users: IUserPoint[] = [];
-  month: Month = Months[new Date().getUTCMonth()];
-  year: number = new Date().getFullYear();
+  month: Month = toMonth(new Date());
 
   @Action({ commit: 'setPoints', rawError: true })
-  async fetchPoints(params: { year: number, month: number }) {
-    const { year, month } = params;
+  async fetchPoints(params: { month: Month }) {
+    const { year, month } = params.month;
     const result = await fetch(`${ApiUrls.FetchPoints}?year=${year}&month=${month}`);
     return (await result.json()).data;
   }
@@ -23,11 +22,6 @@ export class PointStore extends VuexModule {
   @Mutation
   async setPoints(userPoints: IUserPoint[]) {
     this.users = userPoints;
-  }
-
-  @MutationAction({ mutate: ['year'] })
-  async setYear(year: number) {
-    return { year };
   }
 
   @MutationAction({ mutate: ['month'] })

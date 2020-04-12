@@ -1,6 +1,6 @@
 interface Month {
-  label: string;
-  value: number;
+  month: number;
+  year: number;
 }
 
 export { Month };
