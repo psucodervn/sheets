@@ -10,8 +10,8 @@
     row-key="name"
   >
     <template v-slot:body-cell-name="props">
-      <q-td :props="props" @click="goToIssues(props.row.name)">
-        <span :to="`/point/issues/${props.row.name}`" class="name">
+      <q-td :props="props" @click="goToIssues(props.row.name)" class="name">
+        <span>
           {{ props.value }}
         </span>
       </q-td>
@@ -69,7 +69,7 @@
 </script>
 
 <style lang="scss" scoped>
-  span.name {
+  td.name {
     cursor: pointer;
   }
 </style>

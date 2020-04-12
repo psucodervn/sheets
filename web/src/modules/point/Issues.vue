@@ -1,5 +1,9 @@
 <template>
-  <issue-table :issues="issues"/>
+  <div>
+    <point-time-filter/>
+    <q-space class="q-my-sm"/>
+    <issue-table :issues="issues"/>
+  </div>
 </template>
 
 <script lang="ts">
@@ -7,9 +11,12 @@
   import IssueTable from '@/modules/point/components/IssueTable.vue';
   import { PointModule } from '@/store';
   import { Routes } from '@/router/names';
+  import { formatMonth } from '@/utils/formatter';
+  import PointTimeFilter from '@/modules/point/components/PointTimeFilter.vue';
 
   @Component({
     components: {
+      PointTimeFilter,
       IssueTable,
     },
   })
@@ -18,6 +25,10 @@
 
     get name() {
       return this.$route.params.name;
+    }
+
+    get time() {
+      return formatMonth(PointModule.month);
     }
 
     get issues() {
@@ -30,6 +41,11 @@
     @Watch('displayName', { immediate: true })
     setHeader() {
       this.$navigation.title = `${this.displayName}'s Issues`;
+    }
+
+    @Watch('time', { immediate: true })
+    fetchData() {
+      PointModule.fetchPoints({ month: PointModule.month });
     }
 
     mounted() {
