@@ -1,11 +1,13 @@
 package balance
 
 import (
-	"api/api"
 	"errors"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
-	"net/http"
+
+	"api/api"
 )
 
 type Handler struct {
@@ -16,8 +18,9 @@ func (h *Handler) Bind(e *echo.Echo) {
 	e.GET("/users", h.getUsers)
 	e.GET("/users/:id", h.getUser())
 
-	e.GET("/transactions", h.getTransactions())
-	e.GET("/transactions/:id", h.getTransaction())
+	g := e.Group("/balance", api.QueryParser())
+	g.GET("/transactions", h.getTransactions())
+	g.GET("/transactions/:id", h.getTransaction())
 }
 
 func (h *Handler) getUsers(c echo.Context) error {
@@ -59,7 +62,12 @@ func (h *Handler) getTransactions() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		l := log.Ctx(ctx)
 
-		txs, err := h.svc.FindTransactions(ctx, nil)
+		args := api.QueryFromContext(c)
+		if len(args.OrderBy) == 0 {
+			args.OrderBy = "time"
+			args.Descending = true
+		}
+		txs, err := h.svc.FindTransactions(ctx, &args)
 		if err != nil {
 			l.Err(err).Msg("FindTransactions failed")
 			return c.JSON(http.StatusInternalServerError, api.Response{})

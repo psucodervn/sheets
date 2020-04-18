@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"api/api"
 	"api/model"
 	"context"
 	"github.com/jinzhu/gorm"
@@ -37,7 +38,7 @@ func (r *PostgresUserRepository) FindByID(ctx context.Context, id string) (*mode
 	return &user, err
 }
 
-func (r *PostgresUserRepository) Find(ctx context.Context, args *model.Query) ([]model.User, error) {
+func (r *PostgresUserRepository) Find(ctx context.Context, args *api.Query) ([]model.User, error) {
 	users := make([]model.User, 0)
 	err := model.PrepareDB(args)(r.db).Find(&users).Error
 	return users, err

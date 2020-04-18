@@ -1,9 +1,12 @@
 package model
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 	"github.com/rs/xid"
-	"time"
+
+	"api/api"
 )
 
 type Model struct {
@@ -26,39 +29,26 @@ func (m *Model) BeforeCreate(scope *gorm.Scope) error {
 	return nil
 }
 
-type Pagination struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
-type OrderBy string
-
-type Filter string
-
-type Query struct {
-	Pagination *Pagination
-	OrderBy    OrderBy
-	Filter     *Filter
-}
-
-func PrepareDB(queryArgs *Query) func(db *gorm.DB) *gorm.DB {
+func PrepareDB(queryArgs *api.Query) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if queryArgs == nil {
 			return db
 		}
-		if queryArgs.Filter != nil {
-			db = db.Where(*queryArgs.Filter)
+		if len(queryArgs.Filter) > 0 {
+			db = db.Where(queryArgs.Filter)
 		}
 		if len(queryArgs.OrderBy) > 0 {
-			db = db.Order(string(queryArgs.OrderBy))
+			if queryArgs.Descending {
+				db = db.Order(queryArgs.OrderBy + " DESC")
+			} else {
+				db = db.Order(queryArgs.OrderBy)
+			}
 		}
-		if queryArgs.Pagination != nil {
-			if queryArgs.Pagination.Limit > 0 {
-				db = db.Limit(queryArgs.Pagination.Limit)
-			}
-			if queryArgs.Pagination.Offset > 0 {
-				db = db.Offset(queryArgs.Pagination.Offset)
-			}
+		if queryArgs.Pagination.Limit > 0 {
+			db = db.Limit(queryArgs.Pagination.Limit)
+		}
+		if queryArgs.Pagination.Offset > 0 {
+			db = db.Offset(queryArgs.Pagination.Offset)
 		}
 		return db
 	}

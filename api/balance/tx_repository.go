@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"api/api"
 	"api/model"
 	"context"
 	"github.com/jinzhu/gorm"
@@ -27,7 +28,7 @@ func (r *PostgresTransactionRepository) Save(ctx context.Context, tx model.Trans
 	return &tx, err
 }
 
-func (r *PostgresTransactionRepository) Find(ctx context.Context, args *model.Query) ([]model.Transaction, error) {
+func (r *PostgresTransactionRepository) Find(ctx context.Context, args *api.Query) ([]model.Transaction, error) {
 	txs := make([]model.Transaction, 0)
 	err := model.PrepareDB(args)(r.db).Find(&txs).Error
 	return txs, err

@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"api/api"
 	"api/model"
 	"context"
 )
@@ -17,7 +18,7 @@ func (u *BaseService) FindTransaction(ctx context.Context, id string) (*model.Tr
 	return u.txRepo.FindByID(ctx, id)
 }
 
-func (u *BaseService) FindTransactions(ctx context.Context, args *model.Query) ([]model.Transaction, error) {
+func (u *BaseService) FindTransactions(ctx context.Context, args *api.Query) ([]model.Transaction, error) {
 	return u.txRepo.Find(ctx, args)
 }
 
@@ -25,7 +26,7 @@ func (u *BaseService) FindUserByID(ctx context.Context, id string) (*model.User,
 	return u.userRepo.FindByID(ctx, id)
 }
 
-func (u *BaseService) FindUsers(ctx context.Context, args *model.Query) ([]model.User, error) {
+func (u *BaseService) FindUsers(ctx context.Context, args *api.Query) ([]model.User, error) {
 	// return u.fetcher.ListUsers(ctx)
 	return u.userRepo.Find(ctx, args)
 }
