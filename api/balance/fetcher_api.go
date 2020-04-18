@@ -115,7 +115,7 @@ func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction
 	var receivers []model.UserTransaction
 	for i := 0; i < userCount; i++ {
 		cnt := toFloat64(raw[i+4])
-		if int(cnt) <= 0 {
+		if cnt <= 0 {
 			continue
 		}
 		receivers = append(receivers, model.UserTransaction{
