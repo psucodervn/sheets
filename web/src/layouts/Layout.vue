@@ -6,13 +6,13 @@
         <router-view/>
       </q-page>
     </q-page-container>
-    <q-footer class="shadow-2 bg-dark">
+    <component :is="tabPosition" class="shadow-2 bg-dark">
       <q-tabs dense>
         <q-route-tab
           :label="t.label"
           :to="t.to" exact inline-label v-for="t in tabs"/>
       </q-tabs>
-    </q-footer>
+    </component>
   </q-layout>
 </template>
 
@@ -26,6 +26,11 @@
       { label: 'Balance', to: Routes.Balance },
       { label: 'Point', to: Routes.Point },
     ];
+
+    get tabPosition() {
+      if (this.$q.platform.is.desktop) return 'q-header';
+      return 'q-footer';
+    }
   }
 </script>
 

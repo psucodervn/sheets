@@ -2,7 +2,7 @@
   <q-table
     class="issue-table"
     :columns="columns"
-    :data="issues"
+    :data="rows"
     :pagination.sync="pagination"
     binary-state-sort
     dense
@@ -32,13 +32,24 @@
   import { TableColumn, TablePagination } from '@/types/datatable';
   import { IIssue } from '@/model/point';
 
+  interface IItem extends IIssue {
+    projectKey: string;
+    index: number;
+  }
+
   @Component({})
   export default class IssueTable extends Vue {
     @Prop({ type: Array, required: true }) issues!: IIssue[];
 
     // TODO: implement custom sort for issue's key
     columns: Array<TableColumn> = [
-      { name: 'key', label: 'Key', field: 'key', align: 'left', sortable: true },
+      {
+        name: 'key', label: 'Key', field: 'key', align: 'left', sortable: true,
+        sort: (keyA: string, keyB: string, a: IItem, b: IItem) => {
+          if (a.projectKey !== b.projectKey) return a.index - b.index;
+          return a.projectKey.localeCompare(b.projectKey);
+        },
+      },
       { name: 'point', label: 'Point', field: 'point', align: 'right', sortable: true },
       {
         name: 'summary', label: 'Summary', field: 'summary', align: 'left', sortable: true,
@@ -47,6 +58,13 @@
     pagination: TablePagination = {
       sortBy: 'points', descending: true, rowsPerPage: -1,
     };
+
+    get rows(): IItem[] {
+      return this.issues.map((i: IIssue): IItem => {
+        const ar = i.key.split('-');
+        return { ...i, projectKey: ar[0], index: Number(ar[1]) };
+      });
+    }
 
     get issueCount() {
       return this.issues.length;
