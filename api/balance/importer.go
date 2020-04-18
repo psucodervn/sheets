@@ -59,7 +59,7 @@ func (s *Importer) fetchUserAndTx(ctx context.Context) ([]model.User, []model.Tr
 
 func (s *Importer) saveUsers(ctx context.Context, users []model.User) error {
 	wg := new(errgroup.Group)
-	for i, _ := range users {
+	for i := range users {
 		i := i
 		wg.Go(func() error {
 			if u, _ := s.userRepo.FindByName(ctx, users[i].Name); u != nil {

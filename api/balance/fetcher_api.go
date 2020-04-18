@@ -18,7 +18,6 @@ import (
 const (
 	RangeBalance     = "Current!U1:AH2"
 	RangeTransaction = "Current!A4:S"
-	RangeUser        = "Current!E2:Q2"
 )
 
 type ApiFetcher struct {
@@ -133,7 +132,7 @@ func toTransaction(raw []interface{}, users []model.User) (tx *model.Transaction
 	}
 
 	begin := time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)
-	tx.Time = begin.Add(time.Duration(time.Duration(raw[0].(float64)-2) * 24 * time.Hour))
+	tx.Time = begin.Add(time.Duration(raw[0].(float64)-2) * 24 * time.Hour)
 
 	return tx, nil
 }
