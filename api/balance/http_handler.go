@@ -67,6 +67,9 @@ func (h *Handler) getTransactions() echo.HandlerFunc {
 			args.OrderBy = "time"
 			args.Descending = true
 		}
+		if args.Limit <= 0 || args.Limit >= 1000 {
+			args.Limit = 1000
+		}
 		txs, err := h.svc.FindTransactions(ctx, &args)
 		if err != nil {
 			l.Err(err).Msg("FindTransactions failed")
