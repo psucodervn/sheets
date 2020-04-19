@@ -21,7 +21,7 @@ Vue.use(
   VueAxios,
   axios.create({
     baseURL: '/api',
-    validateStatus: () => true
+    validateStatus: () => true,
   })
 );
 
