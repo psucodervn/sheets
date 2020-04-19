@@ -1,15 +1,6 @@
 <template>
   <q-pull-to-refresh @refresh="fetchData">
-    <q-table
-      :columns="columns"
-      :data="users"
-      :loading="loading"
-      :pagination.sync="pagination"
-      binary-state-sort
-      dense
-      hide-bottom
-      row-key="name"
-    />
+    <balance-table :loading="loading" :users="users" />
     <q-space class="q-py-xs" />
     <transaction-table :transactions="transactions" />
   </q-pull-to-refresh>
@@ -19,13 +10,12 @@
 import { Component, Vue } from "vue-property-decorator";
 import { IUser } from "@/model/user";
 import { BalanceModule, UserModule } from "@/store";
-import { formatCurrency } from "@/utils/formatter";
-import { TableColumn, TablePagination } from "@/types/datatable";
 import TransactionTable from "@/modules/balance/components/TransactionTable.vue";
 import { ITransaction } from "@/modules/balance/types/transaction";
+import BalanceTable from "@/modules/balance/views/BalanceTable.vue";
 
 @Component({
-  components: { TransactionTable }
+  components: { BalanceTable, TransactionTable }
 })
 export default class Balance extends Vue {
   get users(): IUser[] {
@@ -33,28 +23,6 @@ export default class Balance extends Vue {
       (a: IUser, b: IUser) => -(a.balance.value - b.balance.value)
     );
   }
-
-  columns: Array<TableColumn> = [
-    {
-      name: "name",
-      label: "Name",
-      field: "name",
-      sortable: true,
-      align: "left"
-    },
-    {
-      name: "balance",
-      label: "Balance (vnđ)",
-      field: (row: any) => row.balance.value,
-      sortable: true,
-      format: formatCurrency
-    }
-  ];
-  pagination: TablePagination = {
-    sortBy: "balance",
-    rowsPerPage: -1,
-    descending: true
-  };
   loading = false;
   transactions: ITransaction[] = [];
 
@@ -80,5 +48,3 @@ export default class Balance extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped></style>

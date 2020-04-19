@@ -1,7 +1,7 @@
-import Vue from 'vue';
+import Vue from "vue";
 
-import './styles/quasar.scss';
-import '@quasar/extras/material-icons/material-icons.css';
+import "@/styles/quasar.scss";
+import "@quasar/extras/material-icons/material-icons.css";
 import {
   QBadge,
   QBtn,
@@ -27,14 +27,16 @@ import {
   QTable,
   QTabs,
   QTd,
+  QTh,
   QToolbar,
   QToolbarTitle,
-  Quasar,
-} from 'quasar';
+  QTr,
+  Quasar
+} from "quasar";
 
 Vue.use(Quasar, {
   config: {
-    dark: true,
+    dark: true
   },
   components: {
     QLayout,
@@ -56,14 +58,16 @@ Vue.use(Quasar, {
     QRouteTab,
     QTable,
     QTd,
+    QTr,
+    QTh,
     QSelect,
     QSpace,
     QDate,
     QInput,
     QPopupProxy,
     QPullToRefresh,
-    QBadge,
+    QBadge
   },
   directives: {},
-  plugins: {},
+  plugins: {}
 });

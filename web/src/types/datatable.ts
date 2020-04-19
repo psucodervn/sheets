@@ -3,9 +3,10 @@ interface TableColumn {
   label: string;
   field: string | Function;
   sortable?: boolean;
-  align?: 'left' | 'right';
+  align?: "left" | "right";
   sort?: Function;
   format?: Function;
+  classes?: string;
 }
 
 interface TablePagination {
@@ -16,7 +17,4 @@ interface TablePagination {
   rowsNumber?: number;
 }
 
-export {
-  TableColumn,
-  TablePagination,
-};
+export { TableColumn, TablePagination };

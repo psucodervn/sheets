@@ -1,59 +1,57 @@
 <template>
   <div>
-    <point-time-filter/>
-    <q-space class="q-my-sm"/>
-    <issue-table :issues="issues"/>
+    <point-time-filter />
+    <q-space class="q-my-sm" />
+    <issue-table :issues="issues" />
   </div>
 </template>
 
 <script lang="ts">
-  import { Component, Vue, Watch } from 'vue-property-decorator';
-  import IssueTable from '@/modules/point/components/IssueTable.vue';
-  import { PointModule } from '@/store';
-  import { Routes } from '@/router/names';
-  import { formatMonth } from '@/utils/formatter';
-  import PointTimeFilter from '@/modules/point/components/PointTimeFilter.vue';
+import { Component, Vue, Watch } from "vue-property-decorator";
+import IssueTable from "@/modules/point/components/IssueTable.vue";
+import { PointModule } from "@/store";
+import { Routes } from "@/router/names";
+import PointTimeFilter from "@/modules/point/components/PointTimeFilter.vue";
+import formatter from "@/utils/formatter";
 
-  @Component({
-    components: {
-      PointTimeFilter,
-      IssueTable,
-    },
-  })
-  export default class Issues extends Vue {
-    displayName = 'V';
-
-    get name() {
-      return this.$route.params.name;
-    }
-
-    get time() {
-      return formatMonth(PointModule.month);
-    }
-
-    get issues() {
-      const u = PointModule.users.find(u => u.name === this.name);
-      if (!u) return [];
-      this.displayName = u.displayName;
-      return u.issues;
-    }
-
-    @Watch('displayName', { immediate: true })
-    setHeader() {
-      this.$navigation.title = `${this.displayName}'s Issues`;
-    }
-
-    @Watch('time', { immediate: true })
-    fetchData() {
-      PointModule.fetchPoints({ month: PointModule.month });
-    }
-
-    mounted() {
-      this.$navigation.to = { name: Routes.Point };
-    }
+@Component({
+  components: {
+    PointTimeFilter,
+    IssueTable
   }
+})
+export default class Issues extends Vue {
+  displayName = "V";
+
+  get name() {
+    return this.$route.params.name;
+  }
+
+  get time() {
+    return formatter.month(PointModule.month);
+  }
+
+  get issues() {
+    const u = PointModule.users.find(u => u.name === this.name);
+    if (!u) return [];
+    this.displayName = u.displayName;
+    return u.issues;
+  }
+
+  @Watch("displayName", { immediate: true })
+  setHeader() {
+    this.$navigation.title = `${this.displayName}'s Issues`;
+  }
+
+  @Watch("time", { immediate: true })
+  fetchData() {
+    PointModule.fetchPoints({ month: PointModule.month });
+  }
+
+  mounted() {
+    this.$navigation.to = { name: Routes.Point };
+  }
+}
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
