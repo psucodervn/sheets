@@ -31,7 +31,7 @@ export default class BalanceTable extends Vue {
     },
     {
       name: "balance",
-      label: "Balance (vnđ)",
+      label: "BalanceDashboard (vnđ)",
       field: (row: any) => row.balance.value,
       sortable: true,
       format: formatter.currency

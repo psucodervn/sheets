@@ -1,35 +1,26 @@
 <template>
   <q-pull-to-refresh @refresh="fetchData">
-    <balance-table :loading="loading" :users="users" />
-    <q-space class="q-py-xs" />
     <transaction-table :transactions="transactions" />
   </q-pull-to-refresh>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { IUser } from "@/model/user";
-import { BalanceModule, UserModule } from "@/store";
-import TransactionTable from "@/modules/balance/components/TransactionTable.vue";
+import { BalanceModule } from "@/store";
 import { ITransaction } from "@/modules/balance/types/transaction";
-import BalanceTable from "@/modules/balance/views/BalanceTable.vue";
+import { Routes } from "@/router/names";
+import { Component, Vue } from "vue-property-decorator";
+import TransactionTable from "@/modules/balance/components/TransactionTable.vue";
 
 @Component({
-  components: { BalanceTable, TransactionTable }
+  components: { TransactionTable }
 })
-export default class Balance extends Vue {
-  get users(): IUser[] {
-    return UserModule.users.sort(
-      (a: IUser, b: IUser) => -(a.balance.value - b.balance.value)
-    );
-  }
+export default class BalanceTransactions extends Vue {
   loading = false;
   transactions: ITransaction[] = [];
 
   async fetchData(done?: Function) {
     try {
       this.loading = true;
-      await UserModule.fetchUsers();
       this.transactions = (await BalanceModule.fetchTransactions())!;
     } catch (e) {
       console.log(e.message);
@@ -42,8 +33,8 @@ export default class Balance extends Vue {
   }
 
   async mounted() {
-    this.$navigation.title = "Overview";
-    this.$navigation.to = null;
+    this.$navigation.title = "Transactions";
+    this.$navigation.to = { name: Routes.BalanceDashboard };
     await this.fetchData();
   }
 }

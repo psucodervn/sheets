@@ -26,7 +26,7 @@ import { Routes } from "@/router/names";
 @Component({})
 export default class Layout extends Vue {
   tabs = [
-    { label: "Balance", to: Routes.Balance },
+    { label: "Balance", to: Routes.BalanceDashboard },
     { label: "Point", to: Routes.Point }
   ];
 

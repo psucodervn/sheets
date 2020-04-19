@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<style>
+<style lang="scss" scoped>
 #app {
   font-family: "JetBrains Mono", monospace;
   -webkit-font-smoothing: antialiased;
