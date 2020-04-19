@@ -111,6 +111,6 @@ td.date {
 
 td.expand {
   text-align: left;
-  white-space: pre-wrap;
+  white-space: normal;
 }
 </style>

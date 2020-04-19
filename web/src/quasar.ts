@@ -3,8 +3,12 @@ import Vue from "vue";
 import "@/styles/quasar.scss";
 import "@quasar/extras/material-icons/material-icons.css";
 import {
+  QAvatar,
   QBadge,
   QBtn,
+  QCard,
+  QCardActions,
+  QCardSection,
   QDate,
   QDrawer,
   QFooter,
@@ -66,7 +70,11 @@ Vue.use(Quasar, {
     QInput,
     QPopupProxy,
     QPullToRefresh,
-    QBadge
+    QBadge,
+    QCard,
+    QCardSection,
+    QCardActions,
+    QAvatar
   },
   directives: {},
   plugins: {}
