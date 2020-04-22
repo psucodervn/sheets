@@ -10,7 +10,7 @@
         <div class="full-width text-italic">Active Accounts</div>
       </div>
       <div class="col-grow">
-        <q-avatar size="100px" icon="person" style="top: calc(50% - 50px)" />
+        <q-avatar size="100px" icon="person" style="top: calc(50% - 50px)"/>
       </div>
     </q-card>
     <q-card
@@ -34,32 +34,32 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { BalanceModule, UserModule } from "@/store";
+  import { Component, Vue } from 'vue-property-decorator';
+  import { BalanceModule } from '@/store';
 
-@Component({})
-export default class BalanceDashboard extends Vue {
-  get userCount() {
-    return UserModule.users.length;
-  }
+  @Component({})
+  export default class BalanceDashboard extends Vue {
+    get userCount() {
+      return BalanceModule.users.length;
+    }
 
-  get transactionCount() {
-    return BalanceModule.transactions.length;
-  }
+    get transactionCount() {
+      return BalanceModule.transactions.length;
+    }
 
-  async fetchData() {
-    await Promise.all([
-      UserModule.fetchUsers(),
-      BalanceModule.fetchTransactions()
-    ]);
-  }
+    async fetchData() {
+      await Promise.all([
+        BalanceModule.fetchUsers(),
+        BalanceModule.fetchTransactions(),
+      ]);
+    }
 
-  async mounted() {
-    this.$navigation.title = "Overview";
-    this.$navigation.to = null;
-    await this.fetchData();
+    async mounted() {
+      this.$navigation.title = 'Overview';
+      this.$navigation.to = null;
+      await this.fetchData();
+    }
   }
-}
 </script>
 
 <style scoped lang="scss"></style>

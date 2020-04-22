@@ -1,18 +1,18 @@
-import Vue from "vue";
-import VueRouter, { RouteConfig } from "vue-router";
-import { Routes } from "@/router/names";
-import BalanceDashboard from "@/modules/balance/views/Dashboard.vue";
-import BalanceOverview from "@/modules/balance/views/BalanceOverview.vue";
-import Layout from "@/layouts/Layout.vue";
-import Point from "@/modules/point/views/Point.vue";
-import Issues from "@/modules/point/views/Issues.vue";
-import BalanceTransactions from "@/modules/balance/views/BalanceTransactions.vue";
+import Vue from 'vue';
+import VueRouter, { RouteConfig } from 'vue-router';
+import { Routes } from '@/router/names';
+import BalanceDashboard from '@/modules/balance/views/Dashboard.vue';
+import BalanceOverview from '@/modules/balance/views/BalanceOverview.vue';
+import Layout from '@/layouts/Layout.vue';
+import Point from '@/modules/point/views/Point.vue';
+import Issues from '@/modules/point/views/Issues.vue';
+import BalanceTransactions from '@/modules/balance/views/BalanceTransactions.vue';
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    path: "/",
+    path: '/',
     component: Layout,
     redirect: Routes.BalanceDashboard,
     children: [
@@ -21,45 +21,45 @@ const routes: Array<RouteConfig> = [
         name: Routes.BalanceDashboard,
         component: BalanceDashboard,
         meta: {
-          root: true
-        }
+          root: true,
+        },
       },
       {
         name: Routes.BalanceOverview,
         path: Routes.BalanceOverview,
-        component: BalanceOverview
+        component: BalanceOverview,
       },
       {
         name: Routes.BalanceTransactions,
         path: Routes.BalanceTransactions,
-        component: BalanceTransactions
+        component: BalanceTransactions,
       },
       {
         path: Routes.Point,
         name: Routes.Point,
         component: Point,
         meta: {
-          root: true
-        }
+          root: true,
+        },
       },
       {
         path: Routes.PointIssues,
         name: Routes.PointIssues,
-        component: Issues
-      }
-    ]
-  }
+        component: Issues,
+      },
+    ],
+  },
 ];
 
 routes.push({
-  path: "*",
-  redirect: "/"
+  path: '*',
+  redirect: '/',
 });
 
 const router = new VueRouter({
-  mode: "history",
+  mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 export default router;

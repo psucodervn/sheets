@@ -1,8 +1,8 @@
-import { Month } from "@/types/datetime";
-import { date as dateUtils } from "quasar";
+import { Month } from '@/types/datetime';
+import { date as dateUtils } from 'quasar';
 
 const currency = (val: number): string => {
-  return Number(val.toFixed(0)).toLocaleString("vi-VN");
+  return Number(val.toFixed(0)).toLocaleString('vi-VN');
 };
 
 const storyPoint = (val: number): string => {
@@ -10,7 +10,7 @@ const storyPoint = (val: number): string => {
 };
 
 const month = (d: Month | Date): string => {
-  const fm = "MMMM YYYY";
+  const fm = 'MMMM YYYY';
   if (d instanceof Date) {
     return dateUtils.formatDate(d, fm);
   }
@@ -19,14 +19,14 @@ const month = (d: Month | Date): string => {
 };
 
 const date = (d: Date): string => {
-  return dateUtils.formatDate(d, "DD/MM");
+  return dateUtils.formatDate(d, 'DD/MM');
 };
 
 const formatter = {
   currency,
   storyPoint,
   month,
-  date
+  date,
 };
 
 export default formatter;

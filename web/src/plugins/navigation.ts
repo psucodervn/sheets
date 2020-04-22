@@ -18,7 +18,6 @@ export default class Navigation {
   }
 }
 
-
 declare class CNavigation {
   title: string;
   to: RawLocation | null;
@@ -26,6 +25,6 @@ declare class CNavigation {
 
 declare module 'vue/types/vue' {
   interface Vue {
-    $navigation: CNavigation,
+    $navigation: CNavigation;
   }
 }

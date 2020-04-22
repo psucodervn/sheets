@@ -20,69 +20,69 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { TableColumn, TablePagination } from "@/types/datatable";
-import { IUserPoint } from "@/model/point";
-import { Routes } from "@/router/names";
-import formatter from "@/utils/formatter";
+  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import { TableColumn, TablePagination } from '@/types/datatable';
+  import { IUserPoint } from '@/model/point';
+  import { Routes } from '@/router/names';
+  import formatter from '@/utils/formatter';
 
-@Component
-export default class PointTable extends Vue {
-  @Prop({ type: Boolean, required: true }) loading!: boolean;
-  @Prop({ type: Array, required: true }) users!: IUserPoint[];
+  @Component
+  export default class PointTable extends Vue {
+    @Prop({ type: Boolean, required: true }) loading!: boolean;
+    @Prop({ type: Array, required: true }) users!: IUserPoint[];
 
-  columns: Array<TableColumn> = [
-    {
-      name: "name",
-      label: "Name",
-      field: "displayName",
-      sortable: true,
-      align: "left"
-    },
-    {
-      name: "count",
-      label: "Issue Count",
-      sortable: true,
-      field: (row: IUserPoint) => row.issues.length
-    },
-    {
-      name: "points",
-      label: "Points",
-      field: "pointTotal",
-      sortable: true,
-      format: formatter.storyPoint
+    columns: Array<TableColumn> = [
+      {
+        name: 'name',
+        label: 'Name',
+        field: 'displayName',
+        sortable: true,
+        align: 'left',
+      },
+      {
+        name: 'count',
+        label: 'Issue Count',
+        sortable: true,
+        field: (row: IUserPoint) => row.issues.length,
+      },
+      {
+        name: 'points',
+        label: 'Points',
+        field: 'pointTotal',
+        sortable: true,
+        format: formatter.storyPoint,
+      },
+    ];
+    pagination: TablePagination = {
+      sortBy: 'points',
+      descending: true,
+      rowsPerPage: -1,
+    };
+
+    get items(): IUserPoint[] {
+      try {
+        return this.users.sort((a: IUserPoint, b: IUserPoint) => {
+          if (a.pointTotal !== b.pointTotal) {
+            return -(a.pointTotal - b.pointTotal);
+          } else if (a.issues.length !== b.issues.length) {
+            return -(a.issues.length - b.issues.length);
+          } else {
+            return a.name > b.name ? 1 : -1;
+          }
+        });
+      } catch (e) {
+        return [];
+      }
     }
-  ];
-  pagination: TablePagination = {
-    sortBy: "points",
-    descending: true,
-    rowsPerPage: -1
-  };
 
-  get items(): IUserPoint[] {
-    try {
-      return this.users.sort((a: IUserPoint, b: IUserPoint) => {
-        if (a.pointTotal !== b.pointTotal) {
-          return -(a.pointTotal - b.pointTotal);
-        } else if (a.issues.length !== b.issues.length) {
-          return -(a.issues.length - b.issues.length);
-        } else {
-          return a.name > b.name ? 1 : -1;
-        }
-      });
-    } catch (e) {
-      return [];
+    goToIssues(name: string) {
+      this.$router.push({ name: Routes.PointIssues, params: { name } });
     }
   }
-
-  goToIssues(name: string) {
-    this.$router.push({ name: Routes.PointIssues, params: { name } });
-  }
-}
 </script>
 
 <style lang="scss" scoped>
-td.name {
-  cursor: pointer;
-}
+  td.name {
+    cursor: pointer;
+  }
 </style>
