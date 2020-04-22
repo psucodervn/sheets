@@ -2,6 +2,7 @@ package api
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -28,7 +29,7 @@ func QueryParser() echo.MiddlewareFunc {
 			if desc, err := strconv.ParseBool(s); err == nil {
 				q.Descending = desc
 			}
-			q.Filter = Filter(c.QueryParam("filter"))
+			q.Condition = strings.TrimSpace(c.QueryParam("filter"))
 
 			// TODO: validate
 

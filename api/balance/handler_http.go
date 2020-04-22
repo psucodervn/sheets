@@ -70,6 +70,10 @@ func (h *Handler) getTransactions() echo.HandlerFunc {
 		if args.Limit <= 0 || args.Limit >= 1000 {
 			args.Limit = 1000
 		}
+		if len(args.Condition) > 0 {
+			args.Args = []interface{}{"%" + args.Condition + "%"}
+			args.Condition = `summary ILIKE ?`
+		}
 		txs, err := h.svc.FindTransactions(ctx, &args)
 		if err != nil {
 			l.Err(err).Msg("FindTransactions failed")

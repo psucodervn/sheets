@@ -67,7 +67,7 @@ func (f *ApiFetcher) ListTransactions(ctx context.Context) ([]model.Transaction,
 		return nil, fmt.Errorf("get value: %w", err)
 	}
 
-	log.Debug().Int("transaction_count", len(rows.Values)).Msg("")
+	//log.Debug().Int("transaction_count", len(rows.Values)).Msg("")
 	var res []model.Transaction
 	t := float64(43894) // magic
 	for i := range rows.Values {

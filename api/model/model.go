@@ -34,8 +34,8 @@ func PrepareDB(queryArgs *api.Query) func(db *gorm.DB) *gorm.DB {
 		if queryArgs == nil {
 			return db
 		}
-		if len(queryArgs.Filter) > 0 {
-			db = db.Where(queryArgs.Filter)
+		if len(queryArgs.Condition) > 0 {
+			db = db.Where(queryArgs.Condition, queryArgs.Args...)
 		}
 		if len(queryArgs.OrderBy) > 0 {
 			if queryArgs.Descending {

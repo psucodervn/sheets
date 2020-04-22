@@ -25,7 +25,10 @@ type Order struct {
 	Descending bool   `json:"descending"`
 }
 
-type Filter string
+type Filter struct {
+	Condition string        `json:"condition"`
+	Args      []interface{} `json:"args"`
+}
 
 type Query struct {
 	Pagination
