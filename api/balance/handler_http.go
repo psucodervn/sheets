@@ -62,19 +62,7 @@ func (h *Handler) getTransactions() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		l := log.Ctx(ctx)
 
-		args := api.QueryFromContext(c)
-		if len(args.OrderBy) == 0 {
-			args.OrderBy = "time"
-			args.Descending = true
-		}
-		if args.Limit <= 0 || args.Limit >= 1000 {
-			args.Limit = 1000
-		}
-		if len(args.Condition) > 0 {
-			args.Args = []interface{}{"%" + args.Condition + "%"}
-			args.Condition = `summary ILIKE ?`
-		}
-		txs, err := h.svc.FindTransactions(ctx, &args)
+		txs, err := h.svc.FindTransactions(ctx, nil)
 		if err != nil {
 			l.Err(err).Msg("FindTransactions failed")
 			return c.JSON(http.StatusInternalServerError, api.Response{})
