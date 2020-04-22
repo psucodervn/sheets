@@ -1,9 +1,11 @@
 package balance
 
 import (
-	"api/model"
 	"context"
+
 	"golang.org/x/sync/errgroup"
+
+	"api/model"
 )
 
 type Importer struct {

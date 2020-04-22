@@ -1,11 +1,12 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/psucodervn/go/logger"
 	"github.com/psucodervn/go/validator"
-	"net/http"
 )
 
 type Server struct {

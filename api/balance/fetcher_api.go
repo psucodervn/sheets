@@ -1,13 +1,14 @@
 package balance
 
 import (
-	"api/config"
-	"api/model"
 	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"time"
+
+	"api/config"
+	"api/model"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog/log"

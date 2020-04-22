@@ -1,11 +1,13 @@
 package point
 
 import (
-	"api/model"
 	"context"
 	"fmt"
-	"github.com/go-resty/resty/v2"
 	"time"
+
+	"github.com/go-resty/resty/v2"
+
+	"api/model"
 )
 
 type Service interface {

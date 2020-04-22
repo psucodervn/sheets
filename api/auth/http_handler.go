@@ -1,12 +1,14 @@
 package auth
 
 import (
-	"api/api"
 	"context"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
-	"net/http"
+
+	"api/api"
 )
 
 type Handler struct {

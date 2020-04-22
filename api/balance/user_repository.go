@@ -1,10 +1,12 @@
 package balance
 
 import (
+	"context"
+
+	"github.com/jinzhu/gorm"
+
 	"api/api"
 	"api/model"
-	"context"
-	"github.com/jinzhu/gorm"
 )
 
 var _ UserRepository = &PostgresUserRepository{}

@@ -1,10 +1,12 @@
 package point
 
 import (
-	"api/api"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
-	"net/http"
+
+	"api/api"
 )
 
 type HttpHandler struct {

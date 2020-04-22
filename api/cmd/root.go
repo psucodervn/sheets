@@ -1,16 +1,18 @@
 package cmd
 
 import (
+	"time"
+
+	"github.com/kelseyhightower/envconfig"
+	"github.com/psucodervn/go/logger"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
+
 	"api/api"
 	"api/balance"
 	"api/config"
 	"api/pkg/database"
 	"api/point"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/psucodervn/go/logger"
-	"github.com/rs/zerolog/log"
-	"github.com/spf13/cobra"
-	"time"
 )
 
 var (

@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"github.com/kelseyhightower/envconfig"
+	"github.com/spf13/cobra"
+
 	"api/config"
 	"api/model"
 	"api/pkg/database"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/spf13/cobra"
 )
 
 var migrateCmd = &cobra.Command{

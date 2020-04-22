@@ -1,8 +1,9 @@
 package main
 
 import (
-	"api/cmd"
 	"github.com/rs/zerolog/log"
+
+	"api/cmd"
 )
 
 func main() {

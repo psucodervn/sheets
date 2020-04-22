@@ -1,10 +1,11 @@
 package balance
 
 import (
-	"api/api"
-	"api/model"
 	"context"
 	"time"
+
+	"api/api"
+	"api/model"
 )
 
 type Fetcher interface {

@@ -1,12 +1,14 @@
 package database
 
 import (
-	"api/config"
 	"fmt"
+	"os"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/rs/zerolog/log"
-	"os"
+
+	"api/config"
 )
 
 func NewPostgresGorm(cfg config.PostgresConfig) (*gorm.DB, error) {

@@ -1,11 +1,13 @@
 package balance
 
 import (
+	"context"
+	"time"
+
+	"github.com/jinzhu/gorm"
+
 	"api/api"
 	"api/model"
-	"context"
-	"github.com/jinzhu/gorm"
-	"time"
 )
 
 var _ TransactionRepository = &PostgresTransactionRepository{}
