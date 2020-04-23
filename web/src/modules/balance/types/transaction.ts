@@ -4,6 +4,8 @@ interface ITransactionUser {
   value: number;
 }
 
+type TTransactionChanges = Record<string, number>;
+
 interface ITransaction {
   id: string;
   time: Date;
@@ -12,6 +14,7 @@ interface ITransaction {
   totalValue: number;
   senders: ITransactionUser[];
   receivers: ITransactionUser[];
+  changes: TTransactionChanges;
 }
 
-export { ITransactionUser, ITransaction };
+export { ITransactionUser, TTransactionChanges, ITransaction };

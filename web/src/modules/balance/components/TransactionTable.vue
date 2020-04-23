@@ -20,7 +20,7 @@
           {{ col.value }}
         </q-td>
       </q-tr>
-      <q-tr v-show="props.expand" :props="props">
+      <q-tr v-show="props.expand || expandAll" :props="props">
         <td colspan="100%" class="expand">
           <div>
             <template v-for="(value, name) in props.row.changes">
@@ -47,70 +47,58 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
-  import { TableColumn, TablePagination } from '@/types/datatable';
-  import { ITransaction } from '@/modules/balance/types/transaction';
-  import formatter from '@/utils/formatter';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { TableColumn, TablePagination } from '@/types/datatable';
+import { ITransaction } from '@/modules/balance/types/transaction';
+import formatter from '@/utils/formatter';
 
-  interface Transaction extends ITransaction {
-    changes: Record<string, number>;
+@Component({})
+export default class TransactionTable extends Vue {
+  @Prop({ type: Array, required: true }) transactions!: ITransaction[];
+  @Prop({ type: Boolean, default: false }) expandAll!: boolean;
+
+  columns: TableColumn[] = [
+    {
+      name: 'time',
+      field: 'time',
+      sortable: true,
+      label: 'Date',
+      format: formatter.date,
+      classes: 'date',
+    },
+    { name: 'summary', field: 'summary', label: 'Summary', align: 'left' },
+    {
+      name: 'totalValue',
+      field: 'totalValue',
+      label: 'Value (vnđ)',
+      sortable: true,
+      format: formatter.currency,
+    },
+  ];
+  pagination: TablePagination = {
+    sortBy: 'time',
+    descending: true,
+    rowsPerPage: 20,
+  };
+  expanded = [];
+
+  get items(): ITransaction[] {
+    return this.transactions;
   }
 
-  @Component({})
-  export default class TransactionTable extends Vue {
-    @Prop({ type: Array, required: true }) transactions!: ITransaction[];
-
-    columns: TableColumn[] = [
-      {
-        name: 'time',
-        field: 'time',
-        sortable: true,
-        label: 'Date',
-        format: formatter.date,
-        classes: 'date',
-      },
-      { name: 'summary', field: 'summary', label: 'Summary', align: 'left' },
-      {
-        name: 'totalValue',
-        field: 'totalValue',
-        label: 'Value (vnđ)',
-        sortable: true,
-        format: formatter.currency,
-      },
-    ];
-    pagination: TablePagination = {
-      sortBy: 'time',
-      descending: true,
-      rowsPerPage: 20,
-    };
-    expanded = [];
-
-    get items(): Transaction[] {
-      return this.transactions.map(tx => {
-        const changes: Record<string, number> = {};
-        for (const u of tx.senders) {
-          changes[u.name] = (changes[u.name] || 0) + u.value;
-        }
-        for (const u of tx.receivers) {
-          changes[u.name] = (changes[u.name] || 0) - u.value;
-        }
-        return { ...tx, changes };
-      });
-    }
-
-    formatValue(val: number) {
-      return formatter.currency(val);
-    }
+  formatValue(val: number) {
+    return formatter.currency(val);
   }
+}
 </script>
 
 <style lang="scss">
-  td.date {
-    width: 30px;
-  }
+td.date {
+  width: 30px;
+}
 
-  td.expand {
-    text-align: left;
-    white-space: normal;
-  }
+td.expand {
+  text-align: left;
+  white-space: normal;
+}
 </style>
