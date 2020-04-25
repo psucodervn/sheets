@@ -118,7 +118,6 @@ func searchResponseToUserPoints(res *searchResponse) []model.UserPoint {
 			ma[as.Key] = *as
 		}
 		p := getFloat64(is.Fields.Point)
-		mp[as.Key] += p
 		m[as.Key] = append(m[as.Key], model.Issue{
 			ID:      is.ID,
 			Key:     is.Key,
@@ -129,6 +128,7 @@ func searchResponseToUserPoints(res *searchResponse) []model.UserPoint {
 			Updated: parseUpdatedTime(is.Fields.Updated),
 		})
 		if len(is.Fields.Resolved) > 0 {
+			mp[as.Key] += p
 			val := parseUpdatedTime(is.Fields.Resolved)
 			m[as.Key][len(m[as.Key])-1].Resolved = &val
 		}
