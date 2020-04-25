@@ -28,21 +28,21 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
-  import { TimeRange } from '@/types/datetime';
-  import { date } from 'quasar';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { TimeRange } from '@/types/datetime';
+import { date } from 'quasar';
 
-  @Component({})
-  export default class ReportTimeFilter extends Vue {
-    @Prop({ type: TimeRange, required: true }) range!: TimeRange;
+@Component({})
+export default class ReportTimeFilter extends Vue {
+  @Prop({ type: TimeRange, required: true }) range!: TimeRange;
 
-    onChangeTimeFrom(val: Date) {
-      this.range.from = new Date(val);
-      this.range.to = date.addToDate(val, { days: 6 });
-      this.$refs.qDateProxy.hide();
-      this.$emit('input', this.range);
-    }
+  onChangeTimeFrom(val: Date) {
+    this.range.from = new Date(val);
+    this.range.to = date.addToDate(val, { days: 6 });
+    (this.$refs.qDateProxy as any).hide();
+    this.$emit('input', this.range);
   }
+}
 </script>
 
 <style lang="scss" scoped></style>
