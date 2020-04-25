@@ -3,6 +3,7 @@
     :columns="columns"
     :data="rows"
     :pagination.sync="pagination"
+    :loading="loading"
     binary-state-sort
     grid
     grid-header
@@ -51,11 +52,11 @@
             </div>
           </div>
           <template v-if="!collapsed">
-            <q-separator/>
+            <q-separator />
             <div class="q-pa-sm">
               <div>
                 <template v-for="is in row.issues">
-                  <IssueRow :issue="is"/>
+                  <IssueRow :issue="is" />
                 </template>
               </div>
             </div>
@@ -67,61 +68,62 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
-  import { IIssue, IUserPoint } from '@/model/point';
-  import { TableColumn, TablePagination } from '@/types/datatable';
-  import IssueRow from '@/modules/point/components/IssueRow.vue';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { IIssue, IUserPoint } from '@/model/point';
+import { TableColumn, TablePagination } from '@/types/datatable';
+import IssueRow from '@/modules/point/components/IssueRow.vue';
 
-  @Component({
-    components: { IssueRow },
-  })
-  export default class ReportTable extends Vue {
-    @Prop({ type: Array, required: true }) points!: IUserPoint[];
+@Component({
+  components: { IssueRow },
+})
+export default class ReportTable extends Vue {
+  @Prop({ type: Array, required: true }) points!: IUserPoint[];
+  @Prop({ type: Boolean, default: false }) loading!: boolean;
 
-    columns: TableColumn[] = [
-      {
-        name: 'name',
-        field: 'name',
-        label: 'Name',
-        sortable: true,
-        align: 'left',
-      },
-      {
-        name: 'point',
-        field: 'pointTotal',
-        label: 'Point',
-        sortable: true,
-        align: 'right',
-      },
-      {
-        name: 'wakatime',
-        field: 'wakatimeSeconds',
-        label: 'Wakatime',
-        sortable: true,
-        align: 'right',
-      },
-    ];
-    pagination: TablePagination = {
-      rowsPerPage: 0,
-      sortBy: 'name',
-    };
-    collapsed = false;
+  columns: TableColumn[] = [
+    {
+      name: 'name',
+      field: 'name',
+      label: 'Name',
+      sortable: true,
+      align: 'left',
+    },
+    {
+      name: 'point',
+      field: 'pointTotal',
+      label: 'Point',
+      sortable: true,
+      align: 'right',
+    },
+    {
+      name: 'wakatime',
+      field: 'wakatimeSeconds',
+      label: 'Wakatime',
+      sortable: true,
+      align: 'right',
+    },
+  ];
+  pagination: TablePagination = {
+    rowsPerPage: 0,
+    sortBy: 'name',
+  };
+  collapsed = false;
 
-    get rows(): IUserPoint[] {
-      return this.points.map((up: IUserPoint) => ({
-        ...up,
-        issues: up.issues.sort((a: IIssue, b: IIssue) =>
-          a.status.localeCompare(b.status),
-        ),
-      }));
-    }
-
-    onClickHeader(id: string) {
-      this.collapsed = !this.collapsed;
-      this.$nextTick().then(() => {
-        const el = this.$el.querySelector('#' + id)!;
-        el.scrollIntoView();
-      });
-    }
+  get rows(): IUserPoint[] {
+    return this.points.map((up: IUserPoint) => ({
+      ...up,
+      issues: up.issues.sort((a: IIssue, b: IIssue) =>
+        a.status.localeCompare(b.status)
+      ),
+    }));
   }
+
+  onClickHeader(id: string) {
+    this.collapsed = !this.collapsed;
+    this.$nextTick().then(() => {
+      const el = this.$el.querySelector('#' + id)!;
+      el.scrollIntoView();
+    });
+  }
+}
 </script>
