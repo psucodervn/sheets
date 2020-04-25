@@ -11,6 +11,7 @@ type ApiConfig struct {
 	Google   GoogleDocsConfig
 	Postgres PostgresConfig
 	Jira     JiraConfig
+	Wakatime WakatimeConfig
 }
 
 type GoogleDocsConfig struct {
@@ -48,4 +49,10 @@ type JiraConfig struct {
 	Username string `required:"true"`
 	Password string `required:"true"`
 	Host     string `required:"true"`
+}
+
+type WakatimeConfig struct {
+	ApiKey      string            `split_words:"true" required:"true"`
+	Leaderboard string            `default:"3bd8a420-d89e-43f3-8522-2b7fd12549ba"`
+	MapID       map[string]string `split_words:"true" required:"true"`
 }

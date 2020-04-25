@@ -11,11 +11,12 @@ import (
 )
 
 type HttpHandler struct {
-	svc Service
+	svc       Service
+	reportSvc ReportService
 }
 
-func NewHttpHandler(svc Service) *HttpHandler {
-	return &HttpHandler{svc: svc}
+func NewHttpHandler(svc Service, reportSvc ReportService) *HttpHandler {
+	return &HttpHandler{svc: svc, reportSvc: reportSvc}
 }
 
 func (h *HttpHandler) Bind(e *echo.Echo) {
@@ -67,7 +68,7 @@ func (h *HttpHandler) getReport() echo.HandlerFunc {
 
 		ctx := c.Request().Context()
 		l := log.Ctx(ctx)
-		resp, err := h.svc.WorkingIssues(ctx, time.Time(req.From), time.Time(req.To))
+		resp, err := h.reportSvc.GetReport(ctx, time.Time(req.From), time.Time(req.To))
 		if err != nil {
 			l.Err(err).Msg("GetReport failed")
 			return err

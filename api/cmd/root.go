@@ -13,6 +13,7 @@ import (
 	"api/config"
 	"api/pkg/database"
 	"api/point"
+	"api/wakatime"
 )
 
 var (
@@ -56,7 +57,9 @@ func runApiServer(cfg config.ApiConfig) error {
 	}()
 
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
-	pointHandler := point.NewHttpHandler(pointSvc)
+	wakaSvc := wakatime.NewApiFetcher(cfg.Wakatime.ApiKey)
+	reportSvc := point.NewBaseReportService(pointSvc, wakaSvc, cfg.Wakatime.Leaderboard, cfg.Wakatime.MapID)
+	pointHandler := point.NewHttpHandler(pointSvc, reportSvc)
 
 	srv := api.NewServer()
 	srv.Bind(

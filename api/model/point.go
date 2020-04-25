@@ -16,8 +16,10 @@ type Issue struct {
 }
 
 type UserPoint struct {
-	Name        string  `json:"name"`
-	DisplayName string  `json:"displayName"`
-	Issues      []Issue `json:"issues"`
-	PointTotal  float64 `json:"pointTotal"`
+	Name            string  `json:"name"`
+	DisplayName     string  `json:"displayName"`
+	Issues          []Issue `json:"issues"`
+	PointTotal      float64 `json:"pointTotal"`
+	WakatimeHuman   string  `json:"wakatimeHuman,omitempty"`
+	WakatimeSeconds float64 `json:"wakatimeSeconds"`
 }
