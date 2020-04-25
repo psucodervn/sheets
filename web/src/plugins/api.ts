@@ -7,12 +7,11 @@ import {
 import { ApiResponse } from '@/types/api';
 
 export class ApiWrapper {
-  constructor(private axios: AxiosInstance) {
-  }
+  constructor(private axios: AxiosInstance) {}
 
   async get<T = any>(
     url: string,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     return this.process<T>(this.axios.get<ApiResponse<T>>(url, config));
   }
@@ -20,13 +19,13 @@ export class ApiWrapper {
   async post<T = any>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     return this.process<T>(this.axios.post<ApiResponse<T>>(url, data, config));
   }
 
   async process<T = any>(
-    promise: Promise<AxiosResponse<ApiResponse<T>>>,
+    promise: Promise<AxiosResponse<ApiResponse<T>>>
   ): Promise<ApiResponse<T>> {
     try {
       const res = await promise;

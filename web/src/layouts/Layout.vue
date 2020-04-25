@@ -2,8 +2,8 @@
   <q-layout view="hHh lpR fFf">
     <q-page-container>
       <q-page class="container q-pa-sm">
-        <navigation-bar/>
-        <router-view/>
+        <navigation-bar />
+        <router-view />
       </q-page>
     </q-page-container>
     <component :is="tabPosition" class="shadow-2 bg-dark">
@@ -20,26 +20,26 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
-  import { Routes } from '@/router/names';
+import { Component, Vue } from 'vue-property-decorator';
+import { Routes } from '@/router/names';
 
-  @Component({})
-  export default class Layout extends Vue {
-    tabs = [
-      { label: 'Balance', to: Routes.BalanceDashboard },
-      { label: 'Point', to: Routes.Point },
-      { label: 'Report', to: Routes.Report },
-    ];
+@Component({})
+export default class Layout extends Vue {
+  tabs = [
+    { label: 'Balance', to: Routes.BalanceDashboard },
+    { label: 'Point', to: Routes.Point },
+    { label: 'Report', to: Routes.Report },
+  ];
 
-    get tabPosition() {
-      if (this.$q.platform.is.desktop) return 'q-header';
-      return 'q-footer';
-    }
+  get tabPosition() {
+    if (this.$q.platform.is.desktop) return 'q-header';
+    return 'q-footer';
   }
+}
 </script>
 
 <style lang="scss" scoped>
-  .container {
-    border: transparent dashed 1px;
-  }
+.container {
+  border: transparent dashed 1px;
+}
 </style>

@@ -16,7 +16,7 @@ class TimeRange {
 
   get label(): string {
     return `${formatter.dateDDMMYYYY(this.from)} to ${formatter.dateDDMMYYYY(
-      this.to,
+      this.to
     )}`;
   }
 }
