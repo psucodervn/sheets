@@ -3,6 +3,7 @@ package point
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -11,8 +12,11 @@ import (
 )
 
 type Service interface {
-	UserPoints(ctx context.Context, month, year int) ([]model.UserPoint, error)
+	UserPointsInMonth(ctx context.Context, month, year int) ([]model.UserPoint, error)
+	WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]model.UserPoint, error)
 }
+
+var _ Service = &RestService{}
 
 type RestService struct {
 	restyClient *resty.Client
@@ -32,10 +36,18 @@ type issueAssignee struct {
 	DisplayName string `json:"displayName"`
 }
 
+type issueStatus struct {
+	Name string `json:"name"`
+}
+
 type issueFields struct {
 	Summary  string         `json:"summary"`
 	Assignee *issueAssignee `json:"assignee"`
 	Point    *float64       `json:"customfield_10106"`
+	Created  string         `json:"created"`
+	Updated  string         `json:"updated"`
+	Resolved string         `json:"resolutiondate"`
+	Status   *issueStatus   `json:"status"`
 }
 
 type issue struct {
@@ -49,21 +61,51 @@ type searchResponse struct {
 	Issues []issue `json:"issues"`
 }
 
-func (s *RestService) UserPoints(ctx context.Context, month, year int) ([]model.UserPoint, error) {
-	lower, upper := getTimeBound(month, year)
-	jql := fmt.Sprintf(`status = Done AND resolved >= %s AND resolved < %s`, lower, upper)
+var fields = strings.Split("assignee,project,customfield_10106,summary,status,updated,created,resolutiondate", ",")
+
+func (s *RestService) WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]model.UserPoint, error) {
+	lower, upper := getTimeBound(from, to)
+	jql := fmt.Sprintf(`(resolved >= %s AND resolved < %s) OR (status = 'In Progress')`, lower, upper)
 
 	resp, err := s.restyClient.R().
 		SetResult(&searchResponse{}).
 		SetQueryParam("maxResults", "1000").
-		SetQueryParam("fields", "assignee,project,customfield_10106,summary").
+		SetQueryParam("fields", strings.Join(fields, ",")).
 		SetQueryParam("jql", jql).
+		SetContext(ctx).
 		Get("/rest/api/2/search")
 	if err != nil {
 		return nil, err
 	}
 
 	res := resp.Result().(*searchResponse)
+	ups := searchResponseToUserPoints(res)
+
+	return ups, nil
+}
+
+func (s *RestService) UserPointsInMonth(ctx context.Context, month, year int) ([]model.UserPoint, error) {
+	lower, upper := getTimeBoundByMonth(month, year)
+	jql := fmt.Sprintf(`status = Done AND resolved >= %s AND resolved < %s`, lower, upper)
+
+	resp, err := s.restyClient.R().
+		SetResult(&searchResponse{}).
+		SetQueryParam("maxResults", "1000").
+		SetQueryParam("fields", strings.Join(fields, ",")).
+		SetQueryParam("jql", jql).
+		SetContext(ctx).
+		Get("/rest/api/2/search")
+	if err != nil {
+		return nil, err
+	}
+
+	res := resp.Result().(*searchResponse)
+	ups := searchResponseToUserPoints(res)
+
+	return ups, nil
+}
+
+func searchResponseToUserPoints(res *searchResponse) []model.UserPoint {
 	m := make(map[string][]model.Issue)
 	ma := make(map[string]issueAssignee)
 	mp := make(map[string]float64)
@@ -82,7 +124,14 @@ func (s *RestService) UserPoints(ctx context.Context, month, year int) ([]model.
 			Key:     is.Key,
 			Summary: is.Fields.Summary,
 			Point:   p,
+			Status:  is.Fields.Status.Name,
+			Created: parseUpdatedTime(is.Fields.Created),
+			Updated: parseUpdatedTime(is.Fields.Updated),
 		})
+		if len(is.Fields.Resolved) > 0 {
+			val := parseUpdatedTime(is.Fields.Resolved)
+			m[as.Key][len(m[as.Key])-1].Resolved = &val
+		}
 	}
 
 	ups := make([]model.UserPoint, 0)
@@ -94,15 +143,18 @@ func (s *RestService) UserPoints(ctx context.Context, month, year int) ([]model.
 			PointTotal:  mp[uk],
 		})
 	}
-
-	return ups, nil
+	return ups
 }
 
-func getTimeBound(month int, year int) (string, string) {
+func getTimeBoundByMonth(month int, year int) (string, string) {
 	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	finish := time.Date(year, time.Month(month+1), 1, 0, 0, 0, 0, time.UTC)
 	//start = start.Add(-24 * time.Hour)
 	return start.Format("2006-01-02"), finish.Format("2006-01-02")
+}
+
+func getTimeBound(from time.Time, to time.Time) (string, string) {
+	return from.Format("2006-01-02"), to.Add(24 * time.Hour).Format("2006-01-02")
 }
 
 func getFloat64(v *float64) float64 {
@@ -110,4 +162,9 @@ func getFloat64(v *float64) float64 {
 		return 0
 	}
 	return *v
+}
+
+func parseUpdatedTime(s string) time.Time {
+	t, _ := time.Parse("2006-01-02T15:04:05.999+0000", s)
+	return t
 }

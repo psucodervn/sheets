@@ -1,13 +1,13 @@
 <template>
   <div class="q-py-xs bar row justify-between items-stretch">
-    <q-btn @click="goBack" class="btn" rounded>
-      <q-icon name="arrow_back_ios" v-if="canBack"/>
+    <q-btn @click="goBack" class="btn" rounded v-if="canBack">
+      <q-icon name="arrow_back_ios"/>
     </q-btn>
+    <div class="btn" v-else></div>
     <div class="title ellipsis">
       {{ title }}
     </div>
-    <div class="btn">
-    </div>
+    <div class="btn"></div>
   </div>
 </template>
 

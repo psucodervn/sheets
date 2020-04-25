@@ -9,10 +9,10 @@ require (
 	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.11
 	github.com/markbates/goth v1.61.2
-	github.com/psucodervn/go v0.6.0
+	github.com/psucodervn/go v0.6.2
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/cobra v0.0.6
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	google.golang.org/api v0.19.0
 )

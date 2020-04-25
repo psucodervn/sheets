@@ -1,6 +1,6 @@
 import { Action, Module, Mutation, MutationAction, VuexModule } from 'vuex-module-decorators';
 import { IUserPoint } from '@/model/point';
-import { Month } from '@/types/datetime';
+import { Month, TimeRange } from '@/types/datetime';
 import { toMonth } from '@/utils/datetime';
 import { Vue } from 'vue-property-decorator';
 import { ITransaction } from '@/modules/balance/types/transaction';
@@ -31,5 +31,16 @@ export default class PointStore extends VuexModule {
   @MutationAction({ mutate: ['month'] })
   async setMonth(month: Month) {
     return { month };
+  }
+
+  @Action({ rawError: true })
+  async fetchReport(params: { range: TimeRange }) {
+    const { from, to } = params.range;
+    from.toISOString();
+    const res = await Vue.$api.get<IUserPoint[]>('/report', {
+      params: { from: from.toISOString(), to: to.toISOString() },
+    });
+    if (!res.success) throw new Error(res.message);
+    return res.data!;
   }
 }

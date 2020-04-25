@@ -7,6 +7,7 @@ import Layout from '@/layouts/Layout.vue';
 import Point from '@/modules/point/views/Point.vue';
 import Issues from '@/modules/point/views/Issues.vue';
 import BalanceTransactions from '@/modules/balance/views/BalanceTransactions.vue';
+import Report from '@/modules/point/views/Report.vue';
 
 Vue.use(VueRouter);
 
@@ -46,6 +47,14 @@ const routes: Array<RouteConfig> = [
         path: Routes.PointIssues,
         name: Routes.PointIssues,
         component: Issues,
+      },
+      {
+        path: Routes.Report,
+        name: Routes.Report,
+        component: Report,
+        meta: {
+          root: true,
+        },
       },
     ],
   },

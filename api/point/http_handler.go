@@ -2,6 +2,7 @@ package point
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
@@ -19,6 +20,7 @@ func NewHttpHandler(svc Service) *HttpHandler {
 
 func (h *HttpHandler) Bind(e *echo.Echo) {
 	e.GET("/points", h.getPoints())
+	e.GET("/report", h.getReport())
 }
 
 func (h *HttpHandler) getPoints() echo.HandlerFunc {
@@ -38,12 +40,39 @@ func (h *HttpHandler) getPoints() echo.HandlerFunc {
 
 		ctx := c.Request().Context()
 		l := log.Ctx(ctx).With().Interface("req", req).Logger()
-		up, err := h.svc.UserPoints(ctx, req.Month, req.Year)
+		up, err := h.svc.UserPointsInMonth(ctx, req.Month, req.Year)
 		if err != nil {
-			l.Err(err).Msg("UserPoints failed")
+			l.Err(err).Msg("UserPointsInMonth failed")
 			return c.JSON(http.StatusServiceUnavailable, api.Response{Message: "Service unavailable."})
 		}
 
 		return c.JSON(http.StatusOK, api.Response{Success: true, Data: up})
+	}
+}
+
+func (h *HttpHandler) getReport() echo.HandlerFunc {
+	type request struct {
+		From api.Timestamp `json:"from" validate:"required"`
+		To   api.Timestamp `json:"to" validate:"required"`
+	}
+
+	return func(c echo.Context) error {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+		if err := c.Validate(req); err != nil {
+			return err
+		}
+
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		resp, err := h.svc.WorkingIssues(ctx, time.Time(req.From), time.Time(req.To))
+		if err != nil {
+			l.Err(err).Msg("GetReport failed")
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true, Data: resp})
 	}
 }

@@ -1,5 +1,9 @@
 package api
 
+import (
+	"time"
+)
+
 type Response struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
@@ -34,4 +38,16 @@ type Query struct {
 	Pagination
 	Order
 	Filter
+}
+
+type Timestamp time.Time
+
+func (t Timestamp) MarshalJSON() ([]byte, error) {
+	return time.Time(t).MarshalJSON()
+}
+
+func (t *Timestamp) UnmarshalParam(src string) error {
+	ts, err := time.Parse(time.RFC3339, src)
+	*t = Timestamp(ts)
+	return err
 }

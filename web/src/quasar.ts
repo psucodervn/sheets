@@ -3,6 +3,7 @@ import Vue from 'vue';
 import '@/styles/quasar.scss';
 import '@quasar/extras/material-icons/material-icons.css';
 import {
+  Notify,
   QAvatar,
   QBadge,
   QBtn,
@@ -26,6 +27,7 @@ import {
   QPullToRefresh,
   QRouteTab,
   QSelect,
+  QSeparator,
   QSpace,
   QTab,
   QTable,
@@ -34,6 +36,7 @@ import {
   QTh,
   QToolbar,
   QToolbarTitle,
+  QTooltip,
   QTr,
   Quasar,
 } from 'quasar';
@@ -75,7 +78,11 @@ Vue.use(Quasar, {
     QCardSection,
     QCardActions,
     QAvatar,
+    QSeparator,
+    QTooltip,
   },
   directives: {},
-  plugins: {},
+  plugins: {
+    Notify,
+  },
 });

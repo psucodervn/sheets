@@ -1,10 +1,18 @@
 package model
 
+import (
+	"time"
+)
+
 type Issue struct {
-	ID      string  `json:"id"`
-	Key     string  `json:"key"`
-	Summary string  `json:"summary"`
-	Point   float64 `json:"point"`
+	ID       string     `json:"id"`
+	Key      string     `json:"key"`
+	Summary  string     `json:"summary"`
+	Point    float64    `json:"point"`
+	Status   string     `json:"status"`
+	Created  time.Time  `json:"created"`
+	Updated  time.Time  `json:"updated"`
+	Resolved *time.Time `json:"resolved,omitempty"`
 }
 
 type UserPoint struct {

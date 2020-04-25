@@ -28,6 +28,7 @@
     tabs = [
       { label: 'Balance', to: Routes.BalanceDashboard },
       { label: 'Point', to: Routes.Point },
+      { label: 'Report', to: Routes.Report },
     ];
 
     get tabPosition() {

@@ -22,11 +22,16 @@ const date = (d: Date): string => {
   return dateUtils.formatDate(d, 'DD/MM');
 };
 
+const dateDDMMYYYY = (d: Date): string => {
+  return dateUtils.formatDate(d, 'DD/MM/YYYY');
+};
+
 const formatter = {
   currency,
   storyPoint,
   month,
   date,
+  dateDDMMYYYY,
 };
 
 export default formatter;

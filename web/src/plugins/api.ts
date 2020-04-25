@@ -1,4 +1,9 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosStatic } from 'axios';
+import {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosStatic,
+} from 'axios';
 import { ApiResponse } from '@/types/api';
 
 export class ApiWrapper {
@@ -27,6 +32,9 @@ export class ApiWrapper {
       const res = await promise;
       if (!res.data) {
         return { success: false, message: res.statusText };
+      }
+      if (typeof res.data === 'string') {
+        return { success: false, message: res.data };
       }
       if (!res.data.success) {
         return { success: false, message: res.data.message };

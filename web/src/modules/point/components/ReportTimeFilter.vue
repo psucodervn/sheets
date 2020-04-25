@@ -1,0 +1,48 @@
+<template>
+  <div>
+    <p class="q-pa-sm">Report time range:</p>
+    <q-input
+      :value="range.label"
+      dense
+      input-class="text-center"
+      outlined
+      readonly
+    >
+      <template v-slot:append>
+        <q-icon class="cursor-pointer" name="event" ref="dateIcon">
+          <q-popup-proxy
+            ref="qDateProxy"
+            transition-hide="scale"
+            transition-show="scale"
+          >
+            <q-date
+              :value="range.from"
+              @input="onChangeTimeFrom"
+              subtitle="Start date of week"
+            />
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input>
+  </div>
+</template>
+
+<script lang="ts">
+  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import { TimeRange } from '@/types/datetime';
+  import { date } from 'quasar';
+
+  @Component({})
+  export default class ReportTimeFilter extends Vue {
+    @Prop({ type: TimeRange, required: true }) range!: TimeRange;
+
+    onChangeTimeFrom(val: Date) {
+      this.range.from = new Date(val);
+      this.range.to = date.addToDate(val, { days: 6 });
+      this.$refs.qDateProxy.hide();
+      this.$emit('input', this.range);
+    }
+  }
+</script>
+
+<style lang="scss" scoped></style>
