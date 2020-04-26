@@ -16,9 +16,10 @@
             transition-show="scale"
           >
             <q-date
-              :value="range.from"
+              v-model="startDate"
               @input="onChangeTimeFrom"
               subtitle="Start date of week"
+              first-day-of-week="1"
             />
           </q-popup-proxy>
         </q-icon>
@@ -35,10 +36,15 @@ import { date } from 'quasar';
 @Component({})
 export default class ReportTimeFilter extends Vue {
   @Prop({ type: TimeRange, required: true }) range!: TimeRange;
+  startDate!: string;
+
+  created() {
+    this.startDate = date.formatDate(this.range.from, 'YYYY/MM/DD');
+  }
 
   onChangeTimeFrom(val: Date) {
     this.range.from = new Date(val);
-    this.range.to = date.addToDate(val, { days: 6 });
+    this.range.to = date.addToDate(this.range.from, { days: 6 });
     (this.$refs.qDateProxy as any).hide();
     this.$emit('input', this.range);
   }
