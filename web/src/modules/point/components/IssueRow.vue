@@ -29,38 +29,38 @@
         content-style="font-size: 1em; border: black solid 1px"
         self="bottom middle"
       >
-        {{ issue.summary }}
+        {{ `${issue.key}: ${issue.summary} (${issue.status})` }}
       </q-tooltip>
     </span>
   </div>
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
-  import { IIssue } from '@/model/point';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { IIssue } from '@/model/point';
 
-  @Component({
-    components: {},
-  })
-  export default class IssueRow extends Vue {
-    @Prop({ type: Object, required: true }) issue!: IIssue;
+@Component({
+  components: {},
+})
+export default class IssueRow extends Vue {
+  @Prop({ type: Object, required: true }) issue!: IIssue;
 
-    get point(): number {
-      if (this.issue.status.toUpperCase() === 'DONE') {
-        return +this.issue.point;
-      }
-      return -1;
+  get point(): number {
+    if (this.issue.status.toUpperCase() === 'DONE') {
+      return +this.issue.point;
     }
+    return -1;
+  }
 
-    get color(): string {
-      switch (this.issue.status.toUpperCase()) {
-        case 'DONE':
-          return 'green';
-        default:
-          return 'blue';
-      }
+  get color(): string {
+    switch (this.issue.status.toUpperCase()) {
+      case 'DONE':
+        return 'green';
+      default:
+        return 'blue';
     }
   }
+}
 </script>
 
 <style></style>
