@@ -31,6 +31,24 @@ export default class Report extends Vue {
   async mounted() {
     this.$navigation.title = 'Report';
     this.$navigation.to = null;
+    const fromQuery = this.$route.query.from;
+    if (fromQuery && typeof fromQuery === 'string') {
+      const d = date.extractDate(fromQuery, 'DD-MM-YYYY');
+      if (d.getFullYear() >= 2019 && d.getFullYear() <= 3000) {
+        this.range.from = d;
+        this.range.to = date.addToDate(d, { days: 6 });
+      } else {
+        this.$router
+          .replace({
+            name: this.$route.name,
+            query: {
+              ...this.$route.query,
+              from: date.formatDate(this.range.from, 'DD-MM-YYYY'),
+            },
+          })
+          .catch(() => {});
+      }
+    }
     await this.fetchData();
   }
 
@@ -52,7 +70,17 @@ export default class Report extends Vue {
   }
 
   async onUpdateTimeRange() {
-    await this.fetchData();
+    try {
+      await this.$router.replace({
+        name: this.$route.name,
+        query: {
+          from: date.formatDate(this.range.from, 'DD-MM-YYYY'),
+        },
+      });
+      await this.fetchData();
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 }
 </script>
