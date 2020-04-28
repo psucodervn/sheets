@@ -34,10 +34,12 @@ export default class BalanceStore extends VuexModule {
       transactions = res.data!.map(tx => {
         const changes: TTransactionChanges = {};
         for (const u of tx.senders) {
-          changes[u.name] = (changes[u.name] || 0) + u.value;
+          if (!changes[u.name]) changes[u.name] = { value: 0 };
+          changes[u.name].value += u.value;
         }
         for (const u of tx.receivers) {
-          changes[u.name] = (changes[u.name] || 0) - u.value;
+          if (!changes[u.name]) changes[u.name] = { value: 0 };
+          changes[u.name].value -= u.value;
         }
         return { ...tx, changes };
       });

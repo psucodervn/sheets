@@ -23,20 +23,22 @@
       <q-tr v-show="props.expand || expandAll" :props="props">
         <td colspan="100%" class="expand">
           <div>
-            <template v-for="(value, name) in props.row.changes">
+            <template v-for="(c, name) in props.row.changes">
               <q-badge
-                v-if="value >= 0"
+                v-if="c.value >= 0"
                 outline
                 color="green"
                 class="q-ma-xs q-pa-xs"
-                :label="`${name}: +${formatValue(value)}`"
+                :class="{ blur: c.filteredOut }"
+                :label="`${name}: +${formatValue(c.value)}`"
               />
               <q-badge
                 v-else
                 outline
                 color="red"
                 class="q-ma-xs q-pa-xs"
-                :label="`${name}: ${formatValue(value)}`"
+                :class="{ blur: c.filteredOut }"
+                :label="`${name}: ${formatValue(c.value)}`"
               />
             </template>
           </div>
@@ -100,5 +102,9 @@ td.date {
 td.expand {
   text-align: left;
   white-space: normal;
+}
+
+.blur {
+  opacity: 0.4;
 }
 </style>

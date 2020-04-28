@@ -4,7 +4,12 @@ interface ITransactionUser {
   value: number;
 }
 
-type TTransactionChanges = Record<string, number>;
+interface ITransactionChange {
+  value: number;
+  [_: string]: any;
+}
+
+type TTransactionChanges = Record<string, ITransactionChange>;
 
 interface ITransaction {
   id: string;
@@ -17,4 +22,9 @@ interface ITransaction {
   changes: TTransactionChanges;
 }
 
-export { ITransactionUser, TTransactionChanges, ITransaction };
+export {
+  ITransactionUser,
+  ITransactionChange,
+  TTransactionChanges,
+  ITransaction,
+};

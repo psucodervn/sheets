@@ -67,8 +67,11 @@ export default class BalanceTransactions extends Vue {
       )
       .map((tx: ITransaction) => {
         const changes: TTransactionChanges = {};
-        for (const name of this.selectedUsers) {
-          if (tx.changes[name] != undefined) changes[name] = tx.changes[name];
+        for (const name of Object.keys(tx.changes)) {
+          changes[name] = { value: tx.changes[name].value };
+          changes[name].filteredOut = !this.selectedUsers.some(
+            (n: string) => n === name
+          );
         }
         return { ...tx, changes };
       });
