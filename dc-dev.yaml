@@ -33,6 +33,7 @@ services:
     command: ["go", "run", "/app/main.go"]
     working_dir: /app
     env_file: .env
+    restart: on-failure
     volumes:
       - ./api:/app:delegated
       - ./api/conf/credentials.json:/conf/credentials.json

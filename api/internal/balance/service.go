@@ -3,37 +3,50 @@ package balance
 import (
 	"context"
 
+	"github.com/volatiletech/sqlboiler/v4/boil"
+
 	"api/internal/api"
+	"api/model"
 	"api/oldmodel"
 )
 
-var _ Service = &BaseService{}
+var _ Service = &service{}
 
-type BaseService struct {
+type service struct {
 	userRepo UserRepository
 	txRepo   TransactionRepository
+	db       boil.ContextExecutor
 }
 
-func (u *BaseService) FindTransaction(ctx context.Context, id string) (*oldmodel.Transaction, error) {
-	return u.txRepo.FindByID(ctx, id)
+func (s *service) User(ctx context.Context, id string) (*model.UserWithBalance, error) {
+	return model.UsersWithBalance(model.UserWhere.ID.EQ(id)).One(ctx, s.db)
 }
 
-func (u *BaseService) FindTransactions(ctx context.Context, args *api.Query) ([]oldmodel.Transaction, error) {
-	return u.txRepo.Find(ctx, args)
+func (s *service) Users(ctx context.Context, args api.Query) ([]model.UserWithBalance, error) {
+	return model.UsersWithBalance().All(ctx, s.db)
 }
 
-func (u *BaseService) FindUserByID(ctx context.Context, id string) (*oldmodel.User, error) {
-	return u.userRepo.FindByID(ctx, id)
+func (s *service) FindTransaction(ctx context.Context, id string) (*oldmodel.Transaction, error) {
+	return s.txRepo.FindByID(ctx, id)
 }
 
-func (u *BaseService) FindUsers(ctx context.Context, args *api.Query) ([]oldmodel.User, error) {
+func (s *service) FindTransactions(ctx context.Context, args *api.Query) ([]oldmodel.Transaction, error) {
+	return s.txRepo.Find(ctx, args)
+}
+
+func (s *service) FindUserByID(ctx context.Context, id string) (*oldmodel.User, error) {
+	return s.userRepo.FindByID(ctx, id)
+}
+
+func (s *service) FindUsers(ctx context.Context, args *api.Query) ([]oldmodel.User, error) {
 	// return u.fetcher.ListUsers(ctx)
-	return u.userRepo.Find(ctx, args)
+	return s.userRepo.Find(ctx, args)
 }
 
-func NewBaseService(userRepo UserRepository, txRepo TransactionRepository) *BaseService {
-	return &BaseService{
+func NewService(userRepo UserRepository, txRepo TransactionRepository, db boil.ContextExecutor) *service {
+	return &service{
 		userRepo: userRepo,
 		txRepo:   txRepo,
+		db:       db,
 	}
 }

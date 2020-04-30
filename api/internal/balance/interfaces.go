@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"api/internal/api"
+	"api/model"
 	"api/oldmodel"
 )
 
@@ -20,6 +21,8 @@ type Service interface {
 
 	FindTransactions(ctx context.Context, args *api.Query) ([]oldmodel.Transaction, error)
 	FindTransaction(ctx context.Context, id string) (*oldmodel.Transaction, error)
+	Users(ctx context.Context, args api.Query) ([]model.UserWithBalance, error)
+	User(ctx context.Context, id string) (*model.UserWithBalance, error)
 }
 
 type UserRepository interface {

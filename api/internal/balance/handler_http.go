@@ -15,15 +15,15 @@ type Handler struct {
 }
 
 func (h *Handler) Bind(e *echo.Echo) {
-	e.GET("/users", h.getUsers)
+	e.GET("/users", h.getUsers(), api.QueryParser())
 	e.GET("/users/:id", h.getUser())
 
 	g := e.Group("/balance", api.QueryParser())
-	g.GET("/transactions", h.getTransactions())
+	g.GET("/transactions", h.getTransactions(), api.QueryParser())
 	g.GET("/transactions/:id", h.getTransaction())
 }
 
-func (h *Handler) getUsers(c echo.Context) error {
+func (h *Handler) getUsersOld(c echo.Context) error {
 	ctx := c.Request().Context()
 	// users, err := h.svc.ListUserBalances(ctx)
 	users, err := h.svc.FindUsers(ctx, nil)
@@ -42,7 +42,7 @@ func (h *Handler) getUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		userID := c.Param("id")
-		user, err := h.svc.FindUserByID(ctx, userID)
+		user, err := h.svc.User(ctx, userID)
 
 		l := log.Ctx(ctx)
 		if errors.Is(err, ErrNotFound) {
@@ -88,6 +88,32 @@ func (h *Handler) getTransaction() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, api.Response{Success: true, Data: tx})
+	}
+}
+
+func (h *Handler) getUsers() echo.HandlerFunc {
+	type request struct {
+	}
+
+	return func(c echo.Context) error {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+		if err := c.Validate(req); err != nil {
+			return err
+		}
+
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		args := api.QueryFromContext(c)
+		users, err := h.svc.Users(ctx, args)
+		if err != nil {
+			l.Err(err).Msg("list users failed")
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true, Data: users})
 	}
 }
 

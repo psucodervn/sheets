@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
+	"api/db"
 	"api/internal/api"
 	"api/internal/balance"
 	"api/internal/config"
@@ -13,6 +14,10 @@ import (
 	"api/pkg/adapter"
 	"api/pkg/wakatime"
 )
+
+func init() {
+	logger.InitFromEnv()
+}
 
 var (
 	rootCmd = &cobra.Command{
@@ -28,11 +33,12 @@ var (
 )
 
 func runApiServer(cfg config.ApiConfig) error {
-	db := adapter.MustNewPostgresGorm(cfg.Postgres)
+	gormConn := adapter.MustNewPostgresGorm(cfg.Postgres)
+	conn := db.ConnectDB(cfg.Postgres)
 
-	userRepo := balance.NewGormPostgresUserRepository(db)
-	txRepo := balance.NewGormPostgresTransactionRepository(db)
-	balanceSvc := balance.NewBaseService(userRepo, txRepo)
+	userRepo := balance.NewGormPostgresUserRepository(gormConn)
+	txRepo := balance.NewGormPostgresTransactionRepository(gormConn)
+	balanceSvc := balance.NewService(userRepo, txRepo, conn)
 	balanceHandler := balance.NewHandler(balanceSvc)
 
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
@@ -46,10 +52,6 @@ func runApiServer(cfg config.ApiConfig) error {
 		pointHandler,
 	)
 	return srv.Serve(cfg.Address, cfg.TLS)
-}
-
-func init() {
-	logger.InitFromEnv()
 }
 
 func Execute() error {
