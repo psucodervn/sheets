@@ -1,0 +1,30 @@
+output              = "model"
+pkgname             = "model"
+wipe                = false
+no-tests            = true
+struct-tag-casing   = "camel"
+add-global-variants	= true
+add-panic-variants  = true
+add-soft-deletes    = true
+
+[psql]
+  dbname    = "sheet"
+  host      = "localhost"
+  port      = 8432
+  user      = "sheet"
+  pass      = "3czYDuwqZPsb8kdk"
+  schema    = "public"
+  sslmode   = "disable"
+  blacklist = ["go_seeders", "go_migrations"]
+
+[[types]]
+  [types.match]
+    name = "senders"
+  [types.replace]
+    type = "Changes"
+
+[[types]]
+  [types.match]
+    name = "receivers"
+  [types.replace]
+    type = "Changes"

@@ -4,9 +4,10 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/cobra"
 
-	"api/config"
-	"api/model"
-	"api/pkg/database"
+	"api/db"
+	"api/db/migrations"
+	"api/internal/config"
+	"api/pkg/migration"
 )
 
 var migrateCmd = &cobra.Command{
@@ -18,12 +19,15 @@ func runMigration(cmd *cobra.Command, args []string) error {
 	var cfg config.MigrationConfig
 	envconfig.MustProcess("", &cfg)
 
-	db := database.MustNewPostgresGorm(cfg.Postgres)
-	err := db.AutoMigrate(
-		&model.User{},
-		&model.Transaction{},
-	).Error
-	return err
+	conn := db.ConnectGoPGDB(cfg.Postgres)
+	m := migration.NewMigration(conn, migrations.Collection.SetTableName("go_migrations"), "migrate")
+
+	c := "up"
+	if len(args) > 0 {
+		c = args[0]
+	}
+	m.Run(c)
+	return nil
 }
 
 func init() {
