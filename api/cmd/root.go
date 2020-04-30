@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"time"
-
 	"github.com/kelseyhightower/envconfig"
 	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
@@ -32,24 +30,10 @@ var (
 func runApiServer(cfg config.ApiConfig) error {
 	db := adapter.MustNewPostgresGorm(cfg.Postgres)
 
-	fetcher := balance.NewApiFetcherFromEnv()
 	userRepo := balance.NewGormPostgresUserRepository(db)
 	txRepo := balance.NewGormPostgresTransactionRepository(db)
-	balanceSvc := balance.NewBaseService(fetcher, userRepo, txRepo)
+	balanceSvc := balance.NewBaseService(userRepo, txRepo)
 	balanceHandler := balance.NewHandler(balanceSvc)
-
-	importer := balance.NewOldImporter(fetcher, userRepo, txRepo)
-	importFn := func() {
-		if err := importer.Run(); err != nil {
-			log.Err(err).Msg("import failed")
-		}
-	}
-	go func() {
-		importFn()
-		for range time.Tick(1 * time.Minute) {
-			importFn()
-		}
-	}()
 
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
 	wakaSvc := wakatime.NewApiFetcher(cfg.Wakatime.ApiKey)

@@ -25,24 +25,15 @@ import (
 import "github.com/rs/xid"
 
 func init() {
-	AddTransactionHook(boil.BeforeInsertHook, func(ctx context.Context, executor boil.ContextExecutor, transaction *Transaction) error {
+	addID := func(ctx context.Context, executor boil.ContextExecutor, transaction *Transaction) error {
 		if len(transaction.ID) == 0 {
 			transaction.ID = xid.New().String()
 		}
 		return nil
-	})
-	AddTransactionHook(boil.BeforeUpdateHook, func(ctx context.Context, executor boil.ContextExecutor, transaction *Transaction) error {
-		if len(transaction.ID) == 0 {
-			transaction.ID = xid.New().String()
-		}
-		return nil
-	})
-	AddTransactionHook(boil.BeforeUpsertHook, func(ctx context.Context, executor boil.ContextExecutor, transaction *Transaction) error {
-		if len(transaction.ID) == 0 {
-			transaction.ID = xid.New().String()
-		}
-		return nil
-	})
+	}
+	AddTransactionHook(boil.BeforeInsertHook, addID)
+	AddTransactionHook(boil.BeforeUpdateHook, addID)
+	AddTransactionHook(boil.BeforeUpsertHook, addID)
 }
 
 // Transaction is an object representing the database table.

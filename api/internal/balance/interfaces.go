@@ -15,9 +15,6 @@ type Fetcher interface {
 }
 
 type Service interface {
-	ListUserBalances(ctx context.Context) ([]oldmodel.UserBalance, error)
-	ListTransactions(ctx context.Context) ([]oldmodel.Transaction, error)
-
 	FindUsers(ctx context.Context, args *api.Query) ([]oldmodel.User, error)
 	FindUserByID(ctx context.Context, id string) (*oldmodel.User, error)
 

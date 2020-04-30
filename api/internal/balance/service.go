@@ -10,7 +10,6 @@ import (
 var _ Service = &BaseService{}
 
 type BaseService struct {
-	fetcher  Fetcher
 	userRepo UserRepository
 	txRepo   TransactionRepository
 }
@@ -32,17 +31,8 @@ func (u *BaseService) FindUsers(ctx context.Context, args *api.Query) ([]oldmode
 	return u.userRepo.Find(ctx, args)
 }
 
-func (u *BaseService) ListUserBalances(ctx context.Context) ([]oldmodel.UserBalance, error) {
-	return u.fetcher.ListUserBalances(ctx)
-}
-
-func (u *BaseService) ListTransactions(ctx context.Context) ([]oldmodel.Transaction, error) {
-	return u.fetcher.ListTransactions(ctx)
-}
-
-func NewBaseService(fetcher Fetcher, userRepo UserRepository, txRepo TransactionRepository) *BaseService {
+func NewBaseService(userRepo UserRepository, txRepo TransactionRepository) *BaseService {
 	return &BaseService{
-		fetcher:  fetcher,
 		userRepo: userRepo,
 		txRepo:   txRepo,
 	}

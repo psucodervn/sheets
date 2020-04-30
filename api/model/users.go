@@ -25,24 +25,15 @@ import (
 import "github.com/rs/xid"
 
 func init() {
-	AddUserHook(boil.BeforeInsertHook, func(ctx context.Context, executor boil.ContextExecutor, user *User) error {
+	addID := func(ctx context.Context, executor boil.ContextExecutor, user *User) error {
 		if len(user.ID) == 0 {
 			user.ID = xid.New().String()
 		}
 		return nil
-	})
-	AddUserHook(boil.BeforeUpdateHook, func(ctx context.Context, executor boil.ContextExecutor, user *User) error {
-		if len(user.ID) == 0 {
-			user.ID = xid.New().String()
-		}
-		return nil
-	})
-	AddUserHook(boil.BeforeUpsertHook, func(ctx context.Context, executor boil.ContextExecutor, user *User) error {
-		if len(user.ID) == 0 {
-			user.ID = xid.New().String()
-		}
-		return nil
-	})
+	}
+	AddUserHook(boil.BeforeInsertHook, addID)
+	AddUserHook(boil.BeforeUpdateHook, addID)
+	AddUserHook(boil.BeforeUpsertHook, addID)
 }
 
 // User is an object representing the database table.

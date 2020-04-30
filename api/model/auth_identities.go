@@ -25,24 +25,15 @@ import (
 import "github.com/rs/xid"
 
 func init() {
-	AddAuthIdentityHook(boil.BeforeInsertHook, func(ctx context.Context, executor boil.ContextExecutor, authIdentity *AuthIdentity) error {
+	addID := func(ctx context.Context, executor boil.ContextExecutor, authIdentity *AuthIdentity) error {
 		if len(authIdentity.ID) == 0 {
 			authIdentity.ID = xid.New().String()
 		}
 		return nil
-	})
-	AddAuthIdentityHook(boil.BeforeUpdateHook, func(ctx context.Context, executor boil.ContextExecutor, authIdentity *AuthIdentity) error {
-		if len(authIdentity.ID) == 0 {
-			authIdentity.ID = xid.New().String()
-		}
-		return nil
-	})
-	AddAuthIdentityHook(boil.BeforeUpsertHook, func(ctx context.Context, executor boil.ContextExecutor, authIdentity *AuthIdentity) error {
-		if len(authIdentity.ID) == 0 {
-			authIdentity.ID = xid.New().String()
-		}
-		return nil
-	})
+	}
+	AddAuthIdentityHook(boil.BeforeInsertHook, addID)
+	AddAuthIdentityHook(boil.BeforeUpdateHook, addID)
+	AddAuthIdentityHook(boil.BeforeUpsertHook, addID)
 }
 
 // AuthIdentity is an object representing the database table.

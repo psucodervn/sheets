@@ -1,9 +1,5 @@
 package migrations
 
-import (
-	"github.com/go-pg/migrations/v7"
-)
-
 func init() {
 	up := `
 CREATE TABLE "auth_identities" (
@@ -52,11 +48,5 @@ DROP TABLE "auth_identities";
 DROP TABLE "users";
 `
 
-	Collection.MustRegisterTx(func(db migrations.DB) error {
-		_, err := db.Exec(up)
-		return err
-	}, func(db migrations.DB) error {
-		_, err := db.Exec(down)
-		return err
-	})
+	Collection.MustRegisterTx(wrap(up), wrap(down))
 }
