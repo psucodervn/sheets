@@ -30,7 +30,7 @@
                 color="green"
                 class="q-ma-xs q-pa-xs"
                 :class="{ blur: c.filteredOut }"
-                :label="`${name}: +${formatValue(c.value)}`"
+                :label="`${c.name}: +${formatValue(c.value)}`"
               />
               <q-badge
                 v-else
@@ -38,7 +38,7 @@
                 color="red"
                 class="q-ma-xs q-pa-xs"
                 :class="{ blur: c.filteredOut }"
-                :label="`${name}: ${formatValue(c.value)}`"
+                :label="`${c.name}: ${formatValue(c.value)}`"
               />
             </template>
           </div>
@@ -70,8 +70,8 @@ export default class TransactionTable extends Vue {
     },
     { name: 'summary', field: 'summary', label: 'Summary', align: 'left' },
     {
-      name: 'totalValue',
-      field: 'totalValue',
+      name: 'value',
+      field: 'value',
       label: 'Value (vnđ)',
       sortable: true,
       format: formatter.currency,

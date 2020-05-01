@@ -34,21 +34,20 @@ if (process.env.NODE_ENV === 'production') {
             label: 'Refresh',
             color: 'yellow',
             handler: () => {
-              window.location.reload();
+              window.location.reload(true);
             },
           },
           {
             label: 'Dismiss',
             color: 'white',
-            handler: () => {
-            },
+            handler: () => {},
           },
         ],
       });
     },
     offline() {
       console.log(
-        'No internet connection found. App is running in offline mode.',
+        'No internet connection found. App is running in offline mode.'
       );
     },
     error(error) {

@@ -30,7 +30,7 @@ export default class Report extends Vue {
 
   async mounted() {
     this.$navigation.title = 'Report';
-    this.$navigation.to = null;
+    this.$navigation.from = null;
     const fromQuery = this.$route.query.from;
     if (fromQuery && typeof fromQuery === 'string') {
       const d = date.extractDate(fromQuery, 'DD-MM-YYYY');

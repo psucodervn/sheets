@@ -1,7 +1,7 @@
 <template>
   <div class="q-py-xs bar row justify-between items-stretch">
     <q-btn @click="goBack" class="btn" rounded v-if="canBack">
-      <q-icon name="arrow_back_ios"/>
+      <q-icon name="arrow_back_ios" />
     </q-btn>
     <div class="btn" v-else></div>
     <div class="title ellipsis">
@@ -12,40 +12,40 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
-  @Component({})
-  export default class NavigationBar extends Vue {
-    get title(): string {
-      return this.$navigation.title;
-    }
-
-    get canBack(): boolean {
-      return this.$navigation.to !== null;
-    }
-
-    goBack() {
-      if (this.canBack) {
-        this.$router.push(this.$navigation.to!);
-      }
-    }
+@Component({})
+export default class NavigationBar extends Vue {
+  get title(): string {
+    return this.$navigation.title;
   }
+
+  get canBack(): boolean {
+    return !!this.$navigation.from || !!this.$navigation.parent;
+  }
+
+  goBack() {
+    if (!this.canBack) return;
+    if (this.$navigation.from) return this.$router.push(this.$navigation.from);
+    return this.$router.push(this.$navigation.parent!);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-  .bar {
-    /*border: #21BA45 dashed 1px;*/
+.bar {
+  /*border: #21BA45 dashed 1px;*/
 
-    .btn {
-      width: 38px;
+  .btn {
+    width: 38px;
 
-      i {
-        width: 15px;
-      }
+    i {
+      width: 15px;
     }
   }
+}
 
-  .title {
-    margin: auto 0;
-  }
+.title {
+  margin: auto 0;
+}
 </style>

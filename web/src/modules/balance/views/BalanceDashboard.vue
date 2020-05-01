@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-gutter-y-md q-py-sm">
+  <div class="row q-gutter-y-md q-py-sm" style="padding-bottom: 70px">
     <q-card
       bordered
       class="row full-width cursor-pointer"
@@ -10,7 +10,7 @@
         <div class="full-width text-italic">Active Accounts</div>
       </div>
       <div class="col-grow">
-        <q-avatar size="100px" icon="person" style="top: calc(50% - 50px)"/>
+        <q-avatar size="100px" icon="person" style="top: calc(50% - 50px)" />
       </div>
     </q-card>
     <q-card
@@ -30,36 +30,32 @@
         <div class="full-width text-italic">Transactions</div>
       </div>
     </q-card>
+    <new-transaction-btn />
   </div>
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
-  import { BalanceModule } from '@/store';
+import { Component, Vue } from 'vue-property-decorator';
+import { BalanceModule } from '@/store';
+import NewTransactionBtn from '@/modules/balance/views/NewTransactionBtn.vue';
 
-  @Component({})
-  export default class BalanceDashboard extends Vue {
-    get userCount() {
-      return BalanceModule.users.length;
-    }
-
-    get transactionCount() {
-      return BalanceModule.transactions.length;
-    }
-
-    async fetchData() {
-      await Promise.all([
-        BalanceModule.fetchUsers(),
-        BalanceModule.fetchTransactions(),
-      ]);
-    }
-
-    async mounted() {
-      this.$navigation.title = 'Overview';
-      this.$navigation.to = null;
-      await this.fetchData();
-    }
+@Component({
+  components: { NewTransactionBtn },
+})
+export default class BalanceDashboard extends Vue {
+  get userCount() {
+    return BalanceModule.users.length;
   }
+
+  get transactionCount() {
+    return BalanceModule.transactions.length;
+  }
+
+  async mounted() {
+    this.$navigation.title = 'Overview';
+    this.$navigation.parent = null;
+  }
+}
 </script>
 
 <style scoped lang="scss"></style>

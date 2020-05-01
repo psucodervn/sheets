@@ -1,16 +1,17 @@
 <template>
-  <q-pull-to-refresh @refresh="fetchData">
+  <q-pull-to-refresh @refresh="fetchData" style="padding-bottom: 70px">
     <div class="row q-py-sm">
       <user-filter
         :users="users"
-        :selected-users="selectedUsers"
+        :selected-users="selectedUserNames"
         @update:selectedUsers="onSelectUsers"
       />
     </div>
     <transaction-table
       :transactions="transactions"
-      :expand-all="selectedUsers.length > 0"
+      :expand-all="selectedUserNames.length > 0"
     />
+    <new-transaction-btn />
   </q-pull-to-refresh>
 </template>
 
@@ -22,15 +23,16 @@ import {
 } from '@/modules/balance/types/transaction';
 import { Routes } from '@/router/names';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import TransactionTable from '@/modules/balance/components/TransactionTable.vue';
+import TransactionTable from '@/modules/balance/components/transactions/TransactionTable.vue';
 import UserFilter from '@/modules/balance/components/UserFilter.vue';
+import NewTransactionBtn from '@/modules/balance/views/NewTransactionBtn.vue';
 
 @Component({
-  components: { UserFilter, TransactionTable },
+  components: { NewTransactionBtn, UserFilter, TransactionTable },
 })
 export default class BalanceTransactions extends Vue {
   loading = false;
-  selectedUsers: string[] = [];
+  selectedUserNames: string[] = [];
 
   get users() {
     return BalanceModule.users;
@@ -52,25 +54,29 @@ export default class BalanceTransactions extends Vue {
   @Watch('$route.query', { deep: true, immediate: true })
   setSelectedUsersBaseOnFilterQuery() {
     const filter = this.$route.query.filter;
-    if (!filter) this.selectedUsers = [];
-    else this.selectedUsers = String(filter).split(',');
+    if (!filter) this.selectedUserNames = [];
+    else this.selectedUserNames = String(filter).split(',');
   }
 
   get transactions(): ITransaction[] {
-    if (!this.selectedUsers.length) {
+    if (!this.selectedUserNames.length) {
       return BalanceModule.transactions;
     }
+
+    const selectedUserIds = this.selectedUserNames.map(
+      name => BalanceModule.userNames[name]!.id
+    );
     return BalanceModule.transactions
       .filter(
         (tx: ITransaction) =>
-          this.selectedUsers.findIndex((name: string) => tx.changes[name]) >= 0
+          selectedUserIds.findIndex((id: string) => tx.changes[id]) >= 0
       )
       .map((tx: ITransaction) => {
         const changes: TTransactionChanges = {};
-        for (const name of Object.keys(tx.changes)) {
-          changes[name] = { value: tx.changes[name].value };
-          changes[name].filteredOut = !this.selectedUsers.some(
-            (n: string) => n === name
+        for (const userID of Object.keys(tx.changes)) {
+          changes[userID] = { ...tx.changes[userID] };
+          changes[userID].filteredOut = !this.selectedUserNames.some(
+            (n: string) => n === changes[userID].name
           );
         }
         return { ...tx, changes };
@@ -93,10 +99,10 @@ export default class BalanceTransactions extends Vue {
 
   async mounted() {
     this.$navigation.title = 'Transactions';
-    this.$navigation.to = { name: Routes.BalanceDashboard };
+    this.$navigation.parent = { name: Routes.BalanceDashboard };
     await this.fetchData();
     if (this.$route.query.filter) {
-      this.selectedUsers = this.$route.query.filter.toString().split(',');
+      this.selectedUserNames = this.$route.query.filter.toString().split(',');
     }
   }
 }

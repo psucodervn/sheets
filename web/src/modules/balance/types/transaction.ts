@@ -1,11 +1,14 @@
 interface ITransactionUser {
   id: string;
-  name: string;
   value: number;
+  name?: string;
+  text?: string;
+  percent?: number;
 }
 
 interface ITransactionChange {
   value: number;
+
   [_: string]: any;
 }
 
@@ -16,10 +19,17 @@ interface ITransaction {
   time: Date;
   description: string;
   summary: string;
-  totalValue: number;
-  senders: ITransactionUser[];
-  receivers: ITransactionUser[];
+  value: number;
+  payers: ITransactionUser[];
+  participants: ITransactionUser[];
   changes: TTransactionChanges;
+}
+type TTransactionNew = Omit<ITransaction, 'id'>;
+
+enum ESplitOption {
+  Equal,
+  Ratio,
+  Custom,
 }
 
 export {
@@ -27,4 +37,6 @@ export {
   ITransactionChange,
   TTransactionChanges,
   ITransaction,
+  TTransactionNew,
+  ESplitOption,
 };

@@ -1,26 +1,7 @@
-export interface IBalance {
-  value: number;
-}
+export type TBalance = number;
 
 export interface IUser {
+  id: string;
   name: string;
-  balance: IBalance;
-}
-
-export class User implements IUser {
-  name: string;
-  balance: IBalance;
-
-  constructor(name: string, balance: Balance) {
-    this.name = name;
-    this.balance = balance;
-  }
-}
-
-export class Balance implements IBalance {
-  value: number;
-
-  constructor(value: number) {
-    this.value = value;
-  }
+  balance: TBalance;
 }

@@ -1,30 +1,36 @@
 import { RawLocation } from 'vue-router';
 
-let installed = false;
-let _Vue: any;
-
 export default class Navigation {
-  static install(Vue: any): void {
-    if (installed && _Vue === Vue) return;
-    installed = true;
-    _Vue = Vue;
+  static installed = false;
 
-    Vue.prototype.$navigation = new Vue({
+  static install(Vue: any): void {
+    if (this.installed) return;
+    this.installed = true;
+
+    const nav = new Vue({
       data: {
         title: '',
-        to: null,
+        from: null,
+        parent: null,
       },
     });
+    Vue.$navigation = nav;
+    Vue.prototype.$navigation = nav;
   }
 }
 
 declare class CNavigation {
   title: string;
-  to: RawLocation | null;
+  from: RawLocation | null;
+  parent: RawLocation | null;
 }
 
 declare module 'vue/types/vue' {
   interface Vue {
+    $navigation: CNavigation;
+  }
+
+  interface VueConstructor {
     $navigation: CNavigation;
   }
 }

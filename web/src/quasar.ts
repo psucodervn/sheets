@@ -3,6 +3,7 @@ import Vue from 'vue';
 import '@/styles/quasar.scss';
 import '@quasar/extras/material-icons/material-icons.css';
 import {
+  ClosePopup,
   Notify,
   QAvatar,
   QBadge,
@@ -10,7 +11,9 @@ import {
   QCard,
   QCardActions,
   QCardSection,
+  QCheckbox,
   QDate,
+  QDialog,
   QDrawer,
   QFooter,
   QHeader,
@@ -21,8 +24,10 @@ import {
   QItemSection,
   QLayout,
   QList,
+  QOptionGroup,
   QPage,
   QPageContainer,
+  QPageSticky,
   QPopupProxy,
   QPullToRefresh,
   QRouteTab,
@@ -34,6 +39,7 @@ import {
   QTabs,
   QTd,
   QTh,
+  QTime,
   QToolbar,
   QToolbarTitle,
   QTooltip,
@@ -80,8 +86,15 @@ Vue.use(Quasar, {
     QAvatar,
     QSeparator,
     QTooltip,
+    QPageSticky,
+    QTime,
+    QDialog,
+    QCheckbox,
+    QOptionGroup,
   },
-  directives: {},
+  directives: {
+    ClosePopup,
+  },
   plugins: {
     Notify,
   },
