@@ -42,7 +42,7 @@
           bg-color="green-10"
           standout=""
           dense
-          :prefix="`${getName(u.id)}: `"
+          :prefix="`${u.name}: `"
           suffix="vnđ"
           :value="u.value"
           @input="val => updateValue(idx, val)"
@@ -91,21 +91,17 @@ export default class ListPayers extends Vue {
   @PropSync('value', { type: Number, required: true }) totalValue!: number;
   payerDialog = false;
 
-  getName(id: string) {
-    return BalanceModule.userIds[id]!.name;
-  }
-
   get payerCandidates(): IUser[] {
-    return BalanceModule.users.filter(u =>
-      this.users.every(tu => tu.id !== u.id)
-    );
+    return BalanceModule.users
+      .filter(u => this.users.every(tu => tu.id !== u.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   onAddPayers(ids: string[]) {
     const adds = ids.map(
       (id: string): ITransactionUser => {
         const u = this.payerCandidates.find(u => u.id === id)!;
-        return { id: u.id, value: 0 };
+        return { id: u.id, value: 0, name: u.name };
       }
     )!;
     this.users.push(...adds);

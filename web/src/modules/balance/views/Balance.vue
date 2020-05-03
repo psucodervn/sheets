@@ -12,10 +12,8 @@ import NewTransactionBtn from '@/modules/balance/components/transactions/NewTran
 })
 export default class Balance extends Vue {
   async created() {
-    await Promise.all([
-      BalanceModule.fetchUsers(),
-      BalanceModule.fetchTransactions(),
-    ]);
+    await BalanceModule.fetchUsers();
+    await BalanceModule.fetchTransactions();
   }
 }
 </script>

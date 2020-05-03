@@ -1,10 +1,11 @@
-package migrate
+package main
 
 import (
 	"github.com/kelseyhightower/envconfig"
+	"github.com/psucodervn/go/logger"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"api/cmd"
 	"api/db"
 	"api/db/migrations"
 	"api/internal/config"
@@ -31,6 +32,11 @@ func runMigration(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func init() {
-	cmd.RootCmd.AddCommand(migrateCmd)
+func main() {
+	logger.InitFromEnv()
+
+	if err := migrateCmd.Execute(); err != nil {
+		log.Fatal().Err(err).Msg("migration failed")
+	}
+	log.Info().Msg("migration done")
 }

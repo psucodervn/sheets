@@ -16,14 +16,10 @@ type Fetcher interface {
 }
 
 type Service interface {
-	FindUsers(ctx context.Context, args *api.Query) ([]oldmodel.User, error)
-	FindUserByID(ctx context.Context, id string) (*oldmodel.User, error)
-
-	FindTransactions(ctx context.Context, args *api.Query) ([]oldmodel.Transaction, error)
 	Transaction(ctx context.Context, id string) (*TransactionDTO, error)
 	Users(ctx context.Context, args api.Query) ([]model.UserWithBalance, error)
 	User(ctx context.Context, id string) (*model.UserWithBalance, error)
-	Transactions(ctx context.Context, args api.Query) (model.TransactionSlice, error)
+	Transactions(ctx context.Context, args api.Query) ([]TransactionDTO, error)
 	AddTransaction(ctx context.Context, tx *model.Transaction) (*model.Transaction, error)
 	DeleteTransaction(ctx context.Context, id string) error
 	UpdateTransaction(ctx context.Context, id string, tx *TransactionDTO) error

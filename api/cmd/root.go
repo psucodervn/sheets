@@ -11,7 +11,6 @@ import (
 	"api/internal/balance"
 	"api/internal/config"
 	"api/internal/point"
-	"api/pkg/adapter"
 	"api/pkg/wakatime"
 )
 
@@ -33,12 +32,9 @@ var (
 )
 
 func runApiServer(cfg config.ApiConfig) error {
-	gormConn := adapter.MustNewPostgresGorm(cfg.Postgres)
 	conn := db.ConnectDB(cfg.Postgres)
 
-	userRepo := balance.NewGormPostgresUserRepository(gormConn)
-	txRepo := balance.NewGormPostgresTransactionRepository(gormConn)
-	balanceSvc := balance.NewService(userRepo, txRepo, conn)
+	balanceSvc := balance.NewService(conn)
 	balanceHandler := balance.NewHandler(balanceSvc)
 
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)

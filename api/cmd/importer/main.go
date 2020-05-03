@@ -1,11 +1,11 @@
-package importer
+package main
 
 import (
 	"github.com/kelseyhightower/envconfig"
+	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"api/cmd"
 	"api/db"
 	"api/internal/balance"
 	"api/internal/config"
@@ -44,6 +44,11 @@ func runOldImporter(cmd *cobra.Command, args []string) error {
 	return importer.Run()
 }
 
-func init() {
-	cmd.RootCmd.AddCommand(importCmd)
+func main() {
+	logger.InitFromEnv()
+
+	if err := importCmd.Execute(); err != nil {
+		log.Fatal().Err(err).Msg("import failed")
+	}
+	log.Info().Msg("import done")
 }

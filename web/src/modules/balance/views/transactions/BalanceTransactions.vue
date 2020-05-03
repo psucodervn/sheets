@@ -85,9 +85,9 @@ export default class BalanceTransactions extends Vue {
   }
 
   async remove(txID: string) {
-    const idx = this.transactions.findIndex(tx => tx.id === txID);
+    const idx = BalanceModule.transactions.findIndex(tx => tx.id === txID);
     if (idx < 0) return;
-    const tx = this.transactions[idx];
+    const tx = BalanceModule.transactions[idx];
     this.$q
       .dialog({
         message: `Remove transaction '${tx.summary}'?`,
@@ -101,7 +101,7 @@ export default class BalanceTransactions extends Vue {
             message: `Transaction '${tx.summary}' was removed`,
             type: 'positive',
           });
-          this.transactions.splice(idx, 1);
+          BalanceModule.transactions.splice(idx, 1);
         } catch (e) {
           this.$q.notify({
             caption: 'Remove failed',

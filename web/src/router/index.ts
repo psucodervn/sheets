@@ -44,14 +44,14 @@ const routes: Array<RouteConfig> = [
             component: BalanceTransactions,
           },
           {
-            name: Routes.BalanceTransactionsEdit,
-            path: Routes.BalanceTransactionsEdit,
-            component: TransactionsEdit,
-          },
-          {
             name: Routes.BalanceTransactionsNew,
             path: Routes.BalanceTransactionsNew,
             component: TransactionsNew,
+          },
+          {
+            name: Routes.BalanceTransactionsEdit,
+            path: Routes.BalanceTransactionsEdit,
+            component: TransactionsEdit,
           },
         ],
       },

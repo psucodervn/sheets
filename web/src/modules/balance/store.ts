@@ -36,13 +36,13 @@ export default class BalanceStore extends VuexModule {
   async calcChanges(tx: ITransaction): Promise<TTransactionChanges> {
     const changes: TTransactionChanges = {};
     for (const u of tx.payers) {
-      if (!changes[u.id])
-        changes[u.id] = { value: 0, name: this.userIds[u.id].name };
+      if (!changes[u.id]) {
+        changes[u.id] = { value: 0, name: u.name };
+      }
       changes[u.id].value += u.value;
     }
     for (const u of tx.participants) {
-      if (!changes[u.id])
-        changes[u.id] = { value: 0, name: this.userIds[u.id].name };
+      if (!changes[u.id]) changes[u.id] = { value: 0, name: u.name };
       changes[u.id].value -= u.value;
     }
     return changes;

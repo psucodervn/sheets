@@ -28,21 +28,6 @@ func (h *Handler) Bind(e *echo.Echo) {
 	tx.POST("", h.postTransaction())
 }
 
-func (h *Handler) getUsersOld(c echo.Context) error {
-	ctx := c.Request().Context()
-	// users, err := h.svc.ListUserBalances(ctx)
-	users, err := h.svc.FindUsers(ctx, nil)
-
-	l := log.Ctx(ctx)
-	if err != nil {
-		l.Err(err).Msg("fetch users failed")
-		c.Error(err)
-		return nil
-	}
-
-	return c.JSON(http.StatusOK, api.Response{Success: true, Data: users})
-}
-
 func (h *Handler) getUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
@@ -59,21 +44,6 @@ func (h *Handler) getUser() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, api.Response{Success: true, Data: user})
-	}
-}
-
-func (h *Handler) getTransactionsOld() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		ctx := c.Request().Context()
-		l := log.Ctx(ctx)
-
-		txs, err := h.svc.FindTransactions(ctx, nil)
-		if err != nil {
-			l.Err(err).Msg("FindTransactions failed")
-			return c.JSON(http.StatusInternalServerError, api.Response{})
-		}
-
-		return c.JSON(http.StatusOK, api.Response{Success: true, Data: txs})
 	}
 }
 

@@ -31,7 +31,7 @@ export default class TimeInput extends Vue {
   }
 
   set datetime(val: string) {
-    this.t = date.extractDate(val, 'YYYY-MM-DD HH:mm');
+    this.t = date.extractDate(val + ' +0000', 'YYYY-MM-DD HH:mm ZZ');
   }
 }
 </script>

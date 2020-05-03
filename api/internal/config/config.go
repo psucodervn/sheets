@@ -6,9 +6,9 @@ type LogConfig struct {
 }
 
 type ApiConfig struct {
-	Address  string `default:"0.0.0.0:80"`
-	TLS      bool   `default:"false"`
-	Google   GoogleDocsConfig
+	Address string `default:"0.0.0.0:80"`
+	TLS     bool   `default:"false"`
+	//Google   GoogleDocsConfig
 	Postgres PostgresConfig
 	Jira     JiraConfig
 	Wakatime WakatimeConfig

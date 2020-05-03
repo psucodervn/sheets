@@ -95,16 +95,16 @@ export default class ListParticipants extends Vue {
   ];
 
   get participantCandidates() {
-    return BalanceModule.users.filter(u =>
-      this.users.every(tu => tu.id !== u.id)
-    );
+    return BalanceModule.users
+      .filter(u => this.users.every(tu => tu.id !== u.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   onAddParticipants(ids: string[]) {
     const adds = ids.map(
       (id: string): ITransactionUser => {
         const u = this.participantCandidates.find(u => u.id === id)!;
-        return { id: u.id, value: 0, name: this.getName(u.id), percent: 1 };
+        return { id: u.id, value: 0, name: u.name, percent: 1 };
       }
     )!;
     this.users.push(...adds);
