@@ -70,4 +70,46 @@ export default class BalanceStore extends VuexModule {
   setTransactions(param: { transactions: ITransaction[] }) {
     this.transactions = param.transactions;
   }
+
+  @Action({ rawError: true })
+  async submitNewTransaction(param: { tx: ITransaction }) {
+    const res = await Vue.$api.post<ITransaction>('/balance/transactions', {
+      transaction: param.tx,
+    });
+    if (!res.success) throw new Error(res.message);
+
+    return res.data!;
+  }
+
+  @Action({ rawError: true })
+  async submitEditTransaction(param: { tx: ITransaction }) {
+    const res = await Vue.$api.put<ITransaction>(
+      '/balance/transactions/' + param.tx.id,
+      {
+        transaction: param.tx,
+      }
+    );
+    if (!res.success) throw new Error(res.message);
+
+    return res.data!;
+  }
+
+  @Action({ rawError: true })
+  async removeTransaction(param: { id: string }) {
+    const res = await Vue.$api.delete<Boolean>(
+      '/balance/transactions/' + param.id
+    );
+    if (!res.success) throw new Error(res.message);
+    return !!res.data;
+  }
+
+  @Action({ rawError: true })
+  async fetchTransaction(param: { id: string }) {
+    const res = await Vue.$api.get<ITransaction>(
+      '/balance/transactions/' + param.id
+    );
+    if (!res.success || !res.data) throw new Error(res.message);
+    res.data.changes = await this.calcChanges(res.data);
+    return res.data;
+  }
 }

@@ -894,7 +894,7 @@ func FindTransactionGP(ctx context.Context, iD string, selectCols ...string) *Tr
 	return retobj
 }
 
-// FindTransaction retrieves a single record by ID with an executor.
+// Transaction retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindTransaction(ctx context.Context, exec boil.ContextExecutor, iD string, selectCols ...string) (*Transaction, error) {
 	transactionObj := &Transaction{}

@@ -57,7 +57,11 @@ func (imp *importer) saveUsers(ctx context.Context, users []oldmodel.User) error
 			SheetName: null.StringFrom(u.Name),
 		}
 		eg.Go(func() error {
-			err := u.Upsert(ctx, imp.db, true, []string{model.UserColumns.SheetName}, boil.Infer(), boil.Infer())
+			if u, err := model.Users(model.UserWhere.SheetName.EQ(null.StringFrom(u.Name))).One(ctx, imp.db); err == nil {
+				imp.users.Store(u.SheetName.String, u.ID)
+				return nil
+			}
+			err := u.Insert(ctx, imp.db, boil.Infer())
 			if err != nil {
 				return err
 			}
@@ -98,7 +102,7 @@ func (imp *importer) saveTransactions(ctx context.Context, txs []oldmodel.Transa
 			} else if err != nil {
 				return err
 			}
-			tx.SplitType = model.SplitEqual
+			tx.SplitType = model.SplitRatio
 			tx.Description = null.StringFrom(txs[i].Description)
 			tx.Payers = fromUserTransactions(txs[i].Senders)
 			tx.Participants = fromUserTransactions(txs[i].Receivers)

@@ -23,7 +23,9 @@ interface ITransaction {
   payers: ITransactionUser[];
   participants: ITransactionUser[];
   changes: TTransactionChanges;
+  splitType: ESplitOption;
 }
+
 type TTransactionNew = Omit<ITransaction, 'id'>;
 
 enum ESplitOption {

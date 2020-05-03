@@ -5,7 +5,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { BalanceModule } from '@/store';
-import NewTransactionBtn from '@/modules/balance/views/NewTransactionBtn.vue';
+import NewTransactionBtn from '@/modules/balance/components/transactions/NewTransactionBtn.vue';
 
 @Component({
   components: { NewTransactionBtn },

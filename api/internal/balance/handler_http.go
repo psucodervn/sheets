@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"api/internal/api"
+	"api/model"
 )
 
 type Handler struct {
@@ -18,9 +19,13 @@ func (h *Handler) Bind(e *echo.Echo) {
 	e.GET("/users", h.getUsers(), api.QueryParser())
 	e.GET("/users/:id", h.getUser())
 
-	g := e.Group("/balance", api.QueryParser())
-	g.GET("/transactions", h.getTransactions(), api.QueryParser())
-	g.GET("/transactions/:id", h.getTransaction())
+	g := e.Group("/balance")
+	tx := g.Group("/transactions")
+	tx.GET("", h.getTransactions(), api.QueryParser())
+	tx.GET("/:id", h.getTransaction())
+	tx.DELETE("/:id", h.deleteTransaction())
+	tx.PUT("/:id", h.updateTransaction())
+	tx.POST("", h.postTransaction())
 }
 
 func (h *Handler) getUsersOld(c echo.Context) error {
@@ -78,13 +83,13 @@ func (h *Handler) getTransaction() echo.HandlerFunc {
 		l := log.Ctx(ctx)
 
 		txID := c.Param("id")
-		tx, err := h.svc.FindTransaction(ctx, txID)
+		tx, err := h.svc.Transaction(ctx, txID)
 		if err != nil {
-			if errors.Is(err, ErrNotFound) {
-				return c.JSON(http.StatusNotFound, api.Response{})
+			if errors.Is(err, ErrTransactionNotFound) {
+				return c.JSON(http.StatusNotFound, api.Response{Message: "Transaction not found"})
 			}
-			l.Err(err).Str("txID", txID).Msg("FindTransaction failed")
-			return c.JSON(http.StatusInternalServerError, api.Response{})
+			l.Err(err).Str("txID", txID).Msg("find transaction failed")
+			return err
 		}
 
 		return c.JSON(http.StatusOK, api.Response{Success: true, Data: tx})
@@ -140,6 +145,79 @@ func (h *Handler) getTransactions() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, api.Response{Success: true, Data: txs})
+	}
+}
+
+func (h *Handler) postTransaction() echo.HandlerFunc {
+	type request struct {
+		Transaction model.Transaction `json:"transaction" validate:"required"`
+	}
+
+	return func(c echo.Context) error {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+		if err := c.Validate(req); err != nil {
+			return err
+		}
+
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		tx, err := h.svc.AddTransaction(ctx, &req.Transaction)
+		if err != nil {
+			l.Err(err).Msg("add transaction failed")
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true, Data: tx})
+	}
+}
+
+func (h *Handler) deleteTransaction() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		txID := c.Param("id")
+		if len(txID) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid transaction ID")
+		}
+
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		if err := h.svc.DeleteTransaction(ctx, txID); err != nil {
+			if err == ErrTransactionNotFound {
+				return echo.NewHTTPError(http.StatusNotFound, "Transaction not found")
+			}
+			l.Err(err).Msg("delete transaction failed")
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true})
+	}
+}
+
+func (h *Handler) updateTransaction() echo.HandlerFunc {
+	type request struct {
+		Transaction TransactionDTO `json:"transaction" validate:"required"`
+	}
+
+	return func(c echo.Context) error {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+		if err := c.Validate(req); err != nil {
+			return err
+		}
+		txID := c.Param("id")
+
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		if err := h.svc.UpdateTransaction(ctx, txID, &req.Transaction); err != nil {
+			l.Err(err).Msg("update transaction failed")
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true, Data: req.Transaction})
 	}
 }
 

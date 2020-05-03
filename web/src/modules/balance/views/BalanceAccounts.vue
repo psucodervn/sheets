@@ -11,7 +11,7 @@ import { IUser } from '@/model/user';
 import BalanceTable from '@/modules/balance/components/BalanceTable.vue';
 import { Routes } from '@/router/names';
 import { BalanceModule } from '@/store';
-import NewTransactionBtn from '@/modules/balance/views/NewTransactionBtn.vue';
+import NewTransactionBtn from '@/modules/balance/components/transactions/NewTransactionBtn.vue';
 
 @Component({
   components: { NewTransactionBtn, BalanceTable },

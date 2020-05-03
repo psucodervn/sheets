@@ -1,6 +1,6 @@
 <template>
   <div>
-    <transaction-detail :transaction.sync="transaction" />
+    <transaction-detail :transaction.sync="transaction" :is-edit="false" />
   </div>
 </template>
 
@@ -8,7 +8,10 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Routes } from '@/router/names';
 import TransactionDetail from '@/modules/balance/components/transactions/TransactionDetail.vue';
-import { TTransactionNew } from '@/modules/balance/types/transaction';
+import {
+  ESplitOption,
+  TTransactionNew,
+} from '@/modules/balance/types/transaction';
 
 @Component({
   components: { TransactionDetail },
@@ -22,6 +25,7 @@ export default class TransactionsNew extends Vue {
     payers: [],
     time: new Date(),
     value: 0,
+    splitType: ESplitOption.Equal,
   };
 
   created() {

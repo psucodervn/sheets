@@ -27,20 +27,13 @@
     input-class="text-right"
   >
     <template v-slot:append>
-      <q-btn
-        dense
-        rounded
-        flat
-        icon="add"
-        @click="user.percent++"
-        color="grey"
-      />
+      <q-btn dense rounded flat icon="add" @click="incPercent" color="grey" />
       <q-btn
         dense
         rounded
         flat
         icon="remove"
-        @click="user.percent > 1 && user.percent--"
+        @click="decPercent"
         color="grey"
       />
       <q-btn dense rounded flat icon="clear" color="red" @click="remove" />
@@ -87,6 +80,17 @@ export default class ParticipantInput extends Vue {
 
   updatePercent(u: ITransactionUser, val: number) {
     u.percent = Math.max(1, val);
+    this.$emit('update');
+  }
+
+  incPercent() {
+    this.user.percent = (this.user.percent || 1) + 1;
+    this.$emit('update');
+  }
+
+  decPercent() {
+    this.user.percent = Math.max((this.user.percent || 2) - 1, 1);
+    this.$emit('update');
   }
 }
 </script>

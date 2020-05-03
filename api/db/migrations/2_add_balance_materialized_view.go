@@ -7,11 +7,11 @@ AS
 	SELECT u.id as user_id, COALESCE(SUM(tu.value), 0) as value
 	FROM
 		users u LEFT JOIN
-			(SELECT items->>'id' as user_id, -(items->>'value')::FLOAT as value
+			(SELECT items->>'id' as user_id, -(items->>'value')::FLOAT as value, id
 				FROM transactions tx, jsonb_array_elements(tx.participants) items
 				WHERE tx.deleted_at IS NULL
 			UNION
-			SELECT items->>'id' as user_id, (items->>'value')::FLOAT as value
+			SELECT items->>'id' as user_id, (items->>'value')::FLOAT as value, id
 				FROM transactions tx, jsonb_array_elements(tx.payers) items
 				WHERE tx.deleted_at IS NULL
 			) AS tu

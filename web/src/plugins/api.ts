@@ -24,6 +24,21 @@ export class ApiWrapper {
     return this.process<T>(this.axios.post<ApiResponse<T>>(url, data, config));
   }
 
+  async put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.process<T>(this.axios.put<ApiResponse<T>>(url, data, config));
+  }
+
+  async delete<T = any>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.process<T>(this.axios.delete<ApiResponse<T>>(url, config));
+  }
+
   async process<T = any>(
     promise: Promise<AxiosResponse<ApiResponse<T>>>
   ): Promise<ApiResponse<T>> {

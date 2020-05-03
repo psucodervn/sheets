@@ -10,6 +10,7 @@
     <transaction-table
       :transactions="transactions"
       :expand-all="selectedUserNames.length > 0"
+      @remove="remove"
     />
     <new-transaction-btn />
   </q-pull-to-refresh>
@@ -25,7 +26,7 @@ import { Routes } from '@/router/names';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import TransactionTable from '@/modules/balance/components/transactions/TransactionTable.vue';
 import UserFilter from '@/modules/balance/components/UserFilter.vue';
-import NewTransactionBtn from '@/modules/balance/views/NewTransactionBtn.vue';
+import NewTransactionBtn from '@/modules/balance/components/transactions/NewTransactionBtn.vue';
 
 @Component({
   components: { NewTransactionBtn, UserFilter, TransactionTable },
@@ -80,6 +81,34 @@ export default class BalanceTransactions extends Vue {
           );
         }
         return { ...tx, changes };
+      });
+  }
+
+  async remove(txID: string) {
+    const idx = this.transactions.findIndex(tx => tx.id === txID);
+    if (idx < 0) return;
+    const tx = this.transactions[idx];
+    this.$q
+      .dialog({
+        message: `Remove transaction '${tx.summary}'?`,
+        cancel: true,
+      })
+      .onOk(async () => {
+        try {
+          await BalanceModule.removeTransaction({ id: tx.id });
+          this.$q.notify({
+            caption: 'Remove succeed',
+            message: `Transaction '${tx.summary}' was removed`,
+            type: 'positive',
+          });
+          this.transactions.splice(idx, 1);
+        } catch (e) {
+          this.$q.notify({
+            caption: 'Remove failed',
+            message: e.message,
+            type: 'negative',
+          });
+        }
       });
   }
 

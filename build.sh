@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# TAG=$(git describe --abbrev=0 --tags)
-TAG=$(git rev-parse --short HEAD)
+TAG=$(git describe --tags)
+# TAG=$(git rev-parse --short HEAD)
 # if [[ -z "${TAG}" ]]; then
 #   TAG=$(git rev-parse --short HEAD)
 # fi
@@ -20,6 +20,6 @@ echo "Build ${IMAGE}";
 docker-compose -f dc-build.yaml build ${SERVICE}
 docker-compose -f dc-build.yaml push ${SERVICE}
 
-./up.sh ${SERVICE} ${TAG}
+# ./up.sh ${SERVICE} ${TAG}
 
 exit 0

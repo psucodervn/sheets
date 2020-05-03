@@ -5,7 +5,7 @@
       <div class="col col-grow">
         <q-option-group
           :options="splitOptions"
-          v-model="splitOption"
+          v-model="split"
           inline
           dense
           class="float-left option"
@@ -24,7 +24,7 @@
     <div class="row">
       <q-option-group
         :options="splitOptions"
-        v-model="splitOption"
+        v-model="split"
         inline
         dense
         class="q-pa-sm option"
@@ -50,9 +50,10 @@
         v-for="(u, idx) in users"
       >
         <participant-input
-          :split-option="splitOption"
+          :split-option="split"
           :participant="u"
           @remove="() => remove(u.id)"
+          @update="setValues"
         />
       </div>
     </div>
@@ -83,15 +84,15 @@ export default class ListParticipants extends Vue {
   @PropSync('participants', { type: Array, required: true })
   users!: ITransactionUser[];
   @Prop({ type: Number, required: true }) totalValue!: number;
+  @PropSync('splitType', { required: true }) split!: ESplitOption;
 
   participantDialog = false;
 
   splitOptions = [
     { label: 'Equal', value: ESplitOption.Equal },
     { label: 'Ratio', value: ESplitOption.Ratio },
-    { label: 'Custom', value: ESplitOption.Custom },
+    { label: 'Custom', value: ESplitOption.Custom, disable: true },
   ];
-  splitOption = ESplitOption.Equal;
 
   get participantCandidates() {
     return BalanceModule.users.filter(u =>
@@ -124,19 +125,22 @@ export default class ListParticipants extends Vue {
 
   @Watch('users.length')
   @Watch('totalValue')
-  @Watch('splitOption', { immediate: true })
+  @Watch('split', { immediate: true })
   setValues() {
     if (!this.users.length) return;
-    if (this.splitOption === ESplitOption.Equal) {
+    if (this.split === ESplitOption.Equal) {
       const v = (this.totalValue / this.users.length).toFixed(0);
       for (let i = 0; i < this.users.length; i++) {
         this.users[i].value = Number(v);
       }
-    } else if (this.splitOption === ESplitOption.Ratio) {
+    } else if (this.split === ESplitOption.Ratio) {
+      const sumPercent = this.users.reduce((p, u) => p + (u.percent || 1), 0);
       for (let i = 0; i < this.users.length; i++) {
-        this.users[i].percent = Math.max(this.users[i].percent || 1, 1);
+        this.users[i].value =
+          ((this.users[i].percent || 1) / sumPercent) * this.totalValue;
       }
     }
+    this.$emit('update');
   }
 }
 </script>

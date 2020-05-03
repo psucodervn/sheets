@@ -10,6 +10,7 @@ import BalanceTransactions from '@/modules/balance/views/transactions/BalanceTra
 import Report from '@/modules/point/views/Report.vue';
 import Balance from '@/modules/balance/views/Balance.vue';
 import TransactionsNew from '@/modules/balance/views/transactions/TransactionsNew.vue';
+import TransactionsEdit from '@/modules/balance/views/transactions/TransactionsEdit.vue';
 
 Vue.use(VueRouter);
 
@@ -41,6 +42,11 @@ const routes: Array<RouteConfig> = [
             name: Routes.BalanceTransactions,
             path: Routes.BalanceTransactions,
             component: BalanceTransactions,
+          },
+          {
+            name: Routes.BalanceTransactionsEdit,
+            path: Routes.BalanceTransactionsEdit,
+            component: TransactionsEdit,
           },
           {
             name: Routes.BalanceTransactionsNew,
