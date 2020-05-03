@@ -19,12 +19,18 @@ add-soft-deletes    = true
 
 [[types]]
   [types.match]
-    name = "senders"
+    name = "payers"
   [types.replace]
     type = "Changes"
 
 [[types]]
   [types.match]
-    name = "receivers"
+    name = "participants"
   [types.replace]
     type = "Changes"
+
+[[types]]
+  [types.match]
+    name = "split_type"
+  [types.replace]
+    type = "SplitType"

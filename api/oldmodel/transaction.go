@@ -19,9 +19,10 @@ type Transaction struct {
 }
 
 type UserTransaction struct {
-	ID   string  `json:"id,omitempty"`
-	Name string  `json:"name,omitempty"`
-	Val  float64 `json:"value,omitempty"`
+	ID      string  `json:"id,omitempty"`
+	Name    string  `json:"name,omitempty"`
+	Val     float64 `json:"value,omitempty"`
+	Percent float64 `json:"percent,omitempty"`
 }
 
 type UserTransactions []UserTransaction

@@ -57,7 +57,7 @@ func (h *Handler) getUser() echo.HandlerFunc {
 	}
 }
 
-func (h *Handler) getTransactions() echo.HandlerFunc {
+func (h *Handler) getTransactionsOld() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		l := log.Ctx(ctx)
@@ -114,6 +114,32 @@ func (h *Handler) getUsers() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, api.Response{Success: true, Data: users})
+	}
+}
+
+func (h *Handler) getTransactions() echo.HandlerFunc {
+	type request struct {
+	}
+
+	return func(c echo.Context) error {
+		var req request
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+		if err := c.Validate(req); err != nil {
+			return err
+		}
+
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		args := api.QueryFromContext(c)
+		txs, err := h.svc.Transactions(ctx, args)
+		if err != nil {
+			l.Err(err).Msg("list transactions failed")
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true, Data: txs})
 	}
 }
 

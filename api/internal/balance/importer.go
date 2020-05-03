@@ -75,6 +75,7 @@ func (imp *importer) saveTransactions(ctx context.Context, txs []oldmodel.Transa
 			id, _ := imp.users.Load(txs[i].Name)
 			changes[i].ID = id.(string)
 			changes[i].Value = txs[i].Val
+			changes[i].Percent = txs[i].Percent
 		}
 		return changes
 	}
@@ -97,9 +98,10 @@ func (imp *importer) saveTransactions(ctx context.Context, txs []oldmodel.Transa
 			} else if err != nil {
 				return err
 			}
+			tx.SplitType = model.SplitEqual
 			tx.Description = null.StringFrom(txs[i].Description)
-			tx.Senders = fromUserTransactions(txs[i].Senders)
-			tx.Receivers = fromUserTransactions(txs[i].Receivers)
+			tx.Payers = fromUserTransactions(txs[i].Senders)
+			tx.Participants = fromUserTransactions(txs[i].Receivers)
 			return tx.Upsert(ctx, imp.db, true, []string{}, boil.Infer(), boil.Infer())
 		})
 	}

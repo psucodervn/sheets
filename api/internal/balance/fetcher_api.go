@@ -120,8 +120,9 @@ func toTransaction(raw []interface{}, users []oldmodel.User) (tx *oldmodel.Trans
 			continue
 		}
 		receivers = append(receivers, oldmodel.UserTransaction{
-			Name: users[i].Name,
-			Val:  totalValue * cnt / totalCount,
+			Name:    users[i].Name,
+			Val:     totalValue * cnt / totalCount,
+			Percent: cnt,
 		})
 	}
 

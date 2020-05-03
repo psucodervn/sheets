@@ -23,6 +23,7 @@ type Service interface {
 	FindTransaction(ctx context.Context, id string) (*oldmodel.Transaction, error)
 	Users(ctx context.Context, args api.Query) ([]model.UserWithBalance, error)
 	User(ctx context.Context, id string) (*model.UserWithBalance, error)
+	Transactions(ctx context.Context, args api.Query) (model.TransactionSlice, error)
 }
 
 type UserRepository interface {

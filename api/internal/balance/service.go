@@ -18,6 +18,10 @@ type service struct {
 	db       boil.ContextExecutor
 }
 
+func (s *service) Transactions(ctx context.Context, args api.Query) (model.TransactionSlice, error) {
+	return model.Transactions().All(ctx, s.db)
+}
+
 func (s *service) User(ctx context.Context, id string) (*model.UserWithBalance, error) {
 	return model.UsersWithBalance(model.UserWhere.ID.EQ(id)).One(ctx, s.db)
 }

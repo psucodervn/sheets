@@ -38,46 +38,75 @@ func init() {
 
 // Transaction is an object representing the database table.
 type Transaction struct {
-	ID          string      `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt   time.Time   `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
-	UpdatedAt   time.Time   `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
-	DeletedAt   null.Time   `boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
-	Time        time.Time   `boil:"time" json:"time" toml:"time" yaml:"time"`
-	Value       float64     `boil:"value" json:"value" toml:"value" yaml:"value"`
-	Summary     string      `boil:"summary" json:"summary" toml:"summary" yaml:"summary"`
-	Description null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
-	Senders     Changes     `boil:"senders" json:"senders" toml:"senders" yaml:"senders"`
-	Receivers   Changes     `boil:"receivers" json:"receivers" toml:"receivers" yaml:"receivers"`
+	ID           string      `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CreatedAt    time.Time   `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
+	UpdatedAt    time.Time   `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
+	DeletedAt    null.Time   `boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
+	CreatorID    null.String `boil:"creator_id" json:"creatorID,omitempty" toml:"creatorID" yaml:"creatorID,omitempty"`
+	Time         time.Time   `boil:"time" json:"time" toml:"time" yaml:"time"`
+	Value        float64     `boil:"value" json:"value" toml:"value" yaml:"value"`
+	Summary      string      `boil:"summary" json:"summary" toml:"summary" yaml:"summary"`
+	Description  null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
+	Payers       Changes     `boil:"payers" json:"payers" toml:"payers" yaml:"payers"`
+	Participants Changes     `boil:"participants" json:"participants" toml:"participants" yaml:"participants"`
+	SplitType    SplitType   `boil:"split_type" json:"splitType" toml:"splitType" yaml:"splitType"`
 
 	R *transactionR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L transactionL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var TransactionColumns = struct {
-	ID          string
-	CreatedAt   string
-	UpdatedAt   string
-	DeletedAt   string
-	Time        string
-	Value       string
-	Summary     string
-	Description string
-	Senders     string
-	Receivers   string
+	ID           string
+	CreatedAt    string
+	UpdatedAt    string
+	DeletedAt    string
+	CreatorID    string
+	Time         string
+	Value        string
+	Summary      string
+	Description  string
+	Payers       string
+	Participants string
+	SplitType    string
 }{
-	ID:          "id",
-	CreatedAt:   "created_at",
-	UpdatedAt:   "updated_at",
-	DeletedAt:   "deleted_at",
-	Time:        "time",
-	Value:       "value",
-	Summary:     "summary",
-	Description: "description",
-	Senders:     "senders",
-	Receivers:   "receivers",
+	ID:           "id",
+	CreatedAt:    "created_at",
+	UpdatedAt:    "updated_at",
+	DeletedAt:    "deleted_at",
+	CreatorID:    "creator_id",
+	Time:         "time",
+	Value:        "value",
+	Summary:      "summary",
+	Description:  "description",
+	Payers:       "payers",
+	Participants: "participants",
+	SplitType:    "split_type",
 }
 
 // Generated where
+
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
 
 type whereHelperfloat64 struct{ field string }
 
@@ -108,29 +137,6 @@ func (w whereHelperfloat64) NIN(slice []float64) qm.QueryMod {
 	return qm.WhereIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
 type whereHelperChanges struct{ field string }
 
 func (w whereHelperChanges) EQ(x Changes) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.EQ, x) }
@@ -146,36 +152,65 @@ func (w whereHelperChanges) GTE(x Changes) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelperSplitType struct{ field string }
+
+func (w whereHelperSplitType) EQ(x SplitType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelperSplitType) NEQ(x SplitType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelperSplitType) LT(x SplitType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelperSplitType) LTE(x SplitType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelperSplitType) GT(x SplitType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelperSplitType) GTE(x SplitType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var TransactionWhere = struct {
-	ID          whereHelperstring
-	CreatedAt   whereHelpertime_Time
-	UpdatedAt   whereHelpertime_Time
-	DeletedAt   whereHelpernull_Time
-	Time        whereHelpertime_Time
-	Value       whereHelperfloat64
-	Summary     whereHelperstring
-	Description whereHelpernull_String
-	Senders     whereHelperChanges
-	Receivers   whereHelperChanges
+	ID           whereHelperstring
+	CreatedAt    whereHelpertime_Time
+	UpdatedAt    whereHelpertime_Time
+	DeletedAt    whereHelpernull_Time
+	CreatorID    whereHelpernull_String
+	Time         whereHelpertime_Time
+	Value        whereHelperfloat64
+	Summary      whereHelperstring
+	Description  whereHelpernull_String
+	Payers       whereHelperChanges
+	Participants whereHelperChanges
+	SplitType    whereHelperSplitType
 }{
-	ID:          whereHelperstring{field: "\"transactions\".\"id\""},
-	CreatedAt:   whereHelpertime_Time{field: "\"transactions\".\"created_at\""},
-	UpdatedAt:   whereHelpertime_Time{field: "\"transactions\".\"updated_at\""},
-	DeletedAt:   whereHelpernull_Time{field: "\"transactions\".\"deleted_at\""},
-	Time:        whereHelpertime_Time{field: "\"transactions\".\"time\""},
-	Value:       whereHelperfloat64{field: "\"transactions\".\"value\""},
-	Summary:     whereHelperstring{field: "\"transactions\".\"summary\""},
-	Description: whereHelpernull_String{field: "\"transactions\".\"description\""},
-	Senders:     whereHelperChanges{field: "\"transactions\".\"senders\""},
-	Receivers:   whereHelperChanges{field: "\"transactions\".\"receivers\""},
+	ID:           whereHelperstring{field: "\"transactions\".\"id\""},
+	CreatedAt:    whereHelpertime_Time{field: "\"transactions\".\"created_at\""},
+	UpdatedAt:    whereHelpertime_Time{field: "\"transactions\".\"updated_at\""},
+	DeletedAt:    whereHelpernull_Time{field: "\"transactions\".\"deleted_at\""},
+	CreatorID:    whereHelpernull_String{field: "\"transactions\".\"creator_id\""},
+	Time:         whereHelpertime_Time{field: "\"transactions\".\"time\""},
+	Value:        whereHelperfloat64{field: "\"transactions\".\"value\""},
+	Summary:      whereHelperstring{field: "\"transactions\".\"summary\""},
+	Description:  whereHelpernull_String{field: "\"transactions\".\"description\""},
+	Payers:       whereHelperChanges{field: "\"transactions\".\"payers\""},
+	Participants: whereHelperChanges{field: "\"transactions\".\"participants\""},
+	SplitType:    whereHelperSplitType{field: "\"transactions\".\"split_type\""},
 }
 
 // TransactionRels is where relationship names are stored.
 var TransactionRels = struct {
-}{}
+	Creator string
+}{
+	Creator: "Creator",
+}
 
 // transactionR is where relationships are stored.
 type transactionR struct {
+	Creator *User
 }
 
 // NewStruct creates a new relationship struct
@@ -187,9 +222,9 @@ func (*transactionR) NewStruct() *transactionR {
 type transactionL struct{}
 
 var (
-	transactionAllColumns            = []string{"id", "created_at", "updated_at", "deleted_at", "time", "value", "summary", "description", "senders", "receivers"}
-	transactionColumnsWithoutDefault = []string{"id", "created_at", "updated_at", "deleted_at", "time", "value", "summary", "description"}
-	transactionColumnsWithDefault    = []string{"senders", "receivers"}
+	transactionAllColumns            = []string{"id", "created_at", "updated_at", "deleted_at", "creator_id", "time", "value", "summary", "description", "payers", "participants", "split_type"}
+	transactionColumnsWithoutDefault = []string{"id", "created_at", "updated_at", "deleted_at", "creator_id", "time", "value", "summary", "description"}
+	transactionColumnsWithDefault    = []string{"payers", "participants", "split_type"}
 	transactionPrimaryKeyColumns     = []string{"id"}
 )
 
@@ -566,6 +601,266 @@ func (q transactionQuery) Exists(ctx context.Context, exec boil.ContextExecutor)
 	}
 
 	return count > 0, nil
+}
+
+// Creator pointed to by the foreign key.
+func (o *Transaction) Creator(mods ...qm.QueryMod) userQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.CreatorID),
+		qmhelper.WhereIsNull("deleted_at"),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	query := Users(queryMods...)
+	queries.SetFrom(query.Query, "\"users\"")
+
+	return query
+}
+
+// LoadCreator allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (transactionL) LoadCreator(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTransaction interface{}, mods queries.Applicator) error {
+	var slice []*Transaction
+	var object *Transaction
+
+	if singular {
+		object = maybeTransaction.(*Transaction)
+	} else {
+		slice = *maybeTransaction.(*[]*Transaction)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &transactionR{}
+		}
+		if !queries.IsNil(object.CreatorID) {
+			args = append(args, object.CreatorID)
+		}
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &transactionR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.CreatorID) {
+					continue Outer
+				}
+			}
+
+			if !queries.IsNil(obj.CreatorID) {
+				args = append(args, obj.CreatorID)
+			}
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`users`),
+		qm.WhereIn(`users.id in ?`, args...),
+		qmhelper.WhereIsNull(`users.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load User")
+	}
+
+	var resultSlice []*User
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice User")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for users")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
+	}
+
+	if len(transactionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.Creator = foreign
+		if foreign.R == nil {
+			foreign.R = &userR{}
+		}
+		foreign.R.CreatorTransactions = append(foreign.R.CreatorTransactions, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if queries.Equal(local.CreatorID, foreign.ID) {
+				local.R.Creator = foreign
+				if foreign.R == nil {
+					foreign.R = &userR{}
+				}
+				foreign.R.CreatorTransactions = append(foreign.R.CreatorTransactions, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// SetCreatorG of the transaction to the related item.
+// Sets o.R.Creator to related.
+// Adds o to related.R.CreatorTransactions.
+// Uses the global database handle.
+func (o *Transaction) SetCreatorG(ctx context.Context, insert bool, related *User) error {
+	return o.SetCreator(ctx, boil.GetContextDB(), insert, related)
+}
+
+// SetCreatorP of the transaction to the related item.
+// Sets o.R.Creator to related.
+// Adds o to related.R.CreatorTransactions.
+// Panics on error.
+func (o *Transaction) SetCreatorP(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) {
+	if err := o.SetCreator(ctx, exec, insert, related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetCreatorGP of the transaction to the related item.
+// Sets o.R.Creator to related.
+// Adds o to related.R.CreatorTransactions.
+// Uses the global database handle and panics on error.
+func (o *Transaction) SetCreatorGP(ctx context.Context, insert bool, related *User) {
+	if err := o.SetCreator(ctx, boil.GetContextDB(), insert, related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetCreator of the transaction to the related item.
+// Sets o.R.Creator to related.
+// Adds o to related.R.CreatorTransactions.
+func (o *Transaction) SetCreator(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"transactions\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"creator_id"}),
+		strmangle.WhereClause("\"", "\"", 2, transactionPrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	queries.Assign(&o.CreatorID, related.ID)
+	if o.R == nil {
+		o.R = &transactionR{
+			Creator: related,
+		}
+	} else {
+		o.R.Creator = related
+	}
+
+	if related.R == nil {
+		related.R = &userR{
+			CreatorTransactions: TransactionSlice{o},
+		}
+	} else {
+		related.R.CreatorTransactions = append(related.R.CreatorTransactions, o)
+	}
+
+	return nil
+}
+
+// RemoveCreatorG relationship.
+// Sets o.R.Creator to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Uses the global database handle.
+func (o *Transaction) RemoveCreatorG(ctx context.Context, related *User) error {
+	return o.RemoveCreator(ctx, boil.GetContextDB(), related)
+}
+
+// RemoveCreatorP relationship.
+// Sets o.R.Creator to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Panics on error.
+func (o *Transaction) RemoveCreatorP(ctx context.Context, exec boil.ContextExecutor, related *User) {
+	if err := o.RemoveCreator(ctx, exec, related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveCreatorGP relationship.
+// Sets o.R.Creator to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Uses the global database handle and panics on error.
+func (o *Transaction) RemoveCreatorGP(ctx context.Context, related *User) {
+	if err := o.RemoveCreator(ctx, boil.GetContextDB(), related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveCreator relationship.
+// Sets o.R.Creator to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+func (o *Transaction) RemoveCreator(ctx context.Context, exec boil.ContextExecutor, related *User) error {
+	var err error
+
+	queries.SetScanner(&o.CreatorID, nil)
+	if _, err = o.Update(ctx, exec, boil.Whitelist("creator_id")); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	if o.R != nil {
+		o.R.Creator = nil
+	}
+	if related == nil || related.R == nil {
+		return nil
+	}
+
+	for i, ri := range related.R.CreatorTransactions {
+		if queries.Equal(o.CreatorID, ri.CreatorID) {
+			continue
+		}
+
+		ln := len(related.R.CreatorTransactions)
+		if ln > 1 && i < ln-1 {
+			related.R.CreatorTransactions[i] = related.R.CreatorTransactions[ln-1]
+		}
+		related.R.CreatorTransactions = related.R.CreatorTransactions[:ln-1]
+		break
+	}
+	return nil
 }
 
 // Transactions retrieves all the records using an executor.

@@ -25,14 +25,20 @@ CREATE TABLE "transactions" (
   "created_at" timestamptz NOT NULL,
   "updated_at" timestamptz NOT NULL,
   "deleted_at" timestamptz,
+  "creator_id" text,
   "time" timestamptz NOT NULL,
   "value" float8 NOT NULL,
   "summary" text NOT NULL,
   "description" text,
-  "senders" jsonb NOT NULL DEFAULT '[]',
-  "receivers" jsonb NOT NULL DEFAULT '[]'
+  "payers" jsonb NOT NULL DEFAULT '[]'::jsonb,
+  "participants" jsonb NOT NULL DEFAULT '[]'::jsonb
 );
 
 ALTER TABLE "auth_identities" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
+ALTER TABLE "transactions" ADD FOREIGN KEY ("creator_id") REFERENCES "users" ("id");
+
 CREATE INDEX ON "auth_identities" ("user_id");
+
+alter table transactions
+	add split_type int default 0 not null;

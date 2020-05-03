@@ -8,8 +8,9 @@ import (
 )
 
 type Change struct {
-	ID    string  `json:"id"`
-	Value float64 `json:"value"`
+	ID      string  `json:"id"`
+	Value   float64 `json:"value"`
+	Percent float64 `json:"percent,omitempty"`
 }
 
 type Changes []Change
@@ -26,3 +27,10 @@ func (c *Changes) Scan(src interface{}) error {
 func (c Changes) Value() (driver.Value, error) {
 	return json.Marshal(c)
 }
+
+type SplitType uint8
+
+const (
+	SplitEqual SplitType = 0
+	SplitRatio SplitType = 1
+)

@@ -100,14 +100,17 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	AuthIdentities string
+	AuthIdentities      string
+	CreatorTransactions string
 }{
-	AuthIdentities: "AuthIdentities",
+	AuthIdentities:      "AuthIdentities",
+	CreatorTransactions: "CreatorTransactions",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	AuthIdentities AuthIdentitySlice
+	AuthIdentities      AuthIdentitySlice
+	CreatorTransactions TransactionSlice
 }
 
 // NewStruct creates a new relationship struct
@@ -522,6 +525,28 @@ func (o *User) AuthIdentities(mods ...qm.QueryMod) authIdentityQuery {
 	return query
 }
 
+// CreatorTransactions retrieves all the transaction's Transactions with an executor via creator_id column.
+func (o *User) CreatorTransactions(mods ...qm.QueryMod) transactionQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"transactions\".\"creator_id\"=?", o.ID),
+		qmhelper.WhereIsNull("\"transactions\".\"deleted_at\""),
+	)
+
+	query := Transactions(queryMods...)
+	queries.SetFrom(query.Query, "\"transactions\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"transactions\".*"})
+	}
+
+	return query
+}
+
 // LoadAuthIdentities allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (userL) LoadAuthIdentities(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
@@ -621,6 +646,105 @@ func (userL) LoadAuthIdentities(ctx context.Context, e boil.ContextExecutor, sin
 	return nil
 }
 
+// LoadCreatorTransactions allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadCreatorTransactions(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.ID) {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`transactions`),
+		qm.WhereIn(`transactions.creator_id in ?`, args...),
+		qmhelper.WhereIsNull(`transactions.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load transactions")
+	}
+
+	var resultSlice []*Transaction
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice transactions")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on transactions")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for transactions")
+	}
+
+	if len(transactionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.CreatorTransactions = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &transactionR{}
+			}
+			foreign.R.Creator = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if queries.Equal(local.ID, foreign.CreatorID) {
+				local.R.CreatorTransactions = append(local.R.CreatorTransactions, foreign)
+				if foreign.R == nil {
+					foreign.R = &transactionR{}
+				}
+				foreign.R.Creator = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // AddAuthIdentitiesG adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.AuthIdentities.
@@ -702,6 +826,225 @@ func (o *User) AddAuthIdentities(ctx context.Context, exec boil.ContextExecutor,
 			rel.R.User = o
 		}
 	}
+	return nil
+}
+
+// AddCreatorTransactionsG adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.CreatorTransactions.
+// Sets related.R.Creator appropriately.
+// Uses the global database handle.
+func (o *User) AddCreatorTransactionsG(ctx context.Context, insert bool, related ...*Transaction) error {
+	return o.AddCreatorTransactions(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// AddCreatorTransactionsP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.CreatorTransactions.
+// Sets related.R.Creator appropriately.
+// Panics on error.
+func (o *User) AddCreatorTransactionsP(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Transaction) {
+	if err := o.AddCreatorTransactions(ctx, exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddCreatorTransactionsGP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.CreatorTransactions.
+// Sets related.R.Creator appropriately.
+// Uses the global database handle and panics on error.
+func (o *User) AddCreatorTransactionsGP(ctx context.Context, insert bool, related ...*Transaction) {
+	if err := o.AddCreatorTransactions(ctx, boil.GetContextDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddCreatorTransactions adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.CreatorTransactions.
+// Sets related.R.Creator appropriately.
+func (o *User) AddCreatorTransactions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Transaction) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			queries.Assign(&rel.CreatorID, o.ID)
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"transactions\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"creator_id"}),
+				strmangle.WhereClause("\"", "\"", 2, transactionPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			queries.Assign(&rel.CreatorID, o.ID)
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			CreatorTransactions: related,
+		}
+	} else {
+		o.R.CreatorTransactions = append(o.R.CreatorTransactions, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &transactionR{
+				Creator: o,
+			}
+		} else {
+			rel.R.Creator = o
+		}
+	}
+	return nil
+}
+
+// SetCreatorTransactionsG removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Creator's CreatorTransactions accordingly.
+// Replaces o.R.CreatorTransactions with related.
+// Sets related.R.Creator's CreatorTransactions accordingly.
+// Uses the global database handle.
+func (o *User) SetCreatorTransactionsG(ctx context.Context, insert bool, related ...*Transaction) error {
+	return o.SetCreatorTransactions(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// SetCreatorTransactionsP removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Creator's CreatorTransactions accordingly.
+// Replaces o.R.CreatorTransactions with related.
+// Sets related.R.Creator's CreatorTransactions accordingly.
+// Panics on error.
+func (o *User) SetCreatorTransactionsP(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Transaction) {
+	if err := o.SetCreatorTransactions(ctx, exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetCreatorTransactionsGP removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Creator's CreatorTransactions accordingly.
+// Replaces o.R.CreatorTransactions with related.
+// Sets related.R.Creator's CreatorTransactions accordingly.
+// Uses the global database handle and panics on error.
+func (o *User) SetCreatorTransactionsGP(ctx context.Context, insert bool, related ...*Transaction) {
+	if err := o.SetCreatorTransactions(ctx, boil.GetContextDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetCreatorTransactions removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Creator's CreatorTransactions accordingly.
+// Replaces o.R.CreatorTransactions with related.
+// Sets related.R.Creator's CreatorTransactions accordingly.
+func (o *User) SetCreatorTransactions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Transaction) error {
+	query := "update \"transactions\" set \"creator_id\" = null where \"creator_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.CreatorTransactions {
+			queries.SetScanner(&rel.CreatorID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.Creator = nil
+		}
+
+		o.R.CreatorTransactions = nil
+	}
+	return o.AddCreatorTransactions(ctx, exec, insert, related...)
+}
+
+// RemoveCreatorTransactionsG relationships from objects passed in.
+// Removes related items from R.CreatorTransactions (uses pointer comparison, removal does not keep order)
+// Sets related.R.Creator.
+// Uses the global database handle.
+func (o *User) RemoveCreatorTransactionsG(ctx context.Context, related ...*Transaction) error {
+	return o.RemoveCreatorTransactions(ctx, boil.GetContextDB(), related...)
+}
+
+// RemoveCreatorTransactionsP relationships from objects passed in.
+// Removes related items from R.CreatorTransactions (uses pointer comparison, removal does not keep order)
+// Sets related.R.Creator.
+// Panics on error.
+func (o *User) RemoveCreatorTransactionsP(ctx context.Context, exec boil.ContextExecutor, related ...*Transaction) {
+	if err := o.RemoveCreatorTransactions(ctx, exec, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveCreatorTransactionsGP relationships from objects passed in.
+// Removes related items from R.CreatorTransactions (uses pointer comparison, removal does not keep order)
+// Sets related.R.Creator.
+// Uses the global database handle and panics on error.
+func (o *User) RemoveCreatorTransactionsGP(ctx context.Context, related ...*Transaction) {
+	if err := o.RemoveCreatorTransactions(ctx, boil.GetContextDB(), related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveCreatorTransactions relationships from objects passed in.
+// Removes related items from R.CreatorTransactions (uses pointer comparison, removal does not keep order)
+// Sets related.R.Creator.
+func (o *User) RemoveCreatorTransactions(ctx context.Context, exec boil.ContextExecutor, related ...*Transaction) error {
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.CreatorID, nil)
+		if rel.R != nil {
+			rel.R.Creator = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("creator_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.CreatorTransactions {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.CreatorTransactions)
+			if ln > 1 && i < ln-1 {
+				o.R.CreatorTransactions[i] = o.R.CreatorTransactions[ln-1]
+			}
+			o.R.CreatorTransactions = o.R.CreatorTransactions[:ln-1]
+			break
+		}
+	}
+
 	return nil
 }
 
