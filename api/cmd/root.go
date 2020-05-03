@@ -20,7 +20,7 @@ func init() {
 }
 
 var (
-	rootCmd = &cobra.Command{
+	RootCmd = &cobra.Command{
 		Use: "api",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var cfg config.ApiConfig
@@ -55,5 +55,5 @@ func runApiServer(cfg config.ApiConfig) error {
 }
 
 func Execute() error {
-	return rootCmd.Execute()
+	return RootCmd.Execute()
 }

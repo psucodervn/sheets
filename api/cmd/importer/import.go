@@ -1,10 +1,11 @@
-package cmd
+package importer
 
 import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
+	"api/cmd"
 	"api/db"
 	"api/internal/balance"
 	"api/internal/config"
@@ -44,5 +45,5 @@ func runOldImporter(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(importCmd)
+	cmd.RootCmd.AddCommand(importCmd)
 }

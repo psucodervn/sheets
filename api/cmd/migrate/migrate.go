@@ -1,9 +1,10 @@
-package cmd
+package migrate
 
 import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/cobra"
 
+	"api/cmd"
 	"api/db"
 	"api/db/migrations"
 	"api/internal/config"
@@ -31,5 +32,5 @@ func runMigration(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(migrateCmd)
+	cmd.RootCmd.AddCommand(migrateCmd)
 }
