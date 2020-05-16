@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	"api/internal/api"
 	"api/model"
@@ -44,7 +45,7 @@ func (s *service) AddTransaction(ctx context.Context, tx *model.Transaction) (*m
 }
 
 func (s *service) Transactions(ctx context.Context, args api.Query) ([]TransactionDTO, error) {
-	txs, err := model.Transactions().All(ctx, s.db)
+	txs, err := model.Transactions(qm.OrderBy(model.TransactionColumns.ID+" DESC")).All(ctx, s.db)
 	if err != nil || len(txs) == 0 {
 		return []TransactionDTO{}, err
 	}
