@@ -4,7 +4,7 @@
       <q-icon name="arrow_back_ios" />
     </q-btn>
     <div class="btn" v-else></div>
-    <div class="title ellipsis">
+    <div class="title ellipsis vertical-middle">
       {{ title }}
     </div>
     <div class="btn"></div>
@@ -46,6 +46,7 @@ export default class NavigationBar extends Vue {
 }
 
 .title {
-  margin: auto 0;
+  margin: 0 auto;
+  line-height: 36px;
 }
 </style>

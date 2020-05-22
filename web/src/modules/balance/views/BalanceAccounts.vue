@@ -1,8 +1,8 @@
 <template>
-  <q-pull-to-refresh @refresh="fetchData" style="padding-bottom: 70px">
-    <balance-table :loading="loading" :users="users" />
+  <div>
+    <balance-table :loading="false" :users="users" />
     <new-transaction-btn />
-  </q-pull-to-refresh>
+  </div>
 </template>
 
 <script lang="ts">
@@ -23,26 +23,9 @@ export default class BalanceAccounts extends Vue {
     );
   }
 
-  loading = false;
-
-  async fetchData(done?: Function) {
-    try {
-      this.loading = true;
-      await BalanceModule.fetchUsers();
-    } catch (e) {
-      console.log(e.message);
-    } finally {
-      this.loading = false;
-      if (done) {
-        done();
-      }
-    }
-  }
-
   async mounted() {
     this.$navigation.title = 'Accounts';
     this.$navigation.parent = { name: Routes.BalanceDashboard };
-    await this.fetchData();
   }
 }
 </script>

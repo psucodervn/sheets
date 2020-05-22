@@ -48,11 +48,17 @@ const routes: Array<RouteConfig> = [
         name: Routes.BalanceTransactionsNew,
         path: Routes.BalanceTransactionsNew,
         component: TransactionsNew,
+        meta: {
+          requiresAuth: true,
+        },
       },
       {
         name: Routes.BalanceTransactionsEdit,
         path: Routes.BalanceTransactionsEdit,
         component: TransactionsEdit,
+        meta: {
+          requiresAuth: true,
+        },
       },
       {
         path: Routes.Point,
