@@ -1,59 +1,58 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import { Routes } from '@/router/names';
-import BalanceDashboard from '@/modules/balance/views/BalanceDashboard.vue';
-import BalanceAccounts from '@/modules/balance/views/BalanceAccounts.vue';
-import Layout from '@/layouts/Layout.vue';
 import Point from '@/modules/point/views/Point.vue';
 import Issues from '@/modules/point/views/Issues.vue';
-import BalanceTransactions from '@/modules/balance/views/transactions/BalanceTransactions.vue';
 import Report from '@/modules/point/views/Report.vue';
+import Profile from '@/modules/profile/views/Profile.vue';
+import { ProfileModule } from '@/store';
 import Balance from '@/modules/balance/views/Balance.vue';
+import BalanceDashboard from '@/modules/balance/views/BalanceDashboard.vue';
+import BalanceAccounts from '@/modules/balance/views/BalanceAccounts.vue';
+import BalanceTransactions from '@/modules/balance/views/transactions/BalanceTransactions.vue';
 import TransactionsNew from '@/modules/balance/views/transactions/TransactionsNew.vue';
 import TransactionsEdit from '@/modules/balance/views/transactions/TransactionsEdit.vue';
+import Login from '@/modules/profile/views/Login.vue';
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    component: Layout,
     redirect: Routes.BalanceDashboard,
+  },
+  {
+    path: Routes.BalanceDashboard,
+    name: Routes.BalanceDashboard,
+    component: Balance,
+    meta: {
+      root: true,
+    },
     children: [
       {
-        path: Routes.BalanceDashboard,
         name: Routes.BalanceDashboard,
-        component: Balance,
-        meta: {
-          root: true,
-        },
-        children: [
-          {
-            name: Routes.BalanceDashboard,
-            path: Routes.BalanceDashboard,
-            component: BalanceDashboard,
-          },
-          {
-            name: Routes.BalanceOverview,
-            path: Routes.BalanceOverview,
-            component: BalanceAccounts,
-          },
-          {
-            name: Routes.BalanceTransactions,
-            path: Routes.BalanceTransactions,
-            component: BalanceTransactions,
-          },
-          {
-            name: Routes.BalanceTransactionsNew,
-            path: Routes.BalanceTransactionsNew,
-            component: TransactionsNew,
-          },
-          {
-            name: Routes.BalanceTransactionsEdit,
-            path: Routes.BalanceTransactionsEdit,
-            component: TransactionsEdit,
-          },
-        ],
+        path: Routes.BalanceDashboard,
+        component: BalanceDashboard,
+      },
+      {
+        name: Routes.BalanceOverview,
+        path: Routes.BalanceOverview,
+        component: BalanceAccounts,
+      },
+      {
+        name: Routes.BalanceTransactions,
+        path: Routes.BalanceTransactions,
+        component: BalanceTransactions,
+      },
+      {
+        name: Routes.BalanceTransactionsNew,
+        path: Routes.BalanceTransactionsNew,
+        component: TransactionsNew,
+      },
+      {
+        name: Routes.BalanceTransactionsEdit,
+        path: Routes.BalanceTransactionsEdit,
+        component: TransactionsEdit,
       },
       {
         path: Routes.Point,
@@ -76,7 +75,25 @@ const routes: Array<RouteConfig> = [
           root: true,
         },
       },
+      {
+        path: Routes.Profile,
+        name: Routes.Profile,
+        component: Profile,
+        meta: {
+          root: true,
+          requiresAuth: true,
+        },
+      },
     ],
+  },
+  {
+    path: Routes.Login,
+    name: Routes.Login,
+    component: Login,
+    meta: {
+      requiresNotAuth: true,
+      layout: 'simple-layout',
+    },
   },
 ];
 
@@ -91,9 +108,24 @@ const router = new VueRouter({
   routes,
 });
 
-router.afterEach((to, from) => {
-  // console.log('set from', from);
-  // Vue.$navigation.from = from;
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(value => value.meta.requiresNotAuth)) {
+    if (ProfileModule.isAuthenticated) {
+      return next(false);
+    }
+    return next();
+  }
+  if (to.matched.some(value => value.meta.requiresAuth)) {
+    if (!ProfileModule.isAuthenticated) {
+      return next({
+        name: Routes.Login,
+        query: {
+          redirect: to.fullPath,
+        },
+      });
+    }
+  }
+  return next();
 });
 
 export default router;

@@ -28,9 +28,13 @@ export default class Report extends Vue {
     return new TimeRange(from, to);
   }
 
-  async mounted() {
+  created() {
     this.$navigation.title = 'Report';
     this.$navigation.from = null;
+    this.$navigation.parent = null;
+  }
+
+  async mounted() {
     const fromQuery = this.$route.query.from;
     if (fromQuery && typeof fromQuery === 'string') {
       const d = date.extractDate(fromQuery, 'DD-MM-YYYY');

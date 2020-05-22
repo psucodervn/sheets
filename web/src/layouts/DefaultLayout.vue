@@ -1,19 +1,14 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-page-container>
-      <q-page class="container q-pa-sm">
-        <navigation-bar />
-        <router-view />
-      </q-page>
+    <q-page-container class="page q-pa-sm">
+      <navigation-bar />
+      <router-view />
     </q-page-container>
     <component :is="tabPosition" class="shadow-2 bg-dark">
       <q-tabs dense>
-        <q-route-tab
-          :label="t.label"
-          :to="t.to"
-          inline-label
-          v-for="t in tabs"
-        />
+        <q-route-tab :icon="t.icon" :to="t.to" v-for="t in tabs">
+          <q-tooltip>{{ t.label }}</q-tooltip>
+        </q-route-tab>
       </q-tabs>
     </component>
   </q-layout>
@@ -24,11 +19,12 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Routes } from '@/router/names';
 
 @Component({})
-export default class Layout extends Vue {
+export default class DefaultLayout extends Vue {
   tabs = [
-    { label: 'Balance', to: Routes.BalanceDashboard },
-    { label: 'Point', to: Routes.Point },
-    { label: 'Report', to: Routes.Report },
+    { icon: 'local_atm', label: 'Balance', to: Routes.BalanceDashboard },
+    { icon: 'laptop_mac', label: 'Point', to: Routes.Point },
+    { icon: 'bar_chart', label: 'Report', to: Routes.Report },
+    { icon: 'person', label: 'Profile', to: Routes.Profile },
   ];
 
   get tabPosition() {

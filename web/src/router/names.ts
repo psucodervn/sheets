@@ -7,6 +7,9 @@ const Routes = {
   Point: '/point',
   PointIssues: '/point/issues/:name',
   Report: '/report',
+  Profile: '/profile',
+
+  Login: '/auth/login',
 };
 
 export { Routes };

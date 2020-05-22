@@ -11,6 +11,10 @@ import Navigation from '@/plugins/navigation';
 import NavigationBar from '@/components/NavigationBar.vue';
 import axios from 'axios';
 import VueApi from '@/plugins/api';
+// eslint-disable-next-line
+// @ts-ignore
+import VueAuthenticate from 'vue-authenticate';
+import { vueAuthenticateOptions } from '@/modules/profile/auth';
 
 Vue.config.productionTip = false;
 
@@ -22,8 +26,12 @@ Vue.use(
   axios.create({
     baseURL: '/api',
     validateStatus: () => true,
-  }),
+  })
 );
+
+Vue.use(VueAuthenticate, vueAuthenticateOptions);
+// it's magic
+Vue.prototype.$auth;
 
 new Vue({
   router,

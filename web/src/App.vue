@@ -1,8 +1,29 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <component :is="layout" id="app">
+    <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+      <slot :name="slot" v-bind="scope" />
+    </template>
+  </component>
 </template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import SimpleLayout from '@/layouts/SimpleLayout.vue';
+import DefaultLayout from '@/layouts/DefaultLayout.vue';
+
+@Component({
+  components: {
+    DefaultLayout,
+    SimpleLayout,
+  },
+})
+export default class App extends Vue {
+  get layout() {
+    const layout = this.$route.meta.layout;
+    return layout || 'default-layout';
+  }
+}
+</script>
 
 <style lang="scss" scoped>
 #app {

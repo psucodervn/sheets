@@ -17,6 +17,7 @@ import {
   QDialog,
   QDrawer,
   QFooter,
+  QForm,
   QHeader,
   QIcon,
   QInput,
@@ -92,6 +93,7 @@ Vue.use(Quasar, {
     QDialog,
     QCheckbox,
     QOptionGroup,
+    QForm,
   },
   directives: {
     ClosePopup,
