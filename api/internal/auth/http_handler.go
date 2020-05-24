@@ -47,13 +47,13 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 		gu, err := h.authSvc.FetchGoogleUserWithCode(c.Ctx(), req.Code)
 		if err != nil {
 			l.Err(err).Msg("FetchGoogleUserWithCode failed")
-			return c.Err(http.StatusUnauthorized, "Invalid authorization code!")
+			return c.Err(http.StatusBadRequest, "Invalid authorization code!")
 		}
 
 		u, err := h.userSvc.FindByAuthProvider(c.Ctx(), "google", gu.Email)
 		if err != nil {
 			l.Err(err).Str("email", gu.Email).Msg("FindByAuthProvider failed")
-			return c.Err(http.StatusUnauthorized, "Your email was not activated. Please contact admin for support!")
+			return c.Err(http.StatusBadRequest, "Your email was not activated. Please contact admin for support!")
 		}
 
 		u.Email = null.StringFrom(gu.Email) // TODO: get from db

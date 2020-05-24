@@ -27,7 +27,7 @@ type GoogleDocsConfig struct {
 type GoogleAuthConfig struct {
 	ClientID     string `split_words:"true" required:"true"`
 	ClientSecret string `split_words:"true" required:"true"`
-	RedirectURL  string `split_words:"true" required:"true"`
+	RedirectURL  string `split_words:"true" default:"postmessage"`
 }
 
 type PostgresConfig struct {
