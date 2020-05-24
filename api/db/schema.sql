@@ -4,7 +4,7 @@ CREATE TABLE "auth_identities" (
   "created_at" timestamptz NOT NULL,
   "updated_at" timestamptz NOT NULL,
   "deleted_at" timestamptz,
-  "user_id" text NOT NULL,
+  "user_id" text,
   PRIMARY KEY ("id", "provider")
 );
 
@@ -34,11 +34,21 @@ CREATE TABLE "transactions" (
   "participants" jsonb NOT NULL DEFAULT '[]'::jsonb
 );
 
+CREATE TABLE "transaction_logs" (
+  "id" text PRIMARY KEY,
+  "transaction_id" text NOT NULL,
+  "actor_id" text NOT NULL,
+  "action" text NOT NULL,
+  "time" timestamptz NOT NULL,
+  "meta" jsonb NOT NULL DEFAULT '{}'::jsonb
+);
+
 ALTER TABLE "auth_identities" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "transactions" ADD FOREIGN KEY ("creator_id") REFERENCES "users" ("id");
 
-CREATE INDEX ON "auth_identities" ("user_id");
+ALTER TABLE "transaction_logs" ADD FOREIGN KEY ("transaction_id") REFERENCES "transactions" ("id");
 
-alter table transactions
-	add split_type int default 0 not null;
+ALTER TABLE "transaction_logs" ADD FOREIGN KEY ("actor_id") REFERENCES "users" ("id");
+
+CREATE INDEX ON "auth_identities" ("user_id");

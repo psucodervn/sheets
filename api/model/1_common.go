@@ -34,3 +34,26 @@ const (
 	SplitEqual SplitType = 0
 	SplitRatio SplitType = 1
 )
+
+type Action string
+
+const (
+	ActionCreate Action = "CREATE"
+	ActionUpdate Action = "UPDATE"
+	ActionRemove Action = "REMOVE"
+)
+
+type Meta map[string]interface{}
+
+func (m *Meta) Scan(src interface{}) error {
+	switch src.(type) {
+	case []byte:
+		return json.Unmarshal(src.([]byte), m)
+	default:
+		return fmt.Errorf("unsupported type: %v", reflect.TypeOf(src).String())
+	}
+}
+
+func (m Meta) Value() (driver.Value, error) {
+	return json.Marshal(m)
+}

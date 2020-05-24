@@ -124,7 +124,8 @@ func (h *Handler) postTransaction() echo.HandlerFunc {
 		Transaction model.Transaction `json:"transaction" validate:"required"`
 	}
 
-	return func(c echo.Context) error {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
 		var req request
 		if err := c.Bind(&req); err != nil {
 			return err
@@ -133,28 +134,27 @@ func (h *Handler) postTransaction() echo.HandlerFunc {
 			return err
 		}
 
-		ctx := c.Request().Context()
-		l := log.Ctx(ctx)
-		tx, err := h.svc.AddTransaction(ctx, &req.Transaction)
+		l := log.Ctx(c.Ctx())
+		tx, err := h.svc.AddTransaction(c.Ctx(), &req.Transaction, c.User())
 		if err != nil {
 			l.Err(err).Msg("add transaction failed")
 			return err
 		}
 
-		return c.JSON(http.StatusOK, api.Response{Success: true, Data: tx})
+		return c.OK(tx)
 	}
 }
 
 func (h *Handler) deleteTransaction() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
 		txID := c.Param("id")
 		if len(txID) == 0 {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid transaction ID")
 		}
 
-		ctx := c.Request().Context()
-		l := log.Ctx(ctx)
-		if err := h.svc.DeleteTransaction(ctx, txID); err != nil {
+		l := log.Ctx(c.Ctx())
+		if err := h.svc.DeleteTransaction(c.Ctx(), txID, c.User()); err != nil {
 			if err == ErrTransactionNotFound {
 				return echo.NewHTTPError(http.StatusNotFound, "Transaction not found")
 			}
@@ -162,7 +162,7 @@ func (h *Handler) deleteTransaction() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, api.Response{Success: true})
+		return c.OK(nil)
 	}
 }
 
@@ -171,7 +171,8 @@ func (h *Handler) updateTransaction() echo.HandlerFunc {
 		Transaction TransactionDTO `json:"transaction" validate:"required"`
 	}
 
-	return func(c echo.Context) error {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
 		var req request
 		if err := c.Bind(&req); err != nil {
 			return err
@@ -181,14 +182,13 @@ func (h *Handler) updateTransaction() echo.HandlerFunc {
 		}
 		txID := c.Param("id")
 
-		ctx := c.Request().Context()
-		l := log.Ctx(ctx)
-		if err := h.svc.UpdateTransaction(ctx, txID, &req.Transaction); err != nil {
+		l := log.Ctx(c.Ctx())
+		if err := h.svc.UpdateTransaction(c.Ctx(), txID, &req.Transaction, c.User()); err != nil {
 			l.Err(err).Msg("update transaction failed")
 			return err
 		}
 
-		return c.JSON(http.StatusOK, api.Response{Success: true, Data: req.Transaction})
+		return c.OK(req.Transaction)
 	}
 }
 

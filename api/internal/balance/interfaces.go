@@ -20,9 +20,9 @@ type Service interface {
 	Users(ctx context.Context, args api.Query) ([]model.UserWithBalance, error)
 	User(ctx context.Context, id string) (*model.UserWithBalance, error)
 	Transactions(ctx context.Context, args api.Query) ([]TransactionDTO, error)
-	AddTransaction(ctx context.Context, tx *model.Transaction) (*model.Transaction, error)
-	DeleteTransaction(ctx context.Context, id string) error
-	UpdateTransaction(ctx context.Context, id string, tx *TransactionDTO) error
+	AddTransaction(ctx context.Context, tx *model.Transaction, user *model.User) (*model.Transaction, error)
+	DeleteTransaction(ctx context.Context, id string, user *model.User) error
+	UpdateTransaction(ctx context.Context, id string, tx *TransactionDTO, user *model.User) error
 }
 
 type UserRepository interface {

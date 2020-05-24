@@ -100,17 +100,20 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	AuthIdentities      string
-	CreatorTransactions string
+	AuthIdentities       string
+	ActorTransactionLogs string
+	CreatorTransactions  string
 }{
-	AuthIdentities:      "AuthIdentities",
-	CreatorTransactions: "CreatorTransactions",
+	AuthIdentities:       "AuthIdentities",
+	ActorTransactionLogs: "ActorTransactionLogs",
+	CreatorTransactions:  "CreatorTransactions",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	AuthIdentities      AuthIdentitySlice
-	CreatorTransactions TransactionSlice
+	AuthIdentities       AuthIdentitySlice
+	ActorTransactionLogs TransactionLogSlice
+	CreatorTransactions  TransactionSlice
 }
 
 // NewStruct creates a new relationship struct
@@ -525,6 +528,27 @@ func (o *User) AuthIdentities(mods ...qm.QueryMod) authIdentityQuery {
 	return query
 }
 
+// ActorTransactionLogs retrieves all the transaction_log's TransactionLogs with an executor via actor_id column.
+func (o *User) ActorTransactionLogs(mods ...qm.QueryMod) transactionLogQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"transaction_logs\".\"actor_id\"=?", o.ID),
+	)
+
+	query := TransactionLogs(queryMods...)
+	queries.SetFrom(query.Query, "\"transaction_logs\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"transaction_logs\".*"})
+	}
+
+	return query
+}
+
 // CreatorTransactions retrieves all the transaction's Transactions with an executor via creator_id column.
 func (o *User) CreatorTransactions(mods ...qm.QueryMod) transactionQuery {
 	var queryMods []qm.QueryMod
@@ -638,6 +662,104 @@ func (userL) LoadAuthIdentities(ctx context.Context, e boil.ContextExecutor, sin
 					foreign.R = &authIdentityR{}
 				}
 				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadActorTransactionLogs allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadActorTransactionLogs(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`transaction_logs`),
+		qm.WhereIn(`transaction_logs.actor_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load transaction_logs")
+	}
+
+	var resultSlice []*TransactionLog
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice transaction_logs")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on transaction_logs")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for transaction_logs")
+	}
+
+	if len(transactionLogAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.ActorTransactionLogs = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &transactionLogR{}
+			}
+			foreign.R.Actor = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.ActorID {
+				local.R.ActorTransactionLogs = append(local.R.ActorTransactionLogs, foreign)
+				if foreign.R == nil {
+					foreign.R = &transactionLogR{}
+				}
+				foreign.R.Actor = local
 				break
 			}
 		}
@@ -961,6 +1083,90 @@ func (o *User) RemoveAuthIdentities(ctx context.Context, exec boil.ContextExecut
 		}
 	}
 
+	return nil
+}
+
+// AddActorTransactionLogsG adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.ActorTransactionLogs.
+// Sets related.R.Actor appropriately.
+// Uses the global database handle.
+func (o *User) AddActorTransactionLogsG(ctx context.Context, insert bool, related ...*TransactionLog) error {
+	return o.AddActorTransactionLogs(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// AddActorTransactionLogsP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.ActorTransactionLogs.
+// Sets related.R.Actor appropriately.
+// Panics on error.
+func (o *User) AddActorTransactionLogsP(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TransactionLog) {
+	if err := o.AddActorTransactionLogs(ctx, exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddActorTransactionLogsGP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.ActorTransactionLogs.
+// Sets related.R.Actor appropriately.
+// Uses the global database handle and panics on error.
+func (o *User) AddActorTransactionLogsGP(ctx context.Context, insert bool, related ...*TransactionLog) {
+	if err := o.AddActorTransactionLogs(ctx, boil.GetContextDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddActorTransactionLogs adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.ActorTransactionLogs.
+// Sets related.R.Actor appropriately.
+func (o *User) AddActorTransactionLogs(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TransactionLog) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.ActorID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"transaction_logs\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"actor_id"}),
+				strmangle.WhereClause("\"", "\"", 2, transactionLogPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.ActorID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			ActorTransactionLogs: related,
+		}
+	} else {
+		o.R.ActorTransactionLogs = append(o.R.ActorTransactionLogs, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &transactionLogR{
+				Actor: o,
+			}
+		} else {
+			rel.R.Actor = o
+		}
+	}
 	return nil
 }
 

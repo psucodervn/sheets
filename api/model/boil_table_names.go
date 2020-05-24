@@ -4,11 +4,13 @@
 package model
 
 var TableNames = struct {
-	AuthIdentities string
-	Transactions   string
-	Users          string
+	AuthIdentities  string
+	TransactionLogs string
+	Transactions    string
+	Users           string
 }{
-	AuthIdentities: "auth_identities",
-	Transactions:   "transactions",
-	Users:          "users",
+	AuthIdentities:  "auth_identities",
+	TransactionLogs: "transaction_logs",
+	Transactions:    "transactions",
+	Users:           "users",
 }

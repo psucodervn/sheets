@@ -34,3 +34,15 @@ add-soft-deletes    = true
     name = "split_type"
   [types.replace]
     type = "SplitType"
+
+[[types]]
+  [types.match]
+    name = "action"
+  [types.replace]
+    type = "Action"
+
+[[types]]
+  [types.match]
+    name = "meta"
+  [types.replace]
+    type = "Meta"

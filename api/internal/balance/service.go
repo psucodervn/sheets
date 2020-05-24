@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"sync"
+	"time"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -15,32 +16,106 @@ import (
 var _ Service = &service{}
 
 type service struct {
-	db boil.ContextExecutor
+	db *sql.DB
 
 	users sync.Map
 }
 
-func (s *service) UpdateTransaction(ctx context.Context, id string, txDTO *TransactionDTO) error {
+func (s *service) UpdateTransaction(ctx context.Context, id string, txDTO *TransactionDTO, user *model.User) (err error) {
 	tx := mapTransactionDTOtoModelTransaction(txDTO)
 	tx.ID = id
-	_, err := tx.Update(ctx, s.db, boil.Blacklist(model.UserColumns.ID))
-	return err
-}
 
-func (s *service) DeleteTransaction(ctx context.Context, id string) error {
-	tx := &model.Transaction{ID: id}
-	n, err := tx.Delete(ctx, s.db, false)
+	txn, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	if n == 0 {
-		return ErrTransactionNotFound
+	defer func() {
+		if err != nil {
+			_ = txn.Rollback()
+		}
+	}()
+
+	oldTx, err := model.FindTransaction(ctx, txn, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrTransactionNotFound
+		}
+		return err
 	}
-	return nil
+
+	if _, err = tx.Update(ctx, txn, boil.Blacklist(model.UserColumns.ID)); err != nil {
+		return err
+	}
+
+	txLog := &model.TransactionLog{
+		TransactionID: tx.ID,
+		ActorID:       user.ID,
+		Action:        model.ActionUpdate,
+		Time:          time.Now(),
+		Meta: model.Meta{
+			"username": user.Name,
+			"oldTx":    oldTx,
+			"newTx":    tx,
+		},
+	}
+	if err = txLog.Insert(ctx, txn, boil.Infer()); err != nil {
+		return err
+	}
+	return txn.Commit()
 }
 
-func (s *service) AddTransaction(ctx context.Context, tx *model.Transaction) (*model.Transaction, error) {
-	err := tx.Insert(ctx, s.db, boil.Infer())
+func (s *service) DeleteTransaction(ctx context.Context, id string, user *model.User) error {
+	txn, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	tx := &model.Transaction{ID: id}
+	n, err := tx.Delete(ctx, txn, false)
+	if err != nil {
+		_ = txn.Rollback()
+		return err
+	}
+	if n == 0 {
+		_ = txn.Rollback()
+		return ErrTransactionNotFound
+	}
+
+	txLog := &model.TransactionLog{
+		TransactionID: tx.ID,
+		ActorID:       user.ID,
+		Action:        model.ActionRemove,
+		Time:          time.Now(),
+		Meta:          model.Meta{"username": user.Name},
+	}
+	if err = txLog.Insert(ctx, txn, boil.Infer()); err != nil {
+		_ = txn.Rollback()
+		return err
+	}
+	return txn.Commit()
+}
+
+func (s *service) AddTransaction(ctx context.Context, tx *model.Transaction, user *model.User) (*model.Transaction, error) {
+	txn, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err = tx.Insert(ctx, txn, boil.Infer()); err != nil {
+		_ = txn.Rollback()
+		return nil, err
+	}
+	txLog := &model.TransactionLog{
+		TransactionID: tx.ID,
+		ActorID:       user.ID,
+		Action:        model.ActionCreate,
+		Time:          time.Now(),
+		Meta:          model.Meta{"username": user.Name},
+	}
+	if err = txLog.Insert(ctx, txn, boil.Infer()); err != nil {
+		_ = txn.Rollback()
+		return nil, err
+	}
+	err = txn.Commit()
 	return tx, err
 }
 
@@ -125,7 +200,7 @@ func (s *service) mapModelTransactionToDTO(tx *model.Transaction) *TransactionDT
 	}
 }
 
-func NewService(db boil.ContextExecutor) *service {
+func NewService(db *sql.DB) *service {
 	return &service{
 		db: db,
 	}
