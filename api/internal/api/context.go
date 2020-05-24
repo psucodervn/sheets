@@ -39,3 +39,7 @@ func (c *Context) OK(data interface{}, code ...int) error {
 	}
 	return c.JSON(co, Response{Success: true, Data: data})
 }
+
+func (c *Context) Err(code int, msg string) error {
+	return c.JSON(code, Response{Success: false, Message: msg})
+}

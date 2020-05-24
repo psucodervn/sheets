@@ -33,7 +33,8 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 		RedirectURI string `json:"redirectUri" validate:"required"`
 	}
 
-	return func(c echo.Context) error {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
 		var req request
 		if err := c.Bind(&req); err != nil {
 			return err
@@ -42,18 +43,17 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 			return err
 		}
 
-		ctx := c.Request().Context()
-		l := log.Ctx(ctx)
-		gu, err := h.authSvc.FetchGoogleUserWithCode(ctx, req.Code)
+		l := log.Ctx(c.Ctx())
+		gu, err := h.authSvc.FetchGoogleUserWithCode(c.Ctx(), req.Code)
 		if err != nil {
 			l.Err(err).Msg("FetchGoogleUserWithCode failed")
-			return err
+			return c.Err(http.StatusUnauthorized, "Invalid authorization code!")
 		}
 
-		u, err := h.userSvc.FindByAuthProvider(ctx, "google", gu.Email)
+		u, err := h.userSvc.FindByAuthProvider(c.Ctx(), "google", gu.Email)
 		if err != nil {
 			l.Err(err).Str("email", gu.Email).Msg("FindByAuthProvider failed")
-			return err
+			return c.Err(http.StatusUnauthorized, "Your email was not activated. Please contact admin for support!")
 		}
 
 		u.Email = null.StringFrom(gu.Email) // TODO: get from db
@@ -62,9 +62,7 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, api.Response{Success: true, Data: echo.Map{
-			"accessToken": t,
-		}})
+		return c.OK(echo.Map{"accessToken": t})
 	}
 }
 
