@@ -573,7 +573,7 @@ func (userL) LoadAuthIdentities(ctx context.Context, e boil.ContextExecutor, sin
 			}
 
 			for _, a := range args {
-				if a == obj.ID {
+				if queries.Equal(a, obj.ID) {
 					continue Outer
 				}
 			}
@@ -632,7 +632,7 @@ func (userL) LoadAuthIdentities(ctx context.Context, e boil.ContextExecutor, sin
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.ID == foreign.UserID {
+			if queries.Equal(local.ID, foreign.UserID) {
 				local.R.AuthIdentities = append(local.R.AuthIdentities, foreign)
 				if foreign.R == nil {
 					foreign.R = &authIdentityR{}
@@ -784,7 +784,7 @@ func (o *User) AddAuthIdentities(ctx context.Context, exec boil.ContextExecutor,
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.UserID = o.ID
+			queries.Assign(&rel.UserID, o.ID)
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -805,7 +805,7 @@ func (o *User) AddAuthIdentities(ctx context.Context, exec boil.ContextExecutor,
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.UserID = o.ID
+			queries.Assign(&rel.UserID, o.ID)
 		}
 	}
 
@@ -826,6 +826,141 @@ func (o *User) AddAuthIdentities(ctx context.Context, exec boil.ContextExecutor,
 			rel.R.User = o
 		}
 	}
+	return nil
+}
+
+// SetAuthIdentitiesG removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.User's AuthIdentities accordingly.
+// Replaces o.R.AuthIdentities with related.
+// Sets related.R.User's AuthIdentities accordingly.
+// Uses the global database handle.
+func (o *User) SetAuthIdentitiesG(ctx context.Context, insert bool, related ...*AuthIdentity) error {
+	return o.SetAuthIdentities(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// SetAuthIdentitiesP removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.User's AuthIdentities accordingly.
+// Replaces o.R.AuthIdentities with related.
+// Sets related.R.User's AuthIdentities accordingly.
+// Panics on error.
+func (o *User) SetAuthIdentitiesP(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*AuthIdentity) {
+	if err := o.SetAuthIdentities(ctx, exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetAuthIdentitiesGP removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.User's AuthIdentities accordingly.
+// Replaces o.R.AuthIdentities with related.
+// Sets related.R.User's AuthIdentities accordingly.
+// Uses the global database handle and panics on error.
+func (o *User) SetAuthIdentitiesGP(ctx context.Context, insert bool, related ...*AuthIdentity) {
+	if err := o.SetAuthIdentities(ctx, boil.GetContextDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetAuthIdentities removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.User's AuthIdentities accordingly.
+// Replaces o.R.AuthIdentities with related.
+// Sets related.R.User's AuthIdentities accordingly.
+func (o *User) SetAuthIdentities(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*AuthIdentity) error {
+	query := "update \"auth_identities\" set \"user_id\" = null where \"user_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.AuthIdentities {
+			queries.SetScanner(&rel.UserID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.User = nil
+		}
+
+		o.R.AuthIdentities = nil
+	}
+	return o.AddAuthIdentities(ctx, exec, insert, related...)
+}
+
+// RemoveAuthIdentitiesG relationships from objects passed in.
+// Removes related items from R.AuthIdentities (uses pointer comparison, removal does not keep order)
+// Sets related.R.User.
+// Uses the global database handle.
+func (o *User) RemoveAuthIdentitiesG(ctx context.Context, related ...*AuthIdentity) error {
+	return o.RemoveAuthIdentities(ctx, boil.GetContextDB(), related...)
+}
+
+// RemoveAuthIdentitiesP relationships from objects passed in.
+// Removes related items from R.AuthIdentities (uses pointer comparison, removal does not keep order)
+// Sets related.R.User.
+// Panics on error.
+func (o *User) RemoveAuthIdentitiesP(ctx context.Context, exec boil.ContextExecutor, related ...*AuthIdentity) {
+	if err := o.RemoveAuthIdentities(ctx, exec, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveAuthIdentitiesGP relationships from objects passed in.
+// Removes related items from R.AuthIdentities (uses pointer comparison, removal does not keep order)
+// Sets related.R.User.
+// Uses the global database handle and panics on error.
+func (o *User) RemoveAuthIdentitiesGP(ctx context.Context, related ...*AuthIdentity) {
+	if err := o.RemoveAuthIdentities(ctx, boil.GetContextDB(), related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveAuthIdentities relationships from objects passed in.
+// Removes related items from R.AuthIdentities (uses pointer comparison, removal does not keep order)
+// Sets related.R.User.
+func (o *User) RemoveAuthIdentities(ctx context.Context, exec boil.ContextExecutor, related ...*AuthIdentity) error {
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.UserID, nil)
+		if rel.R != nil {
+			rel.R.User = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("user_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.AuthIdentities {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.AuthIdentities)
+			if ln > 1 && i < ln-1 {
+				o.R.AuthIdentities[i] = o.R.AuthIdentities[ln-1]
+			}
+			o.R.AuthIdentities = o.R.AuthIdentities[:ln-1]
+			break
+		}
+	}
+
 	return nil
 }
 

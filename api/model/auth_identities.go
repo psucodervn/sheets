@@ -38,12 +38,12 @@ func init() {
 
 // AuthIdentity is an object representing the database table.
 type AuthIdentity struct {
-	ID        string    `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Provider  string    `boil:"provider" json:"provider" toml:"provider" yaml:"provider"`
-	CreatedAt time.Time `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
-	DeletedAt null.Time `boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
-	UserID    string    `boil:"user_id" json:"userID" toml:"userID" yaml:"userID"`
+	ID        string      `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Provider  string      `boil:"provider" json:"provider" toml:"provider" yaml:"provider"`
+	CreatedAt time.Time   `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
+	UpdatedAt time.Time   `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
+	DeletedAt null.Time   `boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
+	UserID    null.String `boil:"user_id" json:"userID,omitempty" toml:"userID" yaml:"userID,omitempty"`
 
 	R *authIdentityR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L authIdentityL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -134,20 +134,43 @@ func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var AuthIdentityWhere = struct {
 	ID        whereHelperstring
 	Provider  whereHelperstring
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 	DeletedAt whereHelpernull_Time
-	UserID    whereHelperstring
+	UserID    whereHelpernull_String
 }{
 	ID:        whereHelperstring{field: "\"auth_identities\".\"id\""},
 	Provider:  whereHelperstring{field: "\"auth_identities\".\"provider\""},
 	CreatedAt: whereHelpertime_Time{field: "\"auth_identities\".\"created_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"auth_identities\".\"updated_at\""},
 	DeletedAt: whereHelpernull_Time{field: "\"auth_identities\".\"deleted_at\""},
-	UserID:    whereHelperstring{field: "\"auth_identities\".\"user_id\""},
+	UserID:    whereHelpernull_String{field: "\"auth_identities\".\"user_id\""},
 }
 
 // AuthIdentityRels is where relationship names are stored.
@@ -584,7 +607,9 @@ func (authIdentityL) LoadUser(ctx context.Context, e boil.ContextExecutor, singu
 		if object.R == nil {
 			object.R = &authIdentityR{}
 		}
-		args = append(args, object.UserID)
+		if !queries.IsNil(object.UserID) {
+			args = append(args, object.UserID)
+		}
 
 	} else {
 	Outer:
@@ -594,12 +619,14 @@ func (authIdentityL) LoadUser(ctx context.Context, e boil.ContextExecutor, singu
 			}
 
 			for _, a := range args {
-				if a == obj.UserID {
+				if queries.Equal(a, obj.UserID) {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.UserID)
+			if !queries.IsNil(obj.UserID) {
+				args = append(args, obj.UserID)
+			}
 
 		}
 	}
@@ -658,7 +685,7 @@ func (authIdentityL) LoadUser(ctx context.Context, e boil.ContextExecutor, singu
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.UserID == foreign.ID {
+			if queries.Equal(local.UserID, foreign.ID) {
 				local.R.User = foreign
 				if foreign.R == nil {
 					foreign.R = &userR{}
@@ -727,7 +754,7 @@ func (o *AuthIdentity) SetUser(ctx context.Context, exec boil.ContextExecutor, i
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	o.UserID = related.ID
+	queries.Assign(&o.UserID, related.ID)
 	if o.R == nil {
 		o.R = &authIdentityR{
 			User: related,
@@ -744,6 +771,67 @@ func (o *AuthIdentity) SetUser(ctx context.Context, exec boil.ContextExecutor, i
 		related.R.AuthIdentities = append(related.R.AuthIdentities, o)
 	}
 
+	return nil
+}
+
+// RemoveUserG relationship.
+// Sets o.R.User to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Uses the global database handle.
+func (o *AuthIdentity) RemoveUserG(ctx context.Context, related *User) error {
+	return o.RemoveUser(ctx, boil.GetContextDB(), related)
+}
+
+// RemoveUserP relationship.
+// Sets o.R.User to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Panics on error.
+func (o *AuthIdentity) RemoveUserP(ctx context.Context, exec boil.ContextExecutor, related *User) {
+	if err := o.RemoveUser(ctx, exec, related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveUserGP relationship.
+// Sets o.R.User to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Uses the global database handle and panics on error.
+func (o *AuthIdentity) RemoveUserGP(ctx context.Context, related *User) {
+	if err := o.RemoveUser(ctx, boil.GetContextDB(), related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveUser relationship.
+// Sets o.R.User to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+func (o *AuthIdentity) RemoveUser(ctx context.Context, exec boil.ContextExecutor, related *User) error {
+	var err error
+
+	queries.SetScanner(&o.UserID, nil)
+	if _, err = o.Update(ctx, exec, boil.Whitelist("user_id")); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	if o.R != nil {
+		o.R.User = nil
+	}
+	if related == nil || related.R == nil {
+		return nil
+	}
+
+	for i, ri := range related.R.AuthIdentities {
+		if queries.Equal(o.UserID, ri.UserID) {
+			continue
+		}
+
+		ln := len(related.R.AuthIdentities)
+		if ln > 1 && i < ln-1 {
+			related.R.AuthIdentities[i] = related.R.AuthIdentities[ln-1]
+		}
+		related.R.AuthIdentities = related.R.AuthIdentities[:ln-1]
+		break
+	}
 	return nil
 }
 

@@ -30,3 +30,7 @@ func (u *User) FromModel(user *model.User) *User {
 	u.JiraName = user.JiraName.String
 	return u
 }
+
+type Token struct {
+	AccessToken string `json:"accessToken"`
+}

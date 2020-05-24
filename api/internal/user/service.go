@@ -15,6 +15,12 @@ type Service struct {
 	db boil.ContextExecutor
 }
 
+func (s *Service) AddAuthProvider(ctx context.Context, provider string, id string) (*model.AuthIdentity, error) {
+	ai := &model.AuthIdentity{ID: id, Provider: provider}
+	err := ai.Insert(boil.WithDebug(ctx, true), s.db, boil.Infer())
+	return ai, err
+}
+
 func NewService(db boil.ContextExecutor) *Service {
 	return &Service{db: db}
 }

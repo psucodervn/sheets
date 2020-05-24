@@ -9,11 +9,13 @@ import (
 	"github.com/volatiletech/null/v8"
 
 	"api/internal/api"
+	"api/internal/user"
 	"api/model"
 )
 
 type UserService interface {
 	FindByAuthProvider(ctx context.Context, provider string, id string) (*model.User, error)
+	AddAuthProvider(ctx context.Context, provider string, id string) (*model.AuthIdentity, error)
 }
 
 type Handler struct {
@@ -53,7 +55,18 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 		u, err := h.userSvc.FindByAuthProvider(c.Ctx(), "google", gu.Email)
 		if err != nil {
 			l.Err(err).Str("email", gu.Email).Msg("FindByAuthProvider failed")
-			return c.Err(http.StatusBadRequest, "Your email was not activated. Please contact admin for support!")
+			if err != user.ErrAuthNotFound {
+				return err
+			}
+			_, err = h.userSvc.AddAuthProvider(c.Ctx(), "google", gu.Email)
+			if err != nil {
+				l.Err(err).Str("email", gu.Email).Msg("AddAuthProvider failed")
+				return err
+			}
+		}
+
+		if u == nil {
+			return c.Err(http.StatusBadRequest, "Your account was not activated. Please contact admin for support!")
 		}
 
 		u.Email = null.StringFrom(gu.Email) // TODO: get from db
@@ -62,7 +75,7 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 			return err
 		}
 
-		return c.OK(echo.Map{"accessToken": t})
+		return c.OK(Token{AccessToken: t})
 	}
 }
 
