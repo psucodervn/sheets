@@ -1,7 +1,16 @@
 <template>
-  <div>
-    Profile
-    <q-btn @click="logout" label="Logout"></q-btn>
+  <div class="q-pa-sm">
+    <p>Name: {{ currentUser.name }}</p>
+    <p>Email: {{ currentUser.email || '[not set]' }}</p>
+    <p>Sheet Name: {{ currentUser.sheetName || '[not set]' }}</p>
+    <p>Jira Name: {{ currentUser.jiraName || '[not set]' }}</p>
+    <q-separator spaced />
+    <q-btn
+      @click="logout"
+      label="Logout"
+      class="full-width"
+      color="red-5"
+    ></q-btn>
   </div>
 </template>
 
@@ -11,10 +20,13 @@ import { ProfileModule } from '@/store';
 
 @Component({})
 export default class Profile extends Vue {
-  created() {
+  async created() {
     this.$navigation.title = 'Profile';
-    this.$navigation.parent = null;
-    this.$navigation.from = null;
+    await ProfileModule.fetchMe();
+  }
+
+  get currentUser() {
+    return ProfileModule.currentUser || {};
   }
 
   async logout() {

@@ -50,5 +50,4 @@ func main() {
 	if err := importCmd.Execute(); err != nil {
 		log.Fatal().Err(err).Msg("import failed")
 	}
-	log.Info().Msg("import done")
 }

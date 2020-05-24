@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md flex flex-center row">
-    <div class="col-xs-12 col-sm-8 col-md-4 q-pa-sm text-center">
+    <div class="col-xs-12 col-sm-8 q-pa-sm text-center">
       <p class="text-center text-h6">Login</p>
       <q-form :disabled="!canLoginByPassword">
         <q-input
@@ -55,6 +55,7 @@ export default class Login extends Vue {
   async login() {
     try {
       await ProfileModule.login(this.form);
+      await ProfileModule.fetchMe();
       const redirect = String(this.$route.query.redirect || '/');
       await this.$router.push({ path: redirect });
     } catch (e) {
@@ -69,6 +70,7 @@ export default class Login extends Vue {
   async authenticate(provider: string) {
     try {
       await ProfileModule.authenticate({ provider });
+      await ProfileModule.fetchMe();
       const redirect = String(this.$route.query.redirect) || '/';
       await this.$router.push({ path: redirect });
     } catch (e) {

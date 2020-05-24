@@ -5,6 +5,7 @@ import {
   VuexModule,
 } from 'vuex-module-decorators';
 import { Vue } from 'vue-property-decorator';
+import { User } from '@/modules/profile/models/user';
 
 @Module({
   name: 'profile',
@@ -12,6 +13,7 @@ import { Vue } from 'vue-property-decorator';
 })
 export default class ProfileStore extends VuexModule {
   isAuthenticated = false;
+  currentUser: User | null = null;
 
   @MutationAction({ mutate: ['isAuthenticated'], rawError: true })
   async login(payload: { email: string; password: string }) {
@@ -48,7 +50,12 @@ export default class ProfileStore extends VuexModule {
     return Vue.prototype.$auth.getToken();
   }
 
-  get token() {
-    return Vue.prototype.$auth.getToken();
+  @MutationAction({ mutate: ['currentUser'], rawError: true })
+  async fetchMe() {
+    const res = await Vue.$api.get<User>('/auth/me');
+    if (!res.data || !res.success) {
+      throw new Error(res.message);
+    }
+    return { currentUser: res.data };
   }
 }

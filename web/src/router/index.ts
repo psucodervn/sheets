@@ -25,18 +25,18 @@ const routes: Array<RouteConfig> = [
     path: Routes.BalanceDashboard,
     name: Routes.BalanceDashboard,
     component: Balance,
-    meta: {
-      root: true,
-    },
     children: [
       {
         name: Routes.BalanceDashboard,
         path: Routes.BalanceDashboard,
         component: BalanceDashboard,
+        meta: {
+          root: true,
+        },
       },
       {
-        name: Routes.BalanceOverview,
-        path: Routes.BalanceOverview,
+        name: Routes.BalanceAccounts,
+        path: Routes.BalanceAccounts,
         component: BalanceAccounts,
       },
       {

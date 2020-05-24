@@ -3,6 +3,7 @@ module api
 go 1.14
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-pg/migrations/v7 v7.1.10
 	github.com/go-pg/pg/v9 v9.1.6
@@ -20,6 +21,7 @@ require (
 	github.com/volatiletech/null/v8 v8.1.0
 	github.com/volatiletech/sqlboiler/v4 v4.0.0
 	github.com/volatiletech/strmangle v0.0.1
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	google.golang.org/api v0.19.0
 	gopkg.in/yaml.v2 v2.2.7 // indirect

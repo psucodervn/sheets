@@ -2,6 +2,8 @@ package api
 
 import (
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type Response struct {
@@ -50,4 +52,11 @@ func (t *Timestamp) UnmarshalParam(src string) error {
 	ts, err := time.Parse(time.RFC3339, src)
 	*t = Timestamp(ts)
 	return err
+}
+
+type UserClaims struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	jwt.StandardClaims
 }

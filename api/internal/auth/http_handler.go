@@ -5,48 +5,77 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/gothic"
+	"github.com/rs/zerolog/log"
+	"github.com/volatiletech/null/v8"
 
 	"api/internal/api"
+	"api/model"
 )
 
+type UserService interface {
+	FindByAuthProvider(ctx context.Context, provider string, id string) (*model.User, error)
+}
+
 type Handler struct {
+	authSvc *Service
+	userSvc UserService
+	authMW  echo.MiddlewareFunc
 }
 
 func (h *Handler) Bind(e *echo.Echo) {
-	e.GET("/oauth2/:provider", h.loginHandler())
-	e.GET("/oauth2/:provider/callback", h.loginCallbackHandler())
+	e.POST("/auth/google", h.loginGoogle())
+	e.GET("/auth/me", h.getMe(), h.authMW)
 }
 
-func (h *Handler) loginHandler() echo.HandlerFunc {
+func (h *Handler) loginGoogle() echo.HandlerFunc {
+	type request struct {
+		Code        string `json:"code" validate:"required"`
+		RedirectURI string `json:"redirectUri" validate:"required"`
+	}
+
 	return func(c echo.Context) error {
-		provider := c.Param("provider")
-		ctx := c.Request().Context()
-		req := c.Request().WithContext(context.WithValue(ctx, "provider", provider))
-		url, err := gothic.GetAuthURL(c.Response().Writer, req)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, api.Response{Message: err.Error()})
+		var req request
+		if err := c.Bind(&req); err != nil {
+			return err
+		}
+		if err := c.Validate(req); err != nil {
+			return err
 		}
 
-		return c.Redirect(http.StatusTemporaryRedirect, url)
+		ctx := c.Request().Context()
+		l := log.Ctx(ctx)
+		gu, err := h.authSvc.FetchGoogleUserWithCode(ctx, req.Code)
+		if err != nil {
+			l.Err(err).Msg("FetchGoogleUserWithCode failed")
+			return err
+		}
+
+		u, err := h.userSvc.FindByAuthProvider(ctx, "google", gu.Email)
+		if err != nil {
+			l.Err(err).Str("email", gu.Email).Msg("FindByAuthProvider failed")
+			return err
+		}
+
+		u.Email = null.StringFrom(gu.Email) // TODO: get from db
+		t, err := h.authSvc.SignWithUser(u)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, api.Response{Success: true, Data: echo.Map{
+			"accessToken": t,
+		}})
 	}
 }
 
-func (h *Handler) loginCallbackHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		provider := c.Param("provider")
-		ctx := c.Request().Context()
-		req := c.Request().WithContext(context.WithValue(ctx, "provider", provider))
-		u, err := gothic.CompleteUserAuth(c.Response().Writer, req)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, api.Response{Message: err.Error()})
-		}
-		return c.JSON(http.StatusOK, api.Response{Success: true, Data: u})
+func (h *Handler) getMe() echo.HandlerFunc {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
+		u := new(User).FromModel(c.User())
+		return c.OK(u)
 	}
 }
 
-func NewHandler(providers ...goth.Provider) *Handler {
-	goth.UseProviders(providers...)
-	return &Handler{}
+func NewHandler(authSvc *Service, userSvc UserService, authMW echo.MiddlewareFunc) *Handler {
+	return &Handler{authSvc: authSvc, userSvc: userSvc, authMW: authMW}
 }

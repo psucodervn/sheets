@@ -5,25 +5,29 @@ type LogConfig struct {
 	Pretty bool `default:"false"`
 }
 
+type AuthConfig struct {
+	JWTSecret string `split_words:"true" required:"true"`
+	Google    GoogleAuthConfig
+}
+
 type ApiConfig struct {
-	Address string `default:"0.0.0.0:80"`
-	TLS     bool   `default:"false"`
-	//Google   GoogleDocsConfig
+	Address  string `default:"0.0.0.0:80"`
+	TLS      bool   `default:"false"`
 	Postgres PostgresConfig
 	Jira     JiraConfig
 	Wakatime WakatimeConfig
+	Auth     AuthConfig
 }
 
 type GoogleDocsConfig struct {
 	SheetID         string `envconfig:"SHEET_ID" required:"true"`
 	CredentialsFile string `envconfig:"CREDENTIALS_FILE" required:"true"`
-	// Auth            GoogleAuthConfig
 }
 
 type GoogleAuthConfig struct {
-	ClientID     string `envconfig:"CLIENT_ID" required:"true"`
-	ClientSecret string `envconfig:"CLIENT_SECRET" required:"true"`
-	CallbackURL  string `envconfig:"CALLBACK_URL" required:"true"`
+	ClientID     string `split_words:"true" required:"true"`
+	ClientSecret string `split_words:"true" required:"true"`
+	RedirectURL  string `split_words:"true" required:"true"`
 }
 
 type PostgresConfig struct {

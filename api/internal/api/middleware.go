@@ -1,13 +1,16 @@
 package api
 
 import (
+	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 const KeyQuery = "api:query"
+const KeyUser = "api:user"
 
 func QueryParser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -48,4 +51,15 @@ func QueryFromContext(c echo.Context) Query {
 		return q
 	}
 	return DefaultQuery()
+}
+
+func AuthJWT(secret []byte) echo.MiddlewareFunc {
+	return middleware.JWTWithConfig(middleware.JWTConfig{
+		ContextKey: KeyUser,
+		Claims:     &UserClaims{},
+		SigningKey: secret,
+		ErrorHandler: func(err error) error {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Missing or invalid jwt token")
+		},
+	})
 }

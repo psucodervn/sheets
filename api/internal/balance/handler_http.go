@@ -12,7 +12,8 @@ import (
 )
 
 type Handler struct {
-	svc Service
+	svc    Service
+	authMW echo.MiddlewareFunc
 }
 
 func (h *Handler) Bind(e *echo.Echo) {
@@ -23,9 +24,9 @@ func (h *Handler) Bind(e *echo.Echo) {
 	tx := g.Group("/transactions")
 	tx.GET("", h.getTransactions(), api.QueryParser())
 	tx.GET("/:id", h.getTransaction())
-	tx.DELETE("/:id", h.deleteTransaction())
-	tx.PUT("/:id", h.updateTransaction())
-	tx.POST("", h.postTransaction())
+	tx.DELETE("/:id", h.deleteTransaction(), h.authMW)
+	tx.PUT("/:id", h.updateTransaction(), h.authMW)
+	tx.POST("", h.postTransaction(), h.authMW)
 }
 
 func (h *Handler) getUser() echo.HandlerFunc {
@@ -191,6 +192,6 @@ func (h *Handler) updateTransaction() echo.HandlerFunc {
 	}
 }
 
-func NewHandler(uc Service) *Handler {
-	return &Handler{svc: uc}
+func NewHandler(uc Service, authMW echo.MiddlewareFunc) *Handler {
+	return &Handler{svc: uc, authMW: authMW}
 }

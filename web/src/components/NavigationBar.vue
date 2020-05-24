@@ -1,5 +1,5 @@
 <template>
-  <div class="q-py-xs bar row justify-between items-stretch">
+  <div class="q-pb-xs bar row justify-between items-stretch">
     <q-btn @click="goBack" class="btn" rounded v-if="canBack">
       <q-icon name="arrow_back_ios" />
     </q-btn>
@@ -21,7 +21,7 @@ export default class NavigationBar extends Vue {
   }
 
   get canBack(): boolean {
-    return !!this.$navigation.from || !!this.$navigation.parent;
+    return !!this.$navigation.from || !this.$route.meta.root;
   }
 
   goBack() {

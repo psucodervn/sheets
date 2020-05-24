@@ -1,6 +1,6 @@
 const Routes = {
   BalanceDashboard: '/balance',
-  BalanceOverview: '/balance/accounts',
+  BalanceAccounts: '/balance/accounts',
   BalanceTransactions: '/balance/transactions',
   BalanceTransactionsEdit: '/balance/transactions/:id',
   BalanceTransactionsNew: '/balance/transactions/new',

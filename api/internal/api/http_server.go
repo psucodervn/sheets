@@ -13,6 +13,12 @@ type Server struct {
 
 func NewServer() *Server {
 	e := server.NewDefaultEchoServer()
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ec echo.Context) error {
+			c := &Context{ec}
+			return next(c)
+		}
+	})
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, Response{Success: true, Message: "OK"})
 	})

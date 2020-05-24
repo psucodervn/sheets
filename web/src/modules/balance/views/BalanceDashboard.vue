@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-gutter-y-md q-py-sm" style="padding-bottom: 70px">
+  <div class="row q-gutter-y-sm" style="padding-bottom: 70px">
     <q-card
       bordered
       class="row full-width cursor-pointer"
