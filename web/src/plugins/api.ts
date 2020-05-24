@@ -5,9 +5,20 @@ import {
   AxiosStatic,
 } from 'axios';
 import { ApiResponse } from '@/types/api';
+import { ProfileModule } from '@/store';
 
 export class ApiWrapper {
-  constructor(private axios: AxiosInstance) {}
+  constructor(private axios: AxiosInstance) {
+    this.axios.interceptors.request.use(async (config: AxiosRequestConfig) => {
+      const token = await ProfileModule.getToken();
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        delete config.headers['Authorization'];
+      }
+      return config;
+    });
+  }
 
   async get<T = any>(
     url: string,

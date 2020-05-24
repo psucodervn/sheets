@@ -114,15 +114,15 @@ const router = new VueRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (to.matched.some(value => value.meta.requiresNotAuth)) {
-    if (ProfileModule.isAuthenticated) {
+    if (ProfileModule.currentUser) {
       return next(false);
     }
     return next();
   }
   if (to.matched.some(value => value.meta.requiresAuth)) {
-    if (!ProfileModule.isAuthenticated) {
+    if (!ProfileModule.currentUser) {
       return next({
         name: Routes.Login,
         query: {

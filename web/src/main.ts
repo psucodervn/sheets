@@ -11,10 +11,8 @@ import Navigation from '@/plugins/navigation';
 import NavigationBar from '@/components/NavigationBar.vue';
 import axios from 'axios';
 import VueApi from '@/plugins/api';
-// eslint-disable-next-line
-// @ts-ignore
-import VueAuthenticate from 'vue-authenticate';
-import { vueAuthenticateOptions } from '@/modules/profile/auth';
+import GAuth from 'vue-google-oauth2';
+import { gAuthOptions } from '@/modules/profile/auth';
 
 Vue.config.productionTip = false;
 
@@ -29,9 +27,7 @@ Vue.use(
   })
 );
 
-Vue.use(VueAuthenticate, vueAuthenticateOptions);
-// it's magic
-Vue.prototype.$auth;
+Vue.use(GAuth, gAuthOptions);
 
 new Vue({
   router,

@@ -53,32 +53,38 @@ export default class Login extends Vue {
   canLoginByPassword = false;
 
   async login() {
-    try {
-      await ProfileModule.login(this.form);
-      await ProfileModule.fetchMe();
-      const redirect = String(this.$route.query.redirect || '/');
-      await this.$router.push({ path: redirect });
-    } catch (e) {
-      this.$q.notify({
-        message: 'Login failed: ' + String(e.message),
-        type: 'negative',
-        position: 'top',
-      });
-    }
+    this.$q.notify({
+      message: 'Login via email/password not supported now.',
+      type: 'negative',
+    });
   }
 
   async authenticate(provider: string) {
     try {
       await ProfileModule.authenticate({ provider });
+    } catch (e) {
+      e.message &&
+        this.$q.notify({
+          message: e.message,
+          type: 'negative',
+          position: 'top',
+        });
+      return;
+    }
+    await this.fetchMeAndRedirect();
+  }
+
+  async fetchMeAndRedirect() {
+    try {
       await ProfileModule.fetchMe();
-      const redirect = String(this.$route.query.redirect) || '/';
+      const redirect = String(this.$route.query.redirect || '/');
       await this.$router.push({ path: redirect });
     } catch (e) {
-      this.$q.notify({
-        message: 'Login failed: ' + String(e.message),
-        type: 'negative',
-        position: 'top',
-      });
+      e.message &&
+        this.$q.notify({
+          message: e.message,
+          type: 'negative',
+        });
     }
   }
 }

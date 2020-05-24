@@ -8,6 +8,9 @@ import ProfileStore from '@/modules/profile/store';
 
 Vue.use(Vuex);
 
+const appVersion = 1;
+const authVersion = 2;
+
 const store = new Vuex.Store({
   state: {},
   mutations: {},
@@ -19,7 +22,12 @@ const store = new Vuex.Store({
   },
   plugins: [
     createPersistedState({
-      key: 'sheets',
+      key: `sheet@${appVersion}`,
+      paths: ['balance', 'point'],
+    }),
+    createPersistedState({
+      key: `sheet-auth@${authVersion}`,
+      paths: ['profile'],
     }),
   ],
 });
