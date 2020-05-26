@@ -3,6 +3,15 @@ services:
   api:
     build:
       context: ./api
+      args:
+        BUILD_ARGS: main.go
+    image: ${IMAGE}
+
+  bot:
+    build:
+      context: ./api
+      args:
+        BUILD_ARGS: cmd/bot/main.go
     image: ${IMAGE}
 
   web:

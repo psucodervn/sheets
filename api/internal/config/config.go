@@ -36,7 +36,7 @@ type PostgresConfig struct {
 	User     string `required:"true"`
 	Password string `required:"true"`
 	DB       string `required:"true"`
-	SSLMode  string `default:"disable"`
+	SSLMode  string `split_words:"true" default:"disable"`
 	Debug    bool   `default:"false"`
 }
 
