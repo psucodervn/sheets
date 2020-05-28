@@ -14,6 +14,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.1.11
 	github.com/lib/pq v1.2.1-0.20191011153232-f91d3411e481
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/psucodervn/go v0.6.2
 	github.com/rs/xid v1.2.1

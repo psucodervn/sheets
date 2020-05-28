@@ -7,7 +7,7 @@ service NotificationService {
 }
 
 message NotifyTransactionRequest {
-  string transactionId = 1;
+  string transactionLogId = 1;
 }
 
 message NotifyTransactionResponse {

@@ -72,6 +72,7 @@ import UserPicker from '@/modules/balance/components/transactions/UserPicker.vue
 import ListPayers from '@/modules/balance/components/transactions/ListPayers.vue';
 import ListParticipants from '@/modules/balance/components/transactions/ListParticipants.vue';
 import formatter from '@/utils/formatter';
+import { Routes } from '@/router/names';
 
 @Component({
   components: { ListParticipants, ListPayers, UserPicker, TimeInput },
@@ -128,6 +129,14 @@ export default class TransactionDetail extends Vue {
         message: `Transaction '${this.tx.summary}' was saved`,
         type: 'positive',
       });
+      const ar: Promise<any>[] = [
+        BalanceModule.fetchUsers(),
+        BalanceModule.fetchTransactions(),
+      ];
+      if (!this.isEdit) {
+        ar.push(this.$router.push({ name: Routes.BalanceTransactions }));
+      }
+      await Promise.all(ar);
     } catch (e) {
       this.$q.notify({
         caption: 'Save failed',

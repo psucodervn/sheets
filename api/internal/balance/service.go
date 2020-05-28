@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
@@ -68,14 +69,17 @@ func (s *service) UpdateTransaction(ctx context.Context, id string, txDTO *Trans
 		return err
 	}
 
-	_, err = s.notificationClient.NotifyTransaction(ctx, &sheet.NotifyTransactionRequest{
-		TransactionId: tx.ID,
-	})
-	if err != nil {
+	if err = txn.Commit(); err != nil {
 		return err
 	}
 
-	return txn.Commit()
+	if _, err = s.notificationClient.NotifyTransaction(ctx, &sheet.NotifyTransactionRequest{
+		TransactionLogId: txLog.ID,
+	}); err != nil {
+		log.Ctx(ctx).Warn().Err(err).Msg("NotifyTransaction failed")
+	}
+
+	return nil
 }
 
 func (s *service) DeleteTransaction(ctx context.Context, id string, user *model.User) error {
@@ -106,7 +110,18 @@ func (s *service) DeleteTransaction(ctx context.Context, id string, user *model.
 		_ = txn.Rollback()
 		return err
 	}
-	return txn.Commit()
+
+	if err = txn.Commit(); err != nil {
+		return err
+	}
+
+	if _, err = s.notificationClient.NotifyTransaction(ctx, &sheet.NotifyTransactionRequest{
+		TransactionLogId: txLog.ID,
+	}); err != nil {
+		log.Ctx(ctx).Warn().Err(err).Msg("NotifyTransaction failed")
+	}
+
+	return nil
 }
 
 func (s *service) AddTransaction(ctx context.Context, tx *model.Transaction, user *model.User) (*model.Transaction, error) {
@@ -129,8 +144,18 @@ func (s *service) AddTransaction(ctx context.Context, tx *model.Transaction, use
 		_ = txn.Rollback()
 		return nil, err
 	}
-	err = txn.Commit()
-	return tx, err
+
+	if err = txn.Commit(); err != nil {
+		return nil, err
+	}
+
+	if _, err = s.notificationClient.NotifyTransaction(ctx, &sheet.NotifyTransactionRequest{
+		TransactionLogId: txLog.ID,
+	}); err != nil {
+		log.Ctx(ctx).Warn().Err(err).Msg("NotifyTransaction failed")
+	}
+
+	return tx, nil
 }
 
 func (s *service) Transactions(ctx context.Context, args api.Query) ([]TransactionDTO, error) {

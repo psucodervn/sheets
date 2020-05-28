@@ -11,7 +11,7 @@ services:
     build:
       context: ./api
       args:
-        BUILD_ARGS: cmd/bot/main.go
+        BUILD_ARGS: cmd/bot/*.go
     image: ${IMAGE}
 
   web:

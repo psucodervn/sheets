@@ -1,6 +1,5 @@
 ARG BINARY=main
 ARG DIR=/app
-ARG BUILD_ARGS=main.go
 
 FROM golang:1.14-alpine AS builder
 ARG BINARY
