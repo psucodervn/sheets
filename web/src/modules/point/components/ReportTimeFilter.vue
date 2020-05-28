@@ -44,7 +44,7 @@ export default class ReportTimeFilter extends Vue {
 
   onChangeTimeFrom(val: Date) {
     this.range.from = new Date(val);
-    this.range.to = date.addToDate(this.range.from, { days: 6 });
+    this.range.to = date.addToDate(this.range.from, { days: 13 });
     (this.$refs.qDateProxy as any).hide();
     this.$emit('input', this.range);
   }

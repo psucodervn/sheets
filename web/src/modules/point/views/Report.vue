@@ -24,7 +24,7 @@ export default class Report extends Vue {
 
   defaultRange(): TimeRange {
     const to = new Date();
-    const from = date.addToDate(to, { days: -6 });
+    const from = date.addToDate(to, { days: -13 });
     return new TimeRange(from, to);
   }
 
@@ -40,7 +40,7 @@ export default class Report extends Vue {
       const d = date.extractDate(fromQuery, 'DD-MM-YYYY');
       if (d.getFullYear() >= 2019 && d.getFullYear() <= 3000) {
         this.range.from = d;
-        this.range.to = date.addToDate(d, { days: 6 });
+        this.range.to = date.addToDate(d, { days: 13 });
       } else {
         this.$router
           .replace({
