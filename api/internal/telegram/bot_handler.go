@@ -11,20 +11,19 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/rs/zerolog/log"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"gopkg.in/tucnak/telebot.v2"
 
-	"api/internal/api"
-	"api/internal/balance"
 	"api/model"
 )
 
 type BotHandler struct {
-	bot        *telebot.Bot
-	balanceSvc balance.Service
+	bot *telebot.Bot
+	svc *Service
 }
 
-func NewBotHandler(bot *telebot.Bot, balanceSvc balance.Service) *BotHandler {
-	return &BotHandler{bot: bot, balanceSvc: balanceSvc}
+func NewBotHandler(bot *telebot.Bot, svc *Service) *BotHandler {
+	return &BotHandler{bot: bot, svc: svc}
 }
 
 func (h *BotHandler) Start() error {
@@ -35,6 +34,8 @@ func (h *BotHandler) Start() error {
 	h.bot.Handle("/top", h.handleTop(false))
 	h.bot.Handle("/all", h.handleTop(true))
 	h.bot.Handle("/help", h.displayHelp())
+	h.bot.Handle("/start", h.start())
+	h.bot.Handle("/me", h.getMe())
 
 	log.Info().Msg("bot running...")
 	h.bot.Start()
@@ -44,12 +45,13 @@ func (h *BotHandler) Start() error {
 func (h *BotHandler) handleTop(all bool) interface{} {
 	return func(m *telebot.Message) {
 		ctx := context.TODO()
-		users, err := h.balanceSvc.Users(ctx, api.Query{})
+		users, err := model.UsersWithBalance().All(ctx, boil.GetContextDB())
+		//users, err := h.balanceSvc.Users(ctx, api.Query{})
 		if err != nil {
 			_, _ = h.bot.Send(m.Chat, "Bot failed: "+err.Error())
 			return
 		}
-		log.Info().Msgf("payload: `%s`", m.Payload)
+
 		top := math.MaxInt32
 		if !all {
 			top = 3
@@ -70,7 +72,44 @@ func (h *BotHandler) handleTop(all bool) interface{} {
 
 func (h *BotHandler) displayHelp() interface{} {
 	return func(m *telebot.Message) {
+		log.Info().Interface("chat", m.Chat).Str("recipient", m.Chat.Recipient()).Msg("")
 		_, _ = h.bot.Send(m.Chat, usage)
+	}
+}
+
+func (h *BotHandler) start() interface{} {
+	return func(m *telebot.Message) {
+		token := strings.TrimSpace(m.Payload)
+		if len(token) == 0 {
+			_, _ = h.bot.Send(m.Chat, "Welcome to Verisheet Bot.\n\n"+usage)
+			return
+		}
+
+		ctx := context.TODO()
+		u, err := h.svc.AuthTelegramUser(ctx, token, m.Sender.Recipient())
+		if err != nil {
+			_, _ = h.bot.Send(m.Chat, "Bot failed: "+err.Error())
+			return
+		}
+
+		_, _ = h.bot.Send(m.Chat, "Welcome to Verisheet Bot. Your name is "+u.Name+".\n\n"+usage)
+	}
+}
+
+func (h *BotHandler) getMe() interface{} {
+	return func(m *telebot.Message) {
+		ctx := context.TODO()
+		u, err := h.svc.GetUserWithBalanceByTelegramID(ctx, m.Sender.Recipient())
+		if err != nil {
+			if err == ErrUserNotFound {
+				_, _ = h.bot.Send(m.Chat, "Bot failed: Unauthorized")
+				return
+			}
+			_, _ = h.bot.Send(m.Chat, "Bot failed: "+err.Error())
+			return
+		}
+
+		_, _ = h.bot.Send(m.Chat, marshalUser(u))
 	}
 }
 
@@ -88,7 +127,7 @@ func (u Users) Swap(i, j int) {
 	u[i], u[j] = u[j], u[i]
 }
 
-func marshalUser(user model.UserWithBalance) string {
+func marshalUser(user *model.UserWithBalance) string {
 	return fmt.Sprintf("%s: %s (vnđ)", user.Name, humanize.Comma(int64(user.Balance)))
 }
 
@@ -110,7 +149,7 @@ func marshalTopUsers(users Users, top int) string {
 			continue
 		}
 		bf.WriteString(fmt.Sprintf("\n%d. ", i+1))
-		bf.WriteString(marshalUser(u))
+		bf.WriteString(marshalUser(&u))
 	}
 	return bf.String()
 }

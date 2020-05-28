@@ -15,11 +15,12 @@ type GoogleUser struct {
 }
 
 type User struct {
-	ID        string `json:"id"`
-	Email     string `json:"email"`
-	Name      string `json:"name"`
-	SheetName string `json:"sheetName"`
-	JiraName  string `json:"jiraName"`
+	ID         string `json:"id"`
+	Email      string `json:"email,omitempty"`
+	Name       string `json:"name"`
+	SheetName  string `json:"sheetName,omitempty"`
+	JiraName   string `json:"jiraName,omitempty"`
+	TelegramID string `json:"telegramId,omitempty"`
 }
 
 func (u *User) FromModel(user *model.User) *User {
@@ -28,6 +29,7 @@ func (u *User) FromModel(user *model.User) *User {
 	u.Name = user.Name
 	u.SheetName = user.SheetName.String
 	u.JiraName = user.JiraName.String
+	u.TelegramID = user.TelegramID.String
 	return u
 }
 

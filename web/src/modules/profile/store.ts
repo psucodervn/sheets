@@ -61,4 +61,13 @@ export default class ProfileStore extends VuexModule {
     }
     return { currentUser: res.data };
   }
+
+  @Action({ rawError: true })
+  async generateTelegramLink() {
+    const res = await Vue.$api.post<string>('/auth/telegram');
+    if (!res.data || !res.success) {
+      throw new Error(res.message);
+    }
+    return res.data;
+  }
 }

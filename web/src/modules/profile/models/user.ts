@@ -3,4 +3,5 @@ export interface User {
   email: string;
   sheetName: string;
   jiraName: string;
+  telegramId: string;
 }

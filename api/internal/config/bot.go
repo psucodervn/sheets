@@ -6,5 +6,5 @@ type BotConfig struct {
 }
 
 type TelegramConfig struct {
-	Token string `split_words:"true" required:"true"`
+	BotToken string `split_words:"true" required:"true"`
 }

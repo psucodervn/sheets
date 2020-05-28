@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -16,13 +17,15 @@ import (
 )
 
 type Service struct {
+	db         *sql.DB
 	jwtSecret  []byte
 	expireTime time.Duration
 	googleConf oauth2.Config
 }
 
-func NewService(jwtSecret []byte, googleConf oauth2.Config) *Service {
+func NewService(db *sql.DB, jwtSecret []byte, googleConf oauth2.Config) *Service {
 	return &Service{
+		db:         db,
 		jwtSecret:  jwtSecret,
 		expireTime: 7 * 24 * time.Hour,
 		googleConf: googleConf,

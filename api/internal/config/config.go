@@ -17,6 +17,8 @@ type ApiConfig struct {
 	Jira     JiraConfig
 	Wakatime WakatimeConfig
 	Auth     AuthConfig
+
+	TelegramBotName string `split_words:"true" required:"true"`
 }
 
 type GoogleDocsConfig struct {

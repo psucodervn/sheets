@@ -18,15 +18,21 @@ type UserService interface {
 	AddAuthProvider(ctx context.Context, provider string, id string) (*model.AuthIdentity, error)
 }
 
+type TelegramService interface {
+	GenerateLink(ctx context.Context, userID string) (string, error)
+}
+
 type Handler struct {
-	authSvc *Service
-	userSvc UserService
-	authMW  echo.MiddlewareFunc
+	authSvc     *Service
+	userSvc     UserService
+	telegramSvc TelegramService
+	authMW      echo.MiddlewareFunc
 }
 
 func (h *Handler) Bind(e *echo.Echo) {
 	e.POST("/auth/google", h.loginGoogle())
 	e.GET("/auth/me", h.getMe(), h.authMW)
+	e.POST("/auth/telegram", h.generateTelegramToken(), h.authMW)
 }
 
 func (h *Handler) loginGoogle() echo.HandlerFunc {
@@ -87,6 +93,24 @@ func (h *Handler) getMe() echo.HandlerFunc {
 	}
 }
 
-func NewHandler(authSvc *Service, userSvc UserService, authMW echo.MiddlewareFunc) *Handler {
-	return &Handler{authSvc: authSvc, userSvc: userSvc, authMW: authMW}
+func (h *Handler) generateTelegramToken() echo.HandlerFunc {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
+		if !c.User().TelegramID.IsZero() {
+			return c.Err(http.StatusBadRequest, "Your account was already integrated with Telegram.")
+		}
+
+		l := log.Ctx(c.Ctx())
+		link, err := h.telegramSvc.GenerateLink(c.Ctx(), c.User().ID)
+		if err != nil {
+			l.Err(err).Msg("GenerateLink failed")
+			return err
+		}
+
+		return c.OK(link)
+	}
+}
+
+func NewHandler(authSvc *Service, userSvc UserService, telegramSvc TelegramService, authMW echo.MiddlewareFunc) *Handler {
+	return &Handler{authSvc: authSvc, userSvc: userSvc, telegramSvc: telegramSvc, authMW: authMW}
 }

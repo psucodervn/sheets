@@ -5,11 +5,13 @@ package model
 
 var TableNames = struct {
 	AuthIdentities  string
+	TelegramTokens  string
 	TransactionLogs string
 	Transactions    string
 	Users           string
 }{
 	AuthIdentities:  "auth_identities",
+	TelegramTokens:  "telegram_tokens",
 	TransactionLogs: "transaction_logs",
 	Transactions:    "transactions",
 	Users:           "users",

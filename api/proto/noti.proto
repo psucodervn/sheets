@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package sheet;
+
+service NotificationService {
+  rpc NotifyTransaction (NotifyTransactionRequest) returns (NotifyTransactionResponse);
+}
+
+message NotifyTransactionRequest {
+  string transactionId = 1;
+}
+
+message NotifyTransactionResponse {
+  bool success = 1;
+  string error_code = 2;
+}

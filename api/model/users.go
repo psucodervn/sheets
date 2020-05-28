@@ -47,6 +47,7 @@ type User struct {
 	HashedPassword null.String `boil:"hashed_password" json:"hashedPassword,omitempty" toml:"hashedPassword" yaml:"hashedPassword,omitempty"`
 	SheetName      null.String `boil:"sheet_name" json:"sheetName,omitempty" toml:"sheetName" yaml:"sheetName,omitempty"`
 	JiraName       null.String `boil:"jira_name" json:"jiraName,omitempty" toml:"jiraName" yaml:"jiraName,omitempty"`
+	TelegramID     null.String `boil:"telegram_id" json:"telegramID,omitempty" toml:"telegramID" yaml:"telegramID,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -62,6 +63,7 @@ var UserColumns = struct {
 	HashedPassword string
 	SheetName      string
 	JiraName       string
+	TelegramID     string
 }{
 	ID:             "id",
 	CreatedAt:      "created_at",
@@ -72,6 +74,7 @@ var UserColumns = struct {
 	HashedPassword: "hashed_password",
 	SheetName:      "sheet_name",
 	JiraName:       "jira_name",
+	TelegramID:     "telegram_id",
 }
 
 // Generated where
@@ -86,6 +89,7 @@ var UserWhere = struct {
 	HashedPassword whereHelpernull_String
 	SheetName      whereHelpernull_String
 	JiraName       whereHelpernull_String
+	TelegramID     whereHelpernull_String
 }{
 	ID:             whereHelperstring{field: "\"users\".\"id\""},
 	CreatedAt:      whereHelpertime_Time{field: "\"users\".\"created_at\""},
@@ -96,15 +100,18 @@ var UserWhere = struct {
 	HashedPassword: whereHelpernull_String{field: "\"users\".\"hashed_password\""},
 	SheetName:      whereHelpernull_String{field: "\"users\".\"sheet_name\""},
 	JiraName:       whereHelpernull_String{field: "\"users\".\"jira_name\""},
+	TelegramID:     whereHelpernull_String{field: "\"users\".\"telegram_id\""},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
 	AuthIdentities       string
+	TelegramTokens       string
 	ActorTransactionLogs string
 	CreatorTransactions  string
 }{
 	AuthIdentities:       "AuthIdentities",
+	TelegramTokens:       "TelegramTokens",
 	ActorTransactionLogs: "ActorTransactionLogs",
 	CreatorTransactions:  "CreatorTransactions",
 }
@@ -112,6 +119,7 @@ var UserRels = struct {
 // userR is where relationships are stored.
 type userR struct {
 	AuthIdentities       AuthIdentitySlice
+	TelegramTokens       TelegramTokenSlice
 	ActorTransactionLogs TransactionLogSlice
 	CreatorTransactions  TransactionSlice
 }
@@ -125,8 +133,8 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "created_at", "updated_at", "deleted_at", "name", "email", "hashed_password", "sheet_name", "jira_name"}
-	userColumnsWithoutDefault = []string{"id", "created_at", "updated_at", "deleted_at", "name", "email", "hashed_password", "sheet_name", "jira_name"}
+	userAllColumns            = []string{"id", "created_at", "updated_at", "deleted_at", "name", "email", "hashed_password", "sheet_name", "jira_name", "telegram_id"}
+	userColumnsWithoutDefault = []string{"id", "created_at", "updated_at", "deleted_at", "name", "email", "hashed_password", "sheet_name", "jira_name", "telegram_id"}
 	userColumnsWithDefault    = []string{}
 	userPrimaryKeyColumns     = []string{"id"}
 )
@@ -528,6 +536,27 @@ func (o *User) AuthIdentities(mods ...qm.QueryMod) authIdentityQuery {
 	return query
 }
 
+// TelegramTokens retrieves all the telegram_token's TelegramTokens with an executor.
+func (o *User) TelegramTokens(mods ...qm.QueryMod) telegramTokenQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"telegram_tokens\".\"user_id\"=?", o.ID),
+	)
+
+	query := TelegramTokens(queryMods...)
+	queries.SetFrom(query.Query, "\"telegram_tokens\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"telegram_tokens\".*"})
+	}
+
+	return query
+}
+
 // ActorTransactionLogs retrieves all the transaction_log's TransactionLogs with an executor via actor_id column.
 func (o *User) ActorTransactionLogs(mods ...qm.QueryMod) transactionLogQuery {
 	var queryMods []qm.QueryMod
@@ -660,6 +689,104 @@ func (userL) LoadAuthIdentities(ctx context.Context, e boil.ContextExecutor, sin
 				local.R.AuthIdentities = append(local.R.AuthIdentities, foreign)
 				if foreign.R == nil {
 					foreign.R = &authIdentityR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadTelegramTokens allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadTelegramTokens(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`telegram_tokens`),
+		qm.WhereIn(`telegram_tokens.user_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load telegram_tokens")
+	}
+
+	var resultSlice []*TelegramToken
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice telegram_tokens")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on telegram_tokens")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for telegram_tokens")
+	}
+
+	if len(telegramTokenAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.TelegramTokens = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &telegramTokenR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.TelegramTokens = append(local.R.TelegramTokens, foreign)
+				if foreign.R == nil {
+					foreign.R = &telegramTokenR{}
 				}
 				foreign.R.User = local
 				break
@@ -1083,6 +1210,90 @@ func (o *User) RemoveAuthIdentities(ctx context.Context, exec boil.ContextExecut
 		}
 	}
 
+	return nil
+}
+
+// AddTelegramTokensG adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.TelegramTokens.
+// Sets related.R.User appropriately.
+// Uses the global database handle.
+func (o *User) AddTelegramTokensG(ctx context.Context, insert bool, related ...*TelegramToken) error {
+	return o.AddTelegramTokens(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// AddTelegramTokensP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.TelegramTokens.
+// Sets related.R.User appropriately.
+// Panics on error.
+func (o *User) AddTelegramTokensP(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TelegramToken) {
+	if err := o.AddTelegramTokens(ctx, exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddTelegramTokensGP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.TelegramTokens.
+// Sets related.R.User appropriately.
+// Uses the global database handle and panics on error.
+func (o *User) AddTelegramTokensGP(ctx context.Context, insert bool, related ...*TelegramToken) {
+	if err := o.AddTelegramTokens(ctx, boil.GetContextDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddTelegramTokens adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.TelegramTokens.
+// Sets related.R.User appropriately.
+func (o *User) AddTelegramTokens(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TelegramToken) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"telegram_tokens\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+				strmangle.WhereClause("\"", "\"", 2, telegramTokenPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.Token}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			TelegramTokens: related,
+		}
+	} else {
+		o.R.TelegramTokens = append(o.R.TelegramTokens, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &telegramTokenR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
 	return nil
 }
 

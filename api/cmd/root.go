@@ -8,6 +8,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/grpc"
 
 	"api/db"
 	"api/internal/api"
@@ -15,8 +16,10 @@ import (
 	"api/internal/balance"
 	"api/internal/config"
 	"api/internal/point"
+	"api/internal/telegram"
 	"api/internal/user"
 	"api/pkg/wakatime"
+	sheet "api/proto"
 )
 
 func init() {
@@ -40,9 +43,15 @@ func runApiServer(cfg config.ApiConfig) error {
 	conn := db.ConnectDB(cfg.Postgres)
 	boil.SetDB(conn)
 
+	notiConn, err := grpc.Dial("bot:8080", grpc.WithInsecure())
+	if err != nil {
+		log.Panic().Msgf("dial notification server failed: %v", err)
+	}
+	notiClient := sheet.NewNotificationServiceClient(notiConn)
+
 	jwtMW := api.AuthJWT([]byte(cfg.Auth.JWTSecret))
 
-	balanceSvc := balance.NewService(conn)
+	balanceSvc := balance.NewService(conn, notiClient)
 	balanceHandler := balance.NewHandler(balanceSvc, jwtMW)
 
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
@@ -55,9 +64,10 @@ func runApiServer(cfg config.ApiConfig) error {
 		Endpoint: google.Endpoint,
 		ClientID: ggCfg.ClientID, ClientSecret: ggCfg.ClientSecret, RedirectURL: ggCfg.RedirectURL,
 	}
-	authSvc := auth.NewService([]byte(cfg.Auth.JWTSecret), ggConf)
+	authSvc := auth.NewService(conn, []byte(cfg.Auth.JWTSecret), ggConf)
 	userSvc := user.NewService(conn)
-	authHandler := auth.NewHandler(authSvc, userSvc, jwtMW)
+	telegramSvc := telegram.NewService(conn, cfg.TelegramBotName)
+	authHandler := auth.NewHandler(authSvc, userSvc, telegramSvc, jwtMW)
 
 	srv := api.NewServer()
 	srv.Bind(

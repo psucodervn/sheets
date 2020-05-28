@@ -60,37 +60,37 @@ const routes: Array<RouteConfig> = [
           requiresAuth: true,
         },
       },
-      {
-        path: Routes.Point,
-        name: Routes.Point,
-        component: Point,
-        meta: {
-          root: true,
-        },
-      },
-      {
-        path: Routes.PointIssues,
-        name: Routes.PointIssues,
-        component: Issues,
-      },
-      {
-        path: Routes.Report,
-        name: Routes.Report,
-        component: Report,
-        meta: {
-          root: true,
-        },
-      },
-      {
-        path: Routes.Profile,
-        name: Routes.Profile,
-        component: Profile,
-        meta: {
-          root: true,
-          requiresAuth: true,
-        },
-      },
     ],
+  },
+  {
+    path: Routes.Point,
+    name: Routes.Point,
+    component: Point,
+    meta: {
+      root: true,
+    },
+  },
+  {
+    path: Routes.PointIssues,
+    name: Routes.PointIssues,
+    component: Issues,
+  },
+  {
+    path: Routes.Report,
+    name: Routes.Report,
+    component: Report,
+    meta: {
+      root: true,
+    },
+  },
+  {
+    path: Routes.Profile,
+    name: Routes.Profile,
+    component: Profile,
+    meta: {
+      root: true,
+      requiresAuth: true,
+    },
   },
   {
     path: Routes.Login,

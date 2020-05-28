@@ -11,14 +11,20 @@ import (
 
 	"api/internal/api"
 	"api/model"
+	sheet "api/proto"
 )
 
 var _ Service = &service{}
 
 type service struct {
-	db *sql.DB
+	db                 *sql.DB
+	notificationClient sheet.NotificationServiceClient
 
 	users sync.Map
+}
+
+func NewService(db *sql.DB, notificationClient sheet.NotificationServiceClient) *service {
+	return &service{db: db, notificationClient: notificationClient}
 }
 
 func (s *service) UpdateTransaction(ctx context.Context, id string, txDTO *TransactionDTO, user *model.User) (err error) {
@@ -61,6 +67,14 @@ func (s *service) UpdateTransaction(ctx context.Context, id string, txDTO *Trans
 	if err = txLog.Insert(ctx, txn, boil.Infer()); err != nil {
 		return err
 	}
+
+	_, err = s.notificationClient.NotifyTransaction(ctx, &sheet.NotifyTransactionRequest{
+		TransactionId: tx.ID,
+	})
+	if err != nil {
+		return err
+	}
+
 	return txn.Commit()
 }
 
@@ -197,11 +211,5 @@ func (s *service) mapModelTransactionToDTO(tx *model.Transaction) *TransactionDT
 		Payers:       s.mapChanges(tx.Payers),
 		Participants: s.mapChanges(tx.Participants),
 		SplitType:    tx.SplitType,
-	}
-}
-
-func NewService(db *sql.DB) *service {
-	return &service{
-		db: db,
 	}
 }
