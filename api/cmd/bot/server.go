@@ -99,8 +99,14 @@ func (s *NotificationServer) notifyTransactionLog(ctx context.Context, userID st
 	}
 
 	bf := bytes.NewBuffer(nil)
+	if change > 0 {
+		bf.WriteString("⬆ ")
+	} else {
+		bf.WriteString("⬇ ")
+	}
+
 	bf.WriteString(fmt.Sprintf(
-		"%s has %sd transaction '%s'",
+		"**%s** has %sd transaction ***%s***",
 		txLog.Meta["username"], strings.ToLower(string(txLog.Action)), txLog.R.Transaction.Summary),
 	)
 
@@ -110,15 +116,17 @@ func (s *NotificationServer) notifyTransactionLog(ctx context.Context, userID st
 	} else {
 		s := humanize.Comma(int64(abs))
 		if change < 0 {
-			bf.WriteString(", so your balance has decreased by " + s + " (vnđ).")
+			bf.WriteString(", so your balance has decreased by `" + s + "` (vnđ).")
 		} else {
-			bf.WriteString(", so your balance has increased by " + s + " (vnđ).")
+			bf.WriteString(", so your balance has increased by `" + s + "` (vnđ).")
 		}
 	}
-	bf.WriteString("\nYour current balance is " + humanize.Comma(int64(u.Balance)) + " (vnđ).")
+	bf.WriteString("\nYour current balance is `" + humanize.Comma(int64(u.Balance)) + "` (vnđ).")
 
 	log.Info().Str("message", bf.String()).Msg("send to " + u.Name)
-	_, err = s.bot.Send(newUser(u.TelegramID.String), bf.String())
+	_, err = s.bot.Send(newUser(u.TelegramID.String), bf.String(), &s.bot.SendOptions{
+		ParseMode:telebot.ModeMarkdown
+	})
 	return err
 }
 
