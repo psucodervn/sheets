@@ -22,28 +22,29 @@ if (process.env.NODE_ENV === 'production') {
     },
     updated() {
       console.log('New content is available; please refresh.');
-      Notify.create({
-        color: 'negative',
-        icon: 'cached',
-        message: 'Updated content is available. Please refresh the page.',
-        timeout: 0,
-        multiLine: true,
-        position: 'top',
-        actions: [
-          {
-            label: 'Refresh',
-            color: 'yellow',
-            handler: () => {
-              window.location.reload(true);
-            },
-          },
-          {
-            label: 'Dismiss',
-            color: 'white',
-            handler: () => {},
-          },
-        ],
-      });
+      // window.location.reload();
+      // Notify.create({
+      //   color: 'negative',
+      //   icon: 'cached',
+      //   message: 'Updated content is available. Please refresh the page.',
+      //   timeout: 0,
+      //   multiLine: true,
+      //   position: 'top',
+      //   actions: [
+      //     {
+      //       label: 'Refresh',
+      //       color: 'yellow',
+      //       handler: () => {
+      //         window.location.reload(true);
+      //       },
+      //     },
+      //     {
+      //       label: 'Dismiss',
+      //       color: 'white',
+      //       handler: () => {},
+      //     },
+      //   ],
+      // });
     },
     offline() {
       console.log(
