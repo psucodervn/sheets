@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-TAG=$(git describe --tags)
-# TAG=$(git rev-parse --short HEAD)
-# if [[ -z "${TAG}" ]]; then
-#   TAG=$(git rev-parse --short HEAD)
-# fi
+TAG="v$(date -u +"%Y%m%d")-$(git rev-parse --short HEAD)"
 export TAG
 
 export SERVICE=$1
