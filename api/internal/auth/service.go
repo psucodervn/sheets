@@ -27,7 +27,7 @@ func NewService(db *sql.DB, jwtSecret []byte, googleConf oauth2.Config) *Service
 	return &Service{
 		db:         db,
 		jwtSecret:  jwtSecret,
-		expireTime: 7 * 24 * time.Hour,
+		expireTime: 1 * time.Hour,
 		googleConf: googleConf,
 	}
 }
@@ -63,7 +63,7 @@ func (s *Service) FetchGoogleUserWithCode(ctx context.Context, code string) (*Go
 	return &gu, nil
 }
 
-func (s *Service) SignWithUser(u *model.User) (string, error) {
+func (s *Service) SignWithUser(u *model.User) (*Token, error) {
 	claims := &api.UserClaims{
 		ID:    u.ID,
 		Name:  u.Name,
@@ -73,10 +73,24 @@ func (s *Service) SignWithUser(u *model.User) (string, error) {
 		},
 	}
 
+	refreshClaims := &api.UserClaims{
+		ID: u.ID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(30 * 24 * time.Hour).Unix(),
+		},
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString(s.jwtSecret)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return t, nil
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	rt, err := refreshToken.SignedString(s.jwtSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Token{AccessToken: t, RefreshToken: rt}, nil
 }

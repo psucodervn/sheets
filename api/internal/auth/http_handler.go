@@ -33,6 +33,7 @@ func (h *Handler) Bind(e *echo.Echo) {
 	e.POST("/auth/google", h.loginGoogle())
 	e.GET("/auth/me", h.getMe(), h.authMW)
 	e.POST("/auth/telegram", h.generateTelegramToken(), h.authMW)
+	e.POST("/auth/refresh", h.refreshToken(), h.authMW)
 }
 
 func (h *Handler) loginGoogle() echo.HandlerFunc {
@@ -81,7 +82,7 @@ func (h *Handler) loginGoogle() echo.HandlerFunc {
 			return err
 		}
 
-		return c.OK(Token{AccessToken: t})
+		return c.OK(t)
 	}
 }
 
@@ -108,6 +109,20 @@ func (h *Handler) generateTelegramToken() echo.HandlerFunc {
 		}
 
 		return c.OK(link)
+	}
+}
+
+func (h *Handler) refreshToken() echo.HandlerFunc {
+	return func(ec echo.Context) error {
+		c := ec.(*api.Context)
+		l := log.Ctx(c.Ctx())
+		t, err := h.authSvc.SignWithUser(c.User())
+		if err != nil {
+			l.Err(err).Msg("SignWithUser failed")
+			return c.Err(http.StatusInternalServerError, err.Error())
+		}
+
+		return c.OK(t)
 	}
 }
 

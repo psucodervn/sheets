@@ -9,7 +9,7 @@ import ProfileStore from '@/modules/profile/store';
 Vue.use(Vuex);
 
 const appVersion = 1;
-const authVersion = 2;
+const authVersion = 3;
 
 const store = new Vuex.Store({
   state: {},

@@ -1,12 +1,14 @@
 import {
   Action,
   Module,
+  Mutation,
   MutationAction,
   VuexModule,
 } from 'vuex-module-decorators';
 import { Vue } from 'vue-property-decorator';
 import { User } from '@/modules/profile/models/user';
 import { AuthToken } from '@/modules/profile/dtos/auth';
+import { AxiosResponse } from 'axios';
 
 @Module({
   name: 'profile',
@@ -15,8 +17,9 @@ import { AuthToken } from '@/modules/profile/dtos/auth';
 export default class ProfileStore extends VuexModule {
   currentUser: User | null = null;
   token: string | null = null;
+  refreshToken: string | null = null;
 
-  @MutationAction({ mutate: ['token'], rawError: true })
+  @Action({ rawError: true })
   async authenticate(param: { provider: string }) {
     if (param.provider !== 'google') {
       throw new Error('Only Google sign-in is supported now.');
@@ -35,17 +38,28 @@ export default class ProfileStore extends VuexModule {
     if (!res.data || !res.success) {
       throw new Error(`Authenticate failed: ${res.message}`);
     }
-    return { token: res.data.accessToken };
+    this.setTokens(res.data);
+    return { token: res.data.accessToken, refreshToken: res.data.refreshToken };
   }
 
-  @MutationAction({ mutate: ['token', 'currentUser'], rawError: true })
+  @Mutation
+  setTokens(tokens: AuthToken) {
+    this.token = tokens.accessToken;
+    this.refreshToken = tokens.refreshToken;
+    console.log('setTokens done');
+  }
+
+  @MutationAction({
+    mutate: ['token', 'refreshToken', 'currentUser'],
+    rawError: true,
+  })
   async logout() {
     try {
       await Vue.prototype.$gAuth.signOut();
     } catch (e) {
       console.log('$auth logout err:', e.message);
     }
-    return { token: null, currentUser: null };
+    return { token: null, refreshToken: null, currentUser: null };
   }
 
   @Action({ rawError: true })
@@ -69,5 +83,24 @@ export default class ProfileStore extends VuexModule {
       throw new Error(res.message);
     }
     return res.data;
+  }
+
+  @Action({ rawError: true })
+  async postRefreshToken(response: AxiosResponse) {
+    try {
+      const res = await Vue.$api.post<AuthToken>(
+        '/auth/refresh',
+        {},
+        {
+          headers: { Authorization: `Bearer ${this.refreshToken}` },
+        }
+      );
+      if (!res.data || !res.success) return response;
+      this.setTokens(res.data);
+      response.config.headers['Authorization'] = res.data.accessToken;
+      return Vue.$api.call(response.config);
+    } catch (e) {
+      return response;
+    }
   }
 }

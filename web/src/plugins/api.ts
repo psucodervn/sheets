@@ -10,6 +10,13 @@ import { ProfileModule } from '@/store';
 export class ApiWrapper {
   constructor(private axios: AxiosInstance) {
     this.axios.interceptors.request.use(async (config: AxiosRequestConfig) => {
+      if (
+        config.headers['Authorization'] &&
+        config.headers['Authorization'].startsWith('Bearer ')
+      ) {
+        // TODO: check valid token
+        return config;
+      }
       const token = await ProfileModule.getToken();
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
@@ -17,6 +24,13 @@ export class ApiWrapper {
         delete config.headers['Authorization'];
       }
       return config;
+    });
+    this.axios.interceptors.response.use((res: AxiosResponse<any>) => {
+      // @ts-ignore
+      if (res.config._retry || res.status !== 401) return res;
+      // @ts-ignore
+      res.config._retry = true;
+      return ProfileModule.postRefreshToken(res);
     });
   }
 
@@ -68,6 +82,10 @@ export class ApiWrapper {
     } catch (e) {
       return { success: false, message: e.message };
     }
+  }
+
+  async call(config: AxiosRequestConfig) {
+    return this.axios(config);
   }
 }
 
