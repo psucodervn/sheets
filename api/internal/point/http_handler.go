@@ -13,15 +13,16 @@ import (
 type HttpHandler struct {
 	svc       Service
 	reportSvc ReportService
+	authMW    echo.MiddlewareFunc
 }
 
-func NewHttpHandler(svc Service, reportSvc ReportService) *HttpHandler {
-	return &HttpHandler{svc: svc, reportSvc: reportSvc}
+func NewHttpHandler(svc Service, reportSvc ReportService, authMW echo.MiddlewareFunc) *HttpHandler {
+	return &HttpHandler{svc: svc, reportSvc: reportSvc, authMW: authMW}
 }
 
 func (h *HttpHandler) Bind(e *echo.Echo) {
-	e.GET("/points", h.getPoints())
-	e.GET("/report", h.getReport())
+	e.GET("/points", h.getPoints(), h.authMW)
+	e.GET("/report", h.getReport(), h.authMW)
 }
 
 func (h *HttpHandler) getPoints() echo.HandlerFunc {

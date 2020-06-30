@@ -57,7 +57,7 @@ func runApiServer(cfg config.ApiConfig) error {
 	pointSvc := point.NewRestService(cfg.Jira.Username, cfg.Jira.Password, cfg.Jira.Host)
 	wakaSvc := wakatime.NewApiFetcher(cfg.Wakatime.ApiKey)
 	reportSvc := point.NewBaseReportService(pointSvc, wakaSvc, cfg.Wakatime.Leaderboard, cfg.Wakatime.MapID)
-	pointHandler := point.NewHttpHandler(pointSvc, reportSvc)
+	pointHandler := point.NewHttpHandler(pointSvc, reportSvc, jwtMW)
 
 	ggCfg := cfg.Auth.Google
 	ggConf := oauth2.Config{
