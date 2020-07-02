@@ -68,12 +68,16 @@ const routes: Array<RouteConfig> = [
     component: Point,
     meta: {
       root: true,
+      requiresAuth: true,
     },
   },
   {
     path: Routes.PointIssues,
     name: Routes.PointIssues,
     component: Issues,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: Routes.Report,
@@ -81,6 +85,7 @@ const routes: Array<RouteConfig> = [
     component: Report,
     meta: {
       root: true,
+      requiresAuth: true,
     },
   },
   {
