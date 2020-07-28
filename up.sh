@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-# usage: up.sh api v0.2.4
-#ssh dev@167.71.214.233 "cd /home/dev/sheets && ./up.sh $1 $2"
 
-ssh ec2-user@ec2-52-76-145-82.ap-southeast-1.compute.amazonaws.com "cd /home/ec2-user/sheet && ./up.sh $1 $2"
+REMOTE=ec2-user@ec2-3-0-57-42.ap-southeast-1.compute.amazonaws.com
+REMOTE_DIR=/home/ec2-user/sheet
+SERVICE=${1}
+TAG=${2}
+
+if [[ -n ${SERVICE} ]]; then
+  sed -i.bak "s/-${SERVICE}:.*/-${SERVICE}:${TAG}/g" deploy/docker-compose.yaml
+fi
+
+rsync -a ./deploy/ ${REMOTE}:${REMOTE_DIR}
+
+ssh ${REMOTE} "cd $REMOTE_DIR && ./up.sh"

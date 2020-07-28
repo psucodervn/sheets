@@ -1,0 +1,7 @@
+:80 {
+  tls off
+  proxy /api/ http://api:80/ {
+    without /api
+  }
+  proxy / http://web:80/
+}

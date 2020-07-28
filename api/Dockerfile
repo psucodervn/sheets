@@ -23,5 +23,4 @@ ARG DIR
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder $DIR/$BINARY ./app
 
-EXPOSE 8080 9090
 ENTRYPOINT ["./app"]
