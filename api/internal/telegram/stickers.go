@@ -1,0 +1,14 @@
+package telegram
+
+type Sticker string
+
+const (
+	StickerBoNgheMay Sticker = "CAACAgEAAxkBAAIBJ186roL2okvbqFVNd3PY9IMujT52AAK-AAOVRXAMShXDxTOIvj4aBA"
+	StickerEchXanh   Sticker = "CAACAgEAAxkBAAIBIF86rfSwPtYkKAH3HPwmV16_NHIuAALZAAOVRXAMnBxd6EqPW1saBA"
+	StickerCanLoi    Sticker = "CAACAgEAAxkBAAIBVl878sIQgRPvoQepDyCwKo10HPicAALKAAOVRXAMKjDiw52OM4oaBA"
+	StickerXaoCho    Sticker = "CAACAgEAAxkBAAIBWF878vHgLQiAe37741RIAAF3i3o_LgACzQADlUVwDCeHGfA-LcLkGgQ"
+	StickerDoAnO     Sticker = "CAACAgEAAxkBAAIBWl878y-nbNHjsBn3ryXN0Pn8eIZpAAKvAAOVRXAM9Nu3A1B9hkYaBA"
+	StickerYTroi     Sticker = "CAACAgEAAxkBAAIBXF8782PCbLxgVCVSe5dfJjzJ6CO0AAKwAAOVRXAMQxr0g9m47qMaBA"
+	StickerDenThoi   Sticker = "CAACAgEAAxkBAAIBXl8787t1RovcmnV80BQiFsdd5o5pAAKfAAOVRXAMFFdS9M6R26oaBA"
+	StickerThugLife  Sticker = "CAACAgEAAxkBAAIBYF878_Fen9SgfP8pObbVm-D9qhmWAALeAAOVRXAMAbvnwAF6NTAaBA"
+)

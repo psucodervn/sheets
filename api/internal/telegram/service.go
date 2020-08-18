@@ -85,6 +85,60 @@ func (s *Service) GetUserWithBalanceByTelegramID(ctx context.Context, telegramID
 	return u, nil
 }
 
+func (s *Service) CheckUserIn(ctx context.Context, user *model.UserWithBalance, at time.Time) (*model.Checkin, error) {
+	dateStr := toUTCDateStr(at)
+	_, err := model.FindCheckin(ctx, s.db, user.ID, dateStr)
+	if err == nil {
+		return nil, ErrAlreadyCheckedIn
+	} else if err != sql.ErrNoRows {
+		return nil, ErrDatabase
+	}
+
+	onTime := isOnTime(at)
+	ci := &model.Checkin{
+		Time:   at,
+		UserID: user.ID,
+		Date:   dateStr,
+		OnTime: onTime,
+	}
+	if ci.OnTime {
+		ci.StarEarned = 1
+	}
+	if err = ci.Insert(boil.WithDebug(ctx, true), s.db, boil.Infer()); err != nil {
+		return nil, ErrDatabase
+	}
+	return ci, nil
+}
+
+func (s *Service) CheckUserOut(ctx context.Context, user *model.UserWithBalance, at time.Time) (*model.Checkin, error) {
+	dateStr := toUTCDateStr(at)
+	ci, err := model.FindCheckin(ctx, s.db, user.ID, dateStr)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotCheckedIn
+	} else if err != nil {
+		return nil, ErrDatabase
+	}
+
+	if _, err = ci.Delete(ctx, s.db); err != nil {
+		return nil, ErrDatabase
+	}
+	return ci, nil
+}
+
+func (s *Service) ListUserHasTelegramID(ctx context.Context) (model.UserSlice, error) {
+	return model.Users(model.UserWhere.TelegramID.IsNotNull()).All(ctx, s.db)
+}
+
+func isOnTime(at time.Time) bool {
+	y, m, d := at.In(LocalZone).Date()
+	dl := time.Date(y, m, d, 9, 31, 0, 0, LocalZone)
+	return at.Before(dl)
+}
+
 func randomToken() string {
 	return xid.New().String()
+}
+
+func toUTCDateStr(t time.Time) string {
+	return t.In(LocalZone).Format("2006/01/02")
 }

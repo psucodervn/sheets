@@ -7,6 +7,10 @@ import (
 var (
 	botCommands = []telebot.Command{
 		{
+			Text:        "checkin",
+			Description: "Checkin",
+		},
+		{
 			Text:        "top",
 			Description: "list top users by balance",
 		},
@@ -15,18 +19,21 @@ var (
 			Description: "list all users with balance",
 		},
 		{
-			Text:        "help",
-			Description: "display help",
-		},
-		{
 			Text:        "me",
 			Description: "fetch my information",
+		},
+		{
+			Text:        "help",
+			Description: "display help",
 		},
 	}
 
 	usage = `Verisheet Bot commands:
+- /checkin: check-in
+  /checkin out: check-out
+  /checkin 9h25: check in at 9:25 AM
 - /all: list all users
 - /top <n>: list top n users with highest/lowest balance
-- /help: display help
-- /me: fetch my information`
+- /me: fetch my information
+- /help: display help`
 )

@@ -60,6 +60,8 @@ github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-pg/migrations/v7 v7.1.10 h1:taYaAAkSXUZBe65Tw3gXf6wW69wJIAGL240LRVnYueY=
 github.com/go-pg/migrations/v7 v7.1.10/go.mod h1:v/v7SfckdB2IGmUyopKyASTzjmN30HnDucLLZcCvBWU=
+github.com/go-pg/migrations/v7 v7.1.11 h1:59sWcsENzTrY2OUvG/yfkTgz92F3AyT5/wwmgnw6MoA=
+github.com/go-pg/migrations/v7 v7.1.11/go.mod h1:v/v7SfckdB2IGmUyopKyASTzjmN30HnDucLLZcCvBWU=
 github.com/go-pg/pg/v9 v9.0.0-beta.14/go.mod h1:T2Sr6bpTCOr2lUqOUMiXLMJqZHSUBKk1LdgSqjwhZfA=
 github.com/go-pg/pg/v9 v9.0.3/go.mod h1:Tm/Q3Vt6gdQOH6TTN1H/xLlIXc+Qrka7TZ6uREtu/eA=
 github.com/go-pg/pg/v9 v9.1.6 h1:IqBayenvp9EWjHncRE7//SRmQuktq60oeO1/MkEx3dY=
@@ -229,6 +231,8 @@ github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+Gx
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/psucodervn/go v0.6.2 h1:FIrr4o/jStihIAytISW3I1hRj3XqtfiD7JBxJW4JQIo=
 github.com/psucodervn/go v0.6.2/go.mod h1:lx6VtQsFIZUPX/VfqCNgstozxaM677cDoC9FlGI/DiE=
+github.com/psucodervn/go v0.7.0 h1:Hq1GcoSwyUm39CvsNRKV3zN5f1bbr5O5dx6Gg+iN7JU=
+github.com/psucodervn/go v0.7.0/go.mod h1:UjB3AKkFSsNNoSs9geMF3Skyyex83vlLyNpfUFnaUFQ=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rs/xid v1.2.1 h1:mhH9Nq+C1fY2l1XIpgxIiUOfNpRBYH1kKcr+qfKgjRc=
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=

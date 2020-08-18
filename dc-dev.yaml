@@ -9,8 +9,8 @@ services:
       - ./caddy/Caddyfile:/etc/Caddyfile
       - ./caddy/certs:/etc/certs
     ports:
-      - 80:80
-      - 443:443
+      - 7200:80
+      - 7243:443
 
   web:
     build:
@@ -39,15 +39,15 @@ services:
       - ./api/conf/credentials.json:/conf/credentials.json
       - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache:delegated
 
-  bot:
-    image: golang:1.14-alpine
-    command: ["go", "run", "/app/cmd/bot/main.go", "/app/cmd/bot/server.go"]
-    working_dir: /app
-    env_file: .env
-    restart: on-failure
-    volumes:
-      - ./api:/app:delegated
-      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache:delegated
+#  bot:
+#    image: golang:1.14-alpine
+#    command: ["go", "run", "/app/cmd/bot/main.go", "/app/cmd/bot/server.go"]
+#    working_dir: /app
+#    env_file: .env
+#    restart: on-failure
+#    volumes:
+#      - ./api:/app:delegated
+#      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache:delegated
 
   postgres:
     image: postgres
@@ -58,7 +58,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - 8432:5432
+      - 7232:5432
 
 volumes:
   pgdata:

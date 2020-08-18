@@ -5,7 +5,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/kelseyhightower/envconfig"
 	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -31,8 +30,8 @@ var (
 )
 
 func runBot(cmd *cobra.Command, args []string) error {
-	var cfg config.BotConfig
-	envconfig.MustProcess("", &cfg)
+	cfg := config.MustReadBotConfig()
+	log.Debug().Interface("config", cfg).Send()
 
 	conn := db.ConnectDB(cfg.Postgres)
 	boil.SetDB(conn)

@@ -1,12 +1,12 @@
 module api
 
-go 1.14
+go 1.15
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
 	github.com/friendsofgo/errors v0.9.2
-	github.com/go-pg/migrations/v7 v7.1.10
+	github.com/go-pg/migrations/v7 v7.1.11
 	github.com/go-pg/pg/v9 v9.1.6
 	github.com/go-resty/resty/v2 v2.1.0
 	github.com/golang/protobuf v1.4.0
@@ -16,7 +16,7 @@ require (
 	github.com/lib/pq v1.2.1-0.20191011153232-f91d3411e481
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/psucodervn/go v0.6.2
+	github.com/psucodervn/go v0.7.0
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/cobra v1.0.0

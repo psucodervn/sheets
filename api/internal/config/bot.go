@@ -1,8 +1,8 @@
 package config
 
 type BotConfig struct {
-	Telegram TelegramConfig
-	Postgres PostgresConfig
+	Telegram TelegramConfig `split_words:"true"`
+	Postgres PostgresConfig `split_words:"true"`
 }
 
 type TelegramConfig struct {
