@@ -173,14 +173,14 @@ func (h *BotHandler) checkIn() interface{} {
 			msg = fmt.Sprintf("Congratz, you earned %d star for checked in on time (%s) 🥳🥳", ci.StarEarned, st)
 			_, _ = h.bot.Send(m.Chat, msg)
 			//_ = h.sendSticker(m.Chat, StickerThugLife)
-			msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> and earned <b>%d</b> star 🥳🥳", u.Name, st, ci.StarEarned)
-			_ = h.sendToAll(ctx, u, msg)
+			//msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> and earned <b>%d</b> star 🥳🥳", u.Name, st, ci.StarEarned)
+			//_ = h.sendToAll(ctx, u, msg)
 		} else {
 			msg = fmt.Sprintf("Too late! It's %s. You earned nothing 🤣🤣", st)
 			_, _ = h.bot.Send(m.Chat, msg)
 			_ = h.sendSticker(m.Chat, StickerDenThoi)
-			msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> but it's too late 🤣🤣", u.Name, st)
-			_ = h.sendToAll(ctx, u, msg)
+			//msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> but it's too late 🤣🤣", u.Name, st)
+			//_ = h.sendToAll(ctx, u, msg)
 		}
 	}
 }
@@ -228,13 +228,13 @@ func (h *BotHandler) checkOut(ctx context.Context, m *telebot.Message, u *model.
 	if ci.StarEarned > 0 {
 		msg = fmt.Sprintf("You checked out and lost %d star 🤔🤔", ci.StarEarned)
 		_, _ = h.bot.Send(m.Chat, msg)
-		msg = fmt.Sprintf("↩️ <b><i>%s</i></b> checked out and lost <b><i>%d</i></b> star 🤔🤔", u.Name, ci.StarEarned)
-		_ = h.sendToAll(ctx, u, msg)
+		//msg = fmt.Sprintf("↩️ <b><i>%s</i></b> checked out and lost <b><i>%d</i></b> star 🤔🤔", u.Name, ci.StarEarned)
+		//_ = h.sendToAll(ctx, u, msg)
 	} else {
 		msg = fmt.Sprintf("Checked out 😏😏")
 		_, _ = h.bot.Send(m.Chat, msg)
-		msg = fmt.Sprintf("↩️ <b><i>%s</i></b> checked out 😏😏", u.Name)
-		_ = h.sendToAll(ctx, u, msg)
+		//msg = fmt.Sprintf("↩️ <b><i>%s</i></b> checked out 😏😏", u.Name)
+		//_ = h.sendToAll(ctx, u, msg)
 	}
 }
 
