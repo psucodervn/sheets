@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	"api/model"
 )
@@ -127,6 +129,20 @@ func (s *Service) CheckUserOut(ctx context.Context, user *model.UserWithBalance,
 
 func (s *Service) ListUserHasTelegramID(ctx context.Context) (model.UserSlice, error) {
 	return model.Users(model.UserWhere.TelegramID.IsNotNull()).All(ctx, s.db)
+}
+
+func (s *Service) ListCheckins(ctx context.Context, today time.Time) (model.CheckinSlice, error) {
+	dateStr := toUTCDateStr(today)
+	cis, err := model.Checkins(
+		model.CheckinWhere.Date.EQ(dateStr),
+		qm.OrderBy(model.CheckinColumns.Time+" ASC"),
+		qm.Load(model.CheckinRels.User),
+	).All(ctx, s.db)
+	if err != nil {
+		log.Err(err).Msg("list checkins failed")
+		return nil, ErrDatabase
+	}
+	return cis, nil
 }
 
 func isOnTime(at time.Time) bool {

@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"math"
@@ -136,6 +137,10 @@ func (h *BotHandler) checkIn() interface{} {
 			h.checkOut(ctx, m, u)
 			return
 		}
+		if payload == "list" {
+			h.listCheckins(ctx, m)
+			return
+		}
 
 		t := time.Now()
 		if len(payload) > 0 {
@@ -254,4 +259,24 @@ func (h *BotHandler) sendToAll(ctx context.Context, user *model.UserWithBalance,
 		}
 	}
 	return nil
+}
+
+func (h *BotHandler) listCheckins(ctx context.Context, m *telebot.Message) {
+	today := time.Now().In(LocalZone)
+	cis, err := h.svc.ListCheckins(ctx, today)
+	if err != nil {
+		_, _ = h.bot.Send(m.Chat, "List check-in failed: "+err.Error())
+		_ = h.sendSticker(m.Chat, StickerDoAnO)
+		return
+	}
+
+	if len(cis) == 0 {
+		_, _ = h.bot.Send(m.Chat, "No one have checked in yet!")
+		return
+	}
+	bf := bytes.NewBuffer(nil)
+	for _, ci := range cis {
+		bf.WriteString(fmt.Sprintf("%s: %s\n", checkInTime(ci.Time), ci.R.User.Name))
+	}
+	_, _ = h.bot.Send(m.Chat, bf.String())
 }
