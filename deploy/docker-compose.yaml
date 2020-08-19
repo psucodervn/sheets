@@ -22,7 +22,7 @@ services:
     restart: on-failure
 
   bot:
-    image: psucoder/sheets-bot:v20200819-97ae9d6
+    image: psucoder/sheets-bot:v20200819-1f835c2
     env_file:
       - .env
     restart: on-failure

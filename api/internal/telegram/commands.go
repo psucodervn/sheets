@@ -29,9 +29,10 @@ var (
 	}
 
 	usage = `Verisheet Bot commands:
-- /checkin: check-in
-  /checkin out: check-out
-  /checkin 9h25: check in at 9:25 AM
+- /checkin:      check-in
+  /checkin out:  check-out
+	/checkin list: list check-in today
+  /checkin 9h25: check-in at 9:25 AM
 - /all: list all users
 - /top <n>: list top n users with highest/lowest balance
 - /me: fetch my information

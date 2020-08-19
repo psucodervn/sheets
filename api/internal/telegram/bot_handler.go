@@ -276,7 +276,9 @@ func (h *BotHandler) listCheckins(ctx context.Context, m *telebot.Message) {
 	}
 	bf := bytes.NewBuffer(nil)
 	for _, ci := range cis {
-		bf.WriteString(fmt.Sprintf("%s: %s\n", checkInTime(ci.Time), ci.R.User.Name))
+		bf.WriteString(fmt.Sprintf("<code>%s</code>: %s\n", checkInTime(ci.Time), ci.R.User.Name))
 	}
-	_, _ = h.bot.Send(m.Chat, bf.String())
+	_, _ = h.bot.Send(m.Chat, bf.String(), &telebot.SendOptions{
+		ParseMode: telebot.ModeHTML,
+	})
 }
