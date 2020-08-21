@@ -36,6 +36,7 @@ func (h *BotHandler) Start() error {
 	h.bot.Handle("/start", h.start())
 	h.bot.Handle("/me", h.getMe())
 	h.bot.Handle("/checkin", h.checkIn())
+	h.bot.Handle("/checkin_list", h.listCheckins())
 
 	//go func() {
 	//	for a := range h.bot.Updates {
@@ -135,10 +136,6 @@ func (h *BotHandler) checkIn() interface{} {
 		payload := strings.ToLower(strings.TrimSpace(m.Payload))
 		if payload == "out" {
 			h.checkOut(ctx, m, u)
-			return
-		}
-		if payload == "list" {
-			h.listCheckins(ctx, m)
 			return
 		}
 
@@ -261,24 +258,27 @@ func (h *BotHandler) sendToAll(ctx context.Context, user *model.UserWithBalance,
 	return nil
 }
 
-func (h *BotHandler) listCheckins(ctx context.Context, m *telebot.Message) {
-	today := time.Now().In(LocalZone)
-	cis, err := h.svc.ListCheckins(ctx, today)
-	if err != nil {
-		_, _ = h.bot.Send(m.Chat, "List check-in failed: "+err.Error())
-		_ = h.sendSticker(m.Chat, StickerDoAnO)
-		return
-	}
+func (h *BotHandler) listCheckins() interface{} {
+	return func(m *telebot.Message) {
+		today := time.Now().In(LocalZone)
+		ctx := context.TODO()
+		cis, err := h.svc.ListCheckins(ctx, today)
+		if err != nil {
+			_, _ = h.bot.Send(m.Chat, "List check-in failed: "+err.Error())
+			_ = h.sendSticker(m.Chat, StickerDoAnO)
+			return
+		}
 
-	if len(cis) == 0 {
-		_, _ = h.bot.Send(m.Chat, "No one have checked in yet!")
-		return
+		if len(cis) == 0 {
+			_, _ = h.bot.Send(m.Chat, "No one have checked in yet!")
+			return
+		}
+		bf := bytes.NewBuffer(nil)
+		for _, ci := range cis {
+			bf.WriteString(fmt.Sprintf("<code>%s</code>: %s\n", checkInTime(ci.Time), ci.R.User.Name))
+		}
+		_, _ = h.bot.Send(m.Chat, bf.String(), &telebot.SendOptions{
+			ParseMode: telebot.ModeHTML,
+		})
 	}
-	bf := bytes.NewBuffer(nil)
-	for _, ci := range cis {
-		bf.WriteString(fmt.Sprintf("<code>%s</code>: %s\n", checkInTime(ci.Time), ci.R.User.Name))
-	}
-	_, _ = h.bot.Send(m.Chat, bf.String(), &telebot.SendOptions{
-		ParseMode: telebot.ModeHTML,
-	})
 }
