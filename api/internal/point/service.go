@@ -7,13 +7,11 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-
-	"api/oldmodel"
 )
 
 type Service interface {
-	UserPointsInMonth(ctx context.Context, month, year int) ([]oldmodel.UserPoint, error)
-	WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]oldmodel.UserPoint, error)
+	UserPointsInMonth(ctx context.Context, month, year int) ([]UserPoint, error)
+	WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]UserPoint, error)
 }
 
 var _ Service = &RestService{}
@@ -63,7 +61,7 @@ type searchResponse struct {
 
 var fields = strings.Split("assignee,project,customfield_10106,summary,status,updated,created,resolutiondate", ",")
 
-func (s *RestService) WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]oldmodel.UserPoint, error) {
+func (s *RestService) WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]UserPoint, error) {
 	lower, upper := getTimeBound(from, to)
 	jql := fmt.Sprintf(`(resolved >= %s AND resolved < %s) OR (status = 'In Progress')`, lower, upper)
 
@@ -84,7 +82,7 @@ func (s *RestService) WorkingIssues(ctx context.Context, from time.Time, to time
 	return ups, nil
 }
 
-func (s *RestService) UserPointsInMonth(ctx context.Context, month, year int) ([]oldmodel.UserPoint, error) {
+func (s *RestService) UserPointsInMonth(ctx context.Context, month, year int) ([]UserPoint, error) {
 	lower, upper := getTimeBoundByMonth(month, year)
 	jql := fmt.Sprintf(`status = Done AND resolved >= %s AND resolved < %s`, lower, upper)
 
@@ -105,8 +103,8 @@ func (s *RestService) UserPointsInMonth(ctx context.Context, month, year int) ([
 	return ups, nil
 }
 
-func searchResponseToUserPoints(res *searchResponse) []oldmodel.UserPoint {
-	m := make(map[string][]oldmodel.Issue)
+func searchResponseToUserPoints(res *searchResponse) []UserPoint {
+	m := make(map[string][]Issue)
 	ma := make(map[string]issueAssignee)
 	mp := make(map[string]float64)
 	for _, is := range res.Issues {
@@ -118,7 +116,7 @@ func searchResponseToUserPoints(res *searchResponse) []oldmodel.UserPoint {
 			ma[as.Key] = *as
 		}
 		p := getFloat64(is.Fields.Point)
-		m[as.Key] = append(m[as.Key], oldmodel.Issue{
+		m[as.Key] = append(m[as.Key], Issue{
 			ID:      is.ID,
 			Key:     is.Key,
 			Summary: is.Fields.Summary,
@@ -134,9 +132,9 @@ func searchResponseToUserPoints(res *searchResponse) []oldmodel.UserPoint {
 		}
 	}
 
-	ups := make([]oldmodel.UserPoint, 0)
+	ups := make([]UserPoint, 0)
 	for uk := range m {
-		ups = append(ups, oldmodel.UserPoint{
+		ups = append(ups, UserPoint{
 			Name:        ma[uk].Name,
 			DisplayName: ma[uk].DisplayName,
 			Issues:      m[uk],

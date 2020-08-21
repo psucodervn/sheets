@@ -6,12 +6,11 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"api/oldmodel"
 	"api/pkg/wakatime"
 )
 
 type ReportService interface {
-	GetReport(ctx context.Context, from time.Time, to time.Time) ([]oldmodel.UserPoint, error)
+	GetReport(ctx context.Context, from time.Time, to time.Time) ([]UserPoint, error)
 }
 
 var _ ReportService = &BaseReportService{}
@@ -27,7 +26,7 @@ func NewBaseReportService(pointSvc Service, wakaSvc wakatime.Fetcher, wakaLeader
 	return &BaseReportService{pointSvc: pointSvc, wakaSvc: wakaSvc, wakaLeaderboardID: wakaLeaderboardID, mapNameToWakaID: mapNameToWakaID}
 }
 
-func (s *BaseReportService) GetReport(ctx context.Context, from time.Time, to time.Time) ([]oldmodel.UserPoint, error) {
+func (s *BaseReportService) GetReport(ctx context.Context, from time.Time, to time.Time) ([]UserPoint, error) {
 	users, err := s.pointSvc.WorkingIssues(ctx, from, to)
 	if err != nil {
 		return nil, err
