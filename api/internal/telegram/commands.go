@@ -15,6 +15,10 @@ var (
 			Description: "List Checkin",
 		},
 		{
+			Text:        "stars",
+			Description: "List stars",
+		},
+		{
 			Text:        "top",
 			Description: "List top users by balance",
 		},
@@ -33,10 +37,11 @@ var (
 	}
 
 	usage = `Verisheet Bot commands:
-- /checkin:      check-in
-  /checkin out:  check-out
+- /checkin: check-in
+  /checkin out: check-out
   /checkin 9h25: check-in at 9:25 AM
 - /checkin_list: list check-in today
+- /stars: list stars in current month of all users
 - /all: list all users
 - /top <n>: list top n users with highest/lowest balance
 - /me: fetch my information

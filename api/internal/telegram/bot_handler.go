@@ -37,6 +37,7 @@ func (h *BotHandler) Start() error {
 	h.bot.Handle("/me", h.getMe())
 	h.bot.Handle("/checkin", h.checkIn())
 	h.bot.Handle("/checkin_list", h.listCheckins())
+	h.bot.Handle("/stars", h.listStars())
 
 	//go func() {
 	//	for a := range h.bot.Updates {
@@ -280,5 +281,22 @@ func (h *BotHandler) listCheckins() interface{} {
 		_, _ = h.bot.Send(m.Chat, bf.String(), &telebot.SendOptions{
 			ParseMode: telebot.ModeHTML,
 		})
+	}
+}
+
+func (h *BotHandler) listStars() interface{} {
+	return func(m *telebot.Message) {
+		ctx := context.TODO()
+		res, err := h.svc.ListStarsInCurrentMonth(ctx)
+		if err != nil {
+			_, _ = h.bot.Send(m.Chat, "List failed: "+err.Error())
+			return
+		}
+
+		sb := &strings.Builder{}
+		for _, u := range res {
+			sb.WriteString(fmt.Sprintf("%s: %d\n", u.Name, int(u.Stars)))
+		}
+		_, _ = h.bot.Send(m.Chat, sb.String())
 	}
 }

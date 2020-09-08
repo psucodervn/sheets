@@ -145,6 +145,34 @@ func (s *Service) ListCheckins(ctx context.Context, today time.Time) (model.Chec
 	return cis, nil
 }
 
+func (s *Service) ListStarsInCurrentMonth(ctx context.Context) (model.UserStars, error) {
+	qr := `SELECT u.id, u.name, t.stars
+FROM users u
+LEFT JOIN
+	(SELECT ck.user_id as uid, SUM(ck.star_earned) as stars
+	FROM checkins ck
+	WHERE ck."date" LIKE '` + time.Now().Format("2006/01") + `/%'
+	GROUP BY ck.user_id) t ON u.id = t.uid
+WHERE u.deleted_at IS NULL AND t.stars IS NOT NULL
+ORDER BY t.stars DESC, u.name ASC`
+	rows, err := s.db.QueryContext(ctx, qr)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(model.UserStars, 0)
+	for rows.Next() {
+		var id string
+		var name string
+		var stars float64
+		if err := rows.Scan(&id, &name, &stars); err != nil {
+			continue
+		}
+		res = append(res, model.UserWithStar{ID: id, Name: name, Stars: stars})
+	}
+	return res, nil
+}
+
 func isOnTime(at time.Time) bool {
 	y, m, d := at.In(LocalZone).Date()
 	dl := time.Date(y, m, d, 9, 31, 0, 0, LocalZone)
