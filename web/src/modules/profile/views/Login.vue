@@ -36,6 +36,10 @@
       <q-btn color="red-5 full-width" @click="authenticate('google')">
         Login by @vzota.com.vn email
       </q-btn>
+      <p class="text-grey q-my-sm">- OR -</p>
+      <q-btn color="grey" class="full-width" @click="backToHome">
+        Back to home
+      </q-btn>
     </div>
   </q-page>
 </template>
@@ -86,6 +90,10 @@ export default class Login extends Vue {
           type: 'negative',
         });
     }
+  }
+
+  async backToHome() {
+    await this.$router.push('/');
   }
 }
 </script>
