@@ -1,5 +1,5 @@
 :80, :443 {
-  tls /etc/certs/localhost+2.pem /etc/certs/localhost+2-key.pem
+  tls /etc/certs/localhost.cert /etc/certs/localhost.key
 
   proxy /api/ http://host.docker.internal:7201/ {
     without /api
@@ -7,5 +7,8 @@
   proxy /oauth2/ http://host.docker.internal:7201/ {
 
   }
-  proxy / http://web:80/
+
+  proxy / http://host.docker.internal:7203/ {
+    websocket
+  }
 }
