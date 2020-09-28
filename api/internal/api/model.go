@@ -16,7 +16,7 @@ func DefaultQuery() Query {
 	return Query{
 		Pagination: Pagination{
 			Offset: 0,
-			Limit:  0,
+			Limit:  100,
 		},
 	}
 }
