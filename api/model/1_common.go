@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Change struct {
@@ -56,4 +60,34 @@ func (m *Meta) Scan(src interface{}) error {
 
 func (m Meta) Value() (driver.Value, error) {
 	return json.Marshal(m)
+}
+
+type Pager struct {
+	Limit  int      `query:"limit"`
+	Offset int      `query:"offset"`
+	Orders []string `query:"orderBy"`
+}
+
+func WithPager(db *gorm.DB, pager Pager) *gorm.DB {
+	db = db.Offset(pager.Offset).Limit(pager.Limit)
+	for _, ord := range pager.Orders {
+		ord = strings.ToLower(strings.TrimSpace(ord))
+		if len(ord) == 0 {
+			continue
+		}
+		col, desc := "", false
+		if ord[0] == '-' {
+			desc = true
+			col = ord[1:]
+		} else if ord[0] == '+' {
+			col = ord[1:]
+		} else {
+			col = ord
+		}
+		if len(col) == 0 {
+			continue
+		}
+		db = db.Order(clause.OrderByColumn{Column: clause.Column{Name: col, Raw: false}, Desc: desc})
+	}
+	return db
 }

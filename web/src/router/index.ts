@@ -13,6 +13,8 @@ import BalanceTransactions from '@/modules/balance/views/transactions/BalanceTra
 import TransactionsNew from '@/modules/balance/views/transactions/TransactionsNew.vue';
 import TransactionsEdit from '@/modules/balance/views/transactions/TransactionsEdit.vue';
 import Login from '@/modules/profile/views/Login.vue';
+import DaysOff from '@/modules/days-off/Manage.vue';
+import NewDayOff from '@/modules/days-off/New.vue';
 
 Vue.use(VueRouter);
 
@@ -22,13 +24,12 @@ const routes: Array<RouteConfig> = [
     redirect: Routes.BalanceDashboard,
   },
   {
-    path: Routes.BalanceDashboard,
-    name: Routes.BalanceDashboard,
+    path: Routes.Balance,
     component: Balance,
     children: [
       {
+        path: '',
         name: Routes.BalanceDashboard,
-        path: Routes.BalanceDashboard,
         component: BalanceDashboard,
         meta: {
           root: true,
@@ -87,6 +88,19 @@ const routes: Array<RouteConfig> = [
       root: true,
       requiresAuth: true,
     },
+  },
+  {
+    path: Routes.DaysOff,
+    name: Routes.DaysOff,
+    component: DaysOff,
+    meta: {
+      root: true,
+    },
+  },
+  {
+    path: Routes.DaysOffNew,
+    name: Routes.DaysOffNew,
+    component: NewDayOff,
   },
   {
     path: Routes.Profile,

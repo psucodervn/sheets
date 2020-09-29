@@ -9,12 +9,16 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/grpc"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"api/db"
 	"api/internal/api"
 	"api/internal/auth"
 	"api/internal/balance"
 	"api/internal/config"
+	"api/internal/daysoff"
+	"api/internal/handler"
 	"api/internal/point"
 	"api/internal/telegram"
 	"api/internal/user"
@@ -42,6 +46,10 @@ var (
 func runApiServer(cfg config.ApiConfig) error {
 	conn := db.ConnectDB(cfg.Postgres)
 	boil.SetDB(conn)
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{Conn: conn}), nil)
+	if err != nil {
+		log.Panic().Msgf("connect gorm database failed: %v", err)
+	}
 
 	notiConn, err := grpc.Dial("bot:8080", grpc.WithInsecure())
 	if err != nil {
@@ -69,11 +77,15 @@ func runApiServer(cfg config.ApiConfig) error {
 	telegramSvc := telegram.NewService(conn, cfg.TelegramBotName)
 	authHandler := auth.NewHandler(authSvc, userSvc, telegramSvc, jwtMW)
 
+	daysOffSvc := daysoff.NewService(gormDB)
+	daysOffHandler := handler.NewDaysOffHandler(daysOffSvc, jwtMW)
+
 	srv := api.NewServer()
 	srv.Bind(
 		balanceHandler,
 		pointHandler,
 		authHandler,
+		daysOffHandler,
 	)
 	return srv.Serve(cfg.Address, cfg.TLS)
 }

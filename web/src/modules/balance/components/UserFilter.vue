@@ -9,6 +9,7 @@
     multiple
     clearable
     emit-value
+    options-dense
   ></q-select>
 </template>
 

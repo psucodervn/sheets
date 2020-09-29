@@ -1,4 +1,5 @@
 const Routes = {
+  Balance: '/balance',
   BalanceDashboard: '/balance',
   BalanceAccounts: '/balance/accounts',
   BalanceTransactions: '/balance/transactions',
@@ -8,7 +9,8 @@ const Routes = {
   PointIssues: '/point/issues/:name',
   Report: '/report',
   Profile: '/profile',
-
+  DaysOff: '/days-off',
+  DaysOffNew: '/days-off/new',
   Login: '/auth/login',
 };
 

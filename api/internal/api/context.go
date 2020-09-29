@@ -43,3 +43,26 @@ func (c *Context) OK(data interface{}, code ...int) error {
 func (c *Context) Err(code int, msg string) error {
 	return c.JSON(code, Response{Success: false, Message: msg})
 }
+
+func (c *Context) Pager() model.Pager {
+	p := model.Pager{}
+	_ = c.Bind(&p)
+	if p.Limit <= 0 {
+		p.Limit = 50
+	}
+	if p.Offset < 0 {
+		p.Offset = 0
+	}
+	return p
+}
+
+// Map bind and validate request
+func (c *Context) Map(v interface{}) error {
+	if err := c.Bind(v); err != nil {
+		return err
+	}
+	if err := c.Validate(v); err != nil {
+		return err
+	}
+	return nil
+}

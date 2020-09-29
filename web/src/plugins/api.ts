@@ -70,15 +70,19 @@ export class ApiWrapper {
     try {
       const res = await promise;
       if (!res.data) {
-        return { success: false, message: res.statusText };
+        return { success: false, message: res.statusText, status: res.status };
       }
       if (typeof res.data === 'string') {
-        return { success: false, message: res.data };
+        return { success: false, message: res.data, status: res.status };
       }
       if (!res.data.success) {
-        return { success: false, message: res.data.message };
+        return {
+          success: false,
+          message: res.data.message,
+          status: res.status,
+        };
       }
-      return { success: true, data: res.data.data };
+      return { success: true, data: res.data.data, status: res.status };
     } catch (e) {
       return { success: false, message: e.message };
     }

@@ -13,11 +13,15 @@ import axios from 'axios';
 import VueApi from '@/plugins/api';
 import GAuth from 'vue-google-oauth2';
 import { gAuthOptions } from '@/modules/profile/auth';
+import AddButton from '@/components/AddButton.vue';
+import DatePicker from '@/components/DatePicker.vue';
 
 Vue.config.productionTip = false;
 
 Vue.use(Navigation);
 Vue.component('navigation-bar', NavigationBar);
+Vue.component('add-button', AddButton);
+Vue.component('date-picker', DatePicker);
 
 Vue.use(
   VueApi,

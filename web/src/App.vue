@@ -6,6 +6,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import SimpleLayout from '@/layouts/SimpleLayout.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import { BalanceModule } from '@/store';
 
 @Component({
   components: {
@@ -17,6 +18,10 @@ export default class App extends Vue {
   get layout() {
     const layout = this.$route.meta.layout;
     return layout || 'default-layout';
+  }
+
+  mounted() {
+    BalanceModule.fetchUsers();
   }
 }
 </script>

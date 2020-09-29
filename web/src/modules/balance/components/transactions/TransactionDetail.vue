@@ -1,66 +1,62 @@
 <template>
-  <div>
-    <q-card class="q-pa-sm">
-      <div class="row">
-        <div class="col-xs-12 col-sm-grow q-pr-sm-xs q-pt-sm">
-          <span class=" label">Summary</span>
-          <q-input
-            outlined
-            dense
-            v-model="tx.summary"
-            class="q-pt-sm"
-            placeholder="Transaction's summary"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-auto q-pl-sm-xs q-pt-sm">
-          <span class=" label">Time</span>
-          <time-input :time.sync="tx.time" class="q-pt-sm" />
-        </div>
-      </div>
-      <list-payers :payers="tx.payers" :value.sync="tx.value" />
-      <list-participants
-        :participants="tx.participants"
-        :total-value="tx.value"
-        :split-type.sync="tx.splitType"
-        @update="setChanges"
-      />
-      <div class="row">
-        <span class="q-py-sm label">Change Preview</span>
-      </div>
-      <div class="row q-pb-xs">
-        <template v-for="(c, name) in tx.changes">
-          <q-badge
-            outline
-            :color="c.value > 0 ? 'green' : c.value < 0 ? 'red' : 'grey'"
-            class="q-my-xs q-mr-sm q-pa-sm"
-            :label="
-              `${c.name}: ${c.value > 0 ? '+' : ''}${formatValue(c.value)}`
-            "
-          />
-        </template>
-      </div>
-      <div class="row q-pt-sm">
-        <span class="q-py-sm label">Note</span>
+  <q-card class="q-pa-sm">
+    <div class="row">
+      <div class="col-xs-12 col-sm-grow q-pr-sm-xs q-pt-sm">
+        <span class=" label">Summary</span>
         <q-input
-          autogrow
           outlined
           dense
-          class="full-width"
-          placeholder="Transaction's note"
-          v-model="tx.description"
+          v-model="tx.summary"
+          class="q-pt-sm"
+          placeholder="Transaction's summary"
         />
       </div>
-      <q-card-actions align="right" class="q-pa-none q-pt-sm">
-        <q-btn
-          label="Save"
-          icon="save"
-          color="primary"
-          @click="save"
-          :loading="saving"
-        ></q-btn>
-      </q-card-actions>
-    </q-card>
-  </div>
+      <div class="col-xs-12 col-sm-auto q-pl-sm-xs q-pt-sm">
+        <span class=" label">Time</span>
+        <time-input :time.sync="tx.time" class="q-pt-sm" />
+      </div>
+    </div>
+    <list-payers :payers="tx.payers" :value.sync="tx.value" />
+    <list-participants
+      :participants="tx.participants"
+      :total-value="tx.value"
+      :split-type.sync="tx.splitType"
+      @update="setChanges"
+    />
+    <div class="row">
+      <span class="q-py-sm label">Change Preview</span>
+    </div>
+    <div class="row q-pb-xs">
+      <template v-for="(c, name) in tx.changes">
+        <q-badge
+          outline
+          :color="c.value > 0 ? 'green' : c.value < 0 ? 'red' : 'grey'"
+          class="q-my-xs q-mr-sm q-pa-sm"
+          :label="`${c.name}: ${c.value > 0 ? '+' : ''}${formatValue(c.value)}`"
+        />
+      </template>
+    </div>
+    <div class="row q-pt-sm">
+      <span class="q-py-sm label">Note</span>
+      <q-input
+        autogrow
+        outlined
+        dense
+        class="full-width"
+        placeholder="Transaction's note"
+        v-model="tx.description"
+      />
+    </div>
+    <q-card-actions align="right" class="q-pa-none q-pt-sm">
+      <q-btn
+        label="Save"
+        icon="save"
+        color="primary"
+        @click="save"
+        :loading="saving"
+      ></q-btn>
+    </q-card-actions>
+  </q-card>
 </template>
 
 <script lang="ts">
