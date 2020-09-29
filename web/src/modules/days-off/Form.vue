@@ -65,7 +65,9 @@ export default class DayOffForm extends Vue {
   }
 
   get users() {
-    return BalanceModule.users.map(u => ({ label: u.name, value: u.id }));
+    return BalanceModule.users
+      .map(u => ({ label: u.name, value: u.id }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   }
 
   @Emit('save')

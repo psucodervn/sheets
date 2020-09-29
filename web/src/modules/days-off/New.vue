@@ -11,6 +11,7 @@ import DayOffForm from '@/modules/days-off/Form.vue';
 import { DayOff } from '@/types/logic';
 import { DayOffService } from '@/modules/days-off/service';
 import { showFailure } from '@/utils/dialog';
+import { Notify } from 'quasar';
 
 @Component({
   components: {
@@ -37,6 +38,21 @@ export default class NewDayOff extends Vue {
     if (!item) return;
     try {
       await this.service.save(item);
+      Notify.create({
+        message: 'Save succeed',
+        type: 'positive',
+        actions: [
+          {
+            label: 'Back to list',
+            color: 'white',
+            handler: () => {
+              this.$router.push({ name: Routes.DaysOff }).catch(() => {
+                /* */
+              });
+            },
+          },
+        ],
+      });
     } catch (e) {
       showFailure('Save failed', e.message);
     }

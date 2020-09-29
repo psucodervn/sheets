@@ -1,6 +1,6 @@
 <template>
   <q-pull-to-refresh @refresh="fetchData" style="padding-bottom: 70px">
-    <day-off-table :items="items" @remove="remove" />
+    <day-off-table :items="items" @remove="remove" :loading="loading" />
     <add-button @click="add" />
   </q-pull-to-refresh>
 </template>
@@ -12,6 +12,7 @@ import { DayOffService } from '@/modules/days-off/service';
 import { showFailure, showSuccess } from '@/utils/dialog';
 import DayOffTable from '@/modules/days-off/Table.vue';
 import { Routes } from '@/router/names';
+import { Confirm } from '@/plugins/decorators';
 
 @Component({
   components: {
@@ -48,6 +49,7 @@ export default class DaysOff extends Vue {
     await this.$router.push({ name: Routes.DaysOffNew });
   }
 
+  @Confirm('Are you sure?', '')
   async remove(d: DayOff) {
     try {
       this.loading = true;
