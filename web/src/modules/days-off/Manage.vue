@@ -34,7 +34,7 @@ export default class DaysOff extends Vue {
     await this.fetchData();
   }
 
-  async fetchData() {
+  async fetchData(done?: Function) {
     try {
       this.loading = true;
       this.items = await this.service.list();
@@ -42,6 +42,7 @@ export default class DaysOff extends Vue {
       showFailure('List failed: ' + e.message);
     } finally {
       this.loading = false;
+      if (done && typeof done === 'function') done();
     }
   }
 

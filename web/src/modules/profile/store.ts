@@ -46,7 +46,6 @@ export default class ProfileStore extends VuexModule {
   setTokens(tokens: AuthToken) {
     this.token = tokens.accessToken;
     this.refreshToken = tokens.refreshToken;
-    console.log('setTokens done');
   }
 
   @MutationAction({
