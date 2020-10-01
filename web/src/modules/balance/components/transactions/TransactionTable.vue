@@ -28,7 +28,7 @@
               @click.stop="edit(props.row.id)"
             />
             <q-btn
-              icon="delete"
+              icon="delete_forever"
               dense
               rounded
               flat

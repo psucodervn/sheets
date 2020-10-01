@@ -28,7 +28,8 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
 #app {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
+  /*font-size: 14px;*/
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0 auto;
