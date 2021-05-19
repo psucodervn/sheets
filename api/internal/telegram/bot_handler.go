@@ -293,6 +293,11 @@ func (h *BotHandler) listStars() interface{} {
 			return
 		}
 
+		if len(res) == 0 {
+			_, _ = h.bot.Send(m.Chat, "No one have earned stars yet.")
+			return
+		}
+
 		sb := &strings.Builder{}
 		for _, u := range res {
 			sb.WriteString(fmt.Sprintf("%s: %d\n", u.Name, int(u.Stars)))
