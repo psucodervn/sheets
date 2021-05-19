@@ -1,6 +1,6 @@
 module api
 
-go 1.15
+go 1.16
 
 require (
 	cloud.google.com/go v0.38.0 // indirect
@@ -11,6 +11,7 @@ require (
 	github.com/go-pg/pg/v9 v9.1.6
 	github.com/go-resty/resty/v2 v2.1.0
 	github.com/golang/protobuf v1.4.0
+	github.com/google/go-github/v33 v33.0.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.1.11
