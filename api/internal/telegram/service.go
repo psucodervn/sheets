@@ -173,6 +173,30 @@ ORDER BY t.stars DESC, u.name ASC`
 	return res, nil
 }
 
+func (s *Service) ListUserNotCheckedInToday(ctx context.Context) ([]model.User, error) {
+	cis, err := s.ListCheckins(ctx, time.Now())
+	if err != nil {
+		return nil, err
+	}
+	users, err := s.ListUserHasTelegramID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	checked := map[string]bool{}
+	for _, c := range cis {
+		checked[c.UserID] = true
+	}
+
+	var us []model.User
+	for _, u := range users {
+		if !checked[u.ID] && u.RemindCheckin.Bool {
+			us = append(us, *u)
+		}
+	}
+	return us, nil
+}
+
 func isOnTime(at time.Time) bool {
 	y, m, d := at.In(LocalZone).Date()
 	dl := time.Date(y, m, d, 9, 31, 0, 0, LocalZone)

@@ -10,7 +10,7 @@ add-soft-deletes    = true
 [psql]
   dbname    = "sheet"
   host      = "localhost"
-  port      = 7232
+  port      = 7202
   user      = "sheet"
   pass      = "3czYDuwqZPsb8kdk"
   schema    = "public"

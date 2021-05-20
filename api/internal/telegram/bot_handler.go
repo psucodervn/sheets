@@ -38,6 +38,16 @@ func (h *BotHandler) Start() error {
 	h.bot.Handle("/checkin", h.checkIn())
 	h.bot.Handle("/checkin_list", h.listCheckins())
 	h.bot.Handle("/stars", h.listStars())
+	h.bot.Handle("/remind", h.remind())
+
+	h.bot.Handle(&telebot.InlineButton{Unique: "checkin"}, func(cb *telebot.Callback) {
+		uID := cb.Data
+		_ = h.bot.Delete(cb.Message)
+		if len(uID) == 0 || uID == "Cancel" {
+			return
+		}
+		h.doCheckin(cb.Message)
+	})
 
 	//go func() {
 	//	for a := range h.bot.Updates {
@@ -122,70 +132,80 @@ func (h *BotHandler) getMe() interface{} {
 }
 
 func (h *BotHandler) checkIn() interface{} {
-	return func(m *telebot.Message) {
-		ctx := boil.WithDebug(context.TODO(), true)
-		u, err := h.svc.GetUserWithBalanceByTelegramID(ctx, m.Sender.Recipient())
+	return h.doCheckin
+}
+
+func (h *BotHandler) doCheckin(m *telebot.Message) {
+	ctx := boil.WithDebug(context.TODO(), true)
+	u, err := h.svc.GetUserWithBalanceByTelegramID(ctx, getUserID(m))
+	if err != nil {
+		if err == ErrUserNotFound {
+			_, _ = h.bot.Send(m.Chat, "Bot failed: Unauthorized")
+			return
+		}
+		_, _ = h.bot.Send(m.Chat, "Bot failed: "+err.Error())
+		return
+	}
+
+	payload := strings.ToLower(strings.TrimSpace(m.Payload))
+	if payload == "out" {
+		h.checkOut(ctx, m, u)
+		return
+	}
+
+	t := time.Now()
+	if len(payload) > 0 {
+		t, err = parseTime(payload)
 		if err != nil {
-			if err == ErrUserNotFound {
-				_, _ = h.bot.Send(m.Chat, "Bot failed: Unauthorized")
-				return
-			}
-			_, _ = h.bot.Send(m.Chat, "Bot failed: "+err.Error())
+			_, _ = h.bot.Send(m.Chat, fmt.Sprintf("Invalid time `"+payload+"`. Hint: use 9h25 or 9:25 format for 9h25 AM."))
 			return
-		}
-
-		payload := strings.ToLower(strings.TrimSpace(m.Payload))
-		if payload == "out" {
-			h.checkOut(ctx, m, u)
-			return
-		}
-
-		t := time.Now()
-		if len(payload) > 0 {
-			t, err = parseTime(payload)
-			if err != nil {
-				_, _ = h.bot.Send(m.Chat, fmt.Sprintf("Invalid time `"+payload+"`. Hint: use 9h25 or 9:25 format for 9h25 AM."))
-				return
-			}
-		}
-
-		if isWeekend(t) {
-			_, _ = h.bot.Send(m.Chat, fmt.Sprintf("You can't check-in on weekend 🤨🤨"))
-			return
-		}
-		if t.After(time.Now()) {
-			_, _ = h.bot.Send(m.Chat, fmt.Sprintf("Impossible 😡😡"))
-			_ = h.sendSticker(m.Chat, StickerBoNgheMay)
-			return
-		}
-
-		ci, err := h.svc.CheckUserIn(ctx, u, t)
-		if err != nil {
-			if err == ErrAlreadyCheckedIn {
-				_, _ = h.bot.Send(m.Chat, "You have already checked in today!")
-				return
-			}
-			_, _ = h.bot.Send(m.Chat, "Check-in failed: "+err.Error())
-			_ = h.sendSticker(m.Chat, StickerDoAnO)
-			return
-		}
-
-		var msg string
-		st := checkInTime(t)
-		if ci.OnTime {
-			msg = fmt.Sprintf("Congratz, you earned %d star for checked in on time (%s) 🥳🥳", ci.StarEarned, st)
-			_, _ = h.bot.Send(m.Chat, msg)
-			//_ = h.sendSticker(m.Chat, StickerThugLife)
-			//msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> and earned <b>%d</b> star 🥳🥳", u.Name, st, ci.StarEarned)
-			//_ = h.sendToAll(ctx, u, msg)
-		} else {
-			msg = fmt.Sprintf("Too late! It's %s. You earned nothing 🤣🤣", st)
-			_, _ = h.bot.Send(m.Chat, msg)
-			_ = h.sendSticker(m.Chat, StickerDenThoi)
-			//msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> but it's too late 🤣🤣", u.Name, st)
-			//_ = h.sendToAll(ctx, u, msg)
 		}
 	}
+
+	if isWeekend(t) {
+		_, _ = h.bot.Send(m.Chat, fmt.Sprintf("You can't check-in on weekend 🤨🤨"))
+		return
+	}
+	if t.After(time.Now()) {
+		_, _ = h.bot.Send(m.Chat, fmt.Sprintf("Impossible 😡😡"))
+		_ = h.sendSticker(m.Chat, StickerBoNgheMay)
+		return
+	}
+
+	ci, err := h.svc.CheckUserIn(ctx, u, t)
+	if err != nil {
+		if err == ErrAlreadyCheckedIn {
+			_, _ = h.bot.Send(m.Chat, "You have already checked in today!")
+			return
+		}
+		_, _ = h.bot.Send(m.Chat, "Check-in failed: "+err.Error())
+		_ = h.sendSticker(m.Chat, StickerDoAnO)
+		return
+	}
+
+	var msg string
+	st := checkInTime(t)
+	if ci.OnTime {
+		msg = fmt.Sprintf("Congratz, you earned %d star for checked in on time (%s) 🥳🥳", ci.StarEarned, st)
+		_, _ = h.bot.Send(m.Chat, msg)
+		//_ = h.sendSticker(m.Chat, StickerThugLife)
+		//msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> and earned <b>%d</b> star 🥳🥳", u.Name, st, ci.StarEarned)
+		//_ = h.sendToAll(ctx, u, msg)
+	} else {
+		msg = fmt.Sprintf("Too late! It's %s. You earned nothing 🤣🤣", st)
+		_, _ = h.bot.Send(m.Chat, msg)
+		_ = h.sendSticker(m.Chat, StickerDenThoi)
+		//msg = fmt.Sprintf("➡️ <b><i>%s</i></b> checked in at <code>%s</code> but it's too late 🤣🤣", u.Name, st)
+		//_ = h.sendToAll(ctx, u, msg)
+	}
+}
+
+func getUserID(m *telebot.Message) string {
+	uid := strconv.Itoa(m.Sender.ID)
+	if m.Sender.IsBot {
+		uid = strconv.Itoa(int(m.Chat.ID))
+	}
+	return uid
 }
 
 func isWeekend(t time.Time) bool {
@@ -304,4 +324,37 @@ func (h *BotHandler) listStars() interface{} {
 		}
 		_, _ = h.bot.Send(m.Chat, sb.String())
 	}
+}
+
+func (h *BotHandler) remind() interface{} {
+	return func(m *telebot.Message) {
+		ctx := context.TODO()
+		if err := h.remindCheckin(ctx, m); err != nil {
+			_, _ = h.bot.Send(m.Chat, err.Error())
+		}
+	}
+}
+
+func (h *BotHandler) remindCheckin(ctx context.Context, m *telebot.Message) error {
+	users, err := h.svc.ListUserNotCheckedInToday(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(users) == 0 {
+		_, _ = h.bot.Send(m.Chat, "All users have checked in!")
+	}
+
+	msg := "You have not checked in today. Do you want to check in now?"
+	for _, u := range users {
+		_, err = h.bot.Send(newUser(u.TelegramID.String), msg, &telebot.ReplyMarkup{
+			InlineKeyboard: [][]telebot.InlineButton{
+				{{Unique: "checkin", Text: "Yes", Data: u.ID}, {Unique: "checkin", Text: "No", Data: ""}},
+			},
+		})
+		if err != nil {
+			log.Err(err).Str("user", u.Name).Send()
+		}
+	}
+	return nil
 }
