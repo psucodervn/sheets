@@ -22,7 +22,7 @@ import { Routes } from '@/router/names';
 export default class DefaultLayout extends Vue {
   tabs = [
     { icon: 'local_atm', label: 'Balance', to: Routes.BalanceDashboard },
-    { icon: 'alarm', label: 'Day off', to: Routes.DaysOff },
+    // { icon: 'alarm', label: 'Day off', to: Routes.DaysOff },
     { icon: 'laptop_mac', label: 'Point', to: Routes.Point },
     { icon: 'bar_chart', label: 'Report', to: Routes.Report },
     { icon: 'person', label: 'Profile', to: Routes.Profile },
