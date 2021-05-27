@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/psucodervn/go/logger"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -49,7 +51,47 @@ func runBot(cmd *cobra.Command, args []string) error {
 
 	telegramSvc := telegram.NewService(conn, "")
 	botHandler := telegram.NewBotHandler(bot, telegramSvc)
+
+	go startCronJob(bot, telegramSvc)
+
 	return botHandler.Start()
+}
+
+func startCronJob(bot *tb.Bot, svc *telegram.Service) {
+	s := gocron.NewScheduler(time.UTC)
+	_, _ = s.Every(1).Day().At("02:25").Do(func() {
+		// check for weekday
+		wd := time.Now().Weekday()
+		if wd < time.Monday || wd > time.Friday {
+			log.Info().Str("weekday", wd.String()).Msg("ignore remind checkin")
+			return
+		}
+
+		ctx := context.Background()
+		users, err := svc.ListUserNotCheckedInToday(ctx)
+		if err != nil {
+			log.Err(err).Send()
+			return
+		}
+
+		if len(users) == 0 {
+			log.Info().Msg("All users have checked in!")
+		}
+
+		msg := "You have not checked in today. Do you want to check in now?"
+		for _, u := range users {
+			_, err = bot.Send(newUser(u.TelegramID.String), msg, &tb.ReplyMarkup{
+				InlineKeyboard: [][]tb.InlineButton{
+					{{Unique: "checkin", Text: "Yes", Data: u.ID}, {Unique: "checkin", Text: "No", Data: ""}},
+				},
+			})
+			if err != nil {
+				log.Err(err).Str("user", u.Name).Send()
+			}
+		}
+	})
+
+	s.StartAsync()
 }
 
 func startServer(srv *NotificationServer) {
