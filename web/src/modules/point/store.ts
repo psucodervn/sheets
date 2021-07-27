@@ -36,7 +36,6 @@ export default class PointStore extends VuexModule {
   @Action({ rawError: true })
   async fetchReport(params: { range: TimeRange }) {
     const { from, to } = params.range;
-    from.toISOString();
     const res = await Vue.$api.get<IUserPoint[]>('/report', {
       params: { from: from.toISOString(), to: to.toISOString() },
     });
