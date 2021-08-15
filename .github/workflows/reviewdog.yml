@@ -26,4 +26,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: reviewdog/action-eslint@v1
         with:
-          eslint_flags: 'web'
+          workdir: ./web
