@@ -32,10 +32,10 @@ export default class Issues extends Vue {
   }
 
   get issues() {
-    const u = PointModule.users.find(u => u.name === this.name);
-    if (!u) return [];
-    this.displayName = u.displayName;
-    return u.issues;
+    const user = PointModule.users.find(u => u.name === this.name);
+    if (!user) return [];
+    this.displayName = user.displayName;
+    return user.issues;
   }
 
   @Watch('displayName', { immediate: true })
@@ -53,5 +53,3 @@ export default class Issues extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped></style>

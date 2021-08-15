@@ -9,6 +9,10 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+const (
+	dateLayout = "2006-01-02"
+)
+
 type Service interface {
 	UserPointsInMonth(ctx context.Context, month, year int) ([]UserPoint, error)
 	WorkingIssues(ctx context.Context, from time.Time, to time.Time) ([]UserPoint, error)
@@ -148,11 +152,11 @@ func getTimeBoundByMonth(month int, year int) (string, string) {
 	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	finish := time.Date(year, time.Month(month+1), 1, 0, 0, 0, 0, time.UTC)
 	//start = start.Add(-24 * time.Hour)
-	return start.Format("2006-01-02"), finish.Format("2006-01-02")
+	return start.Format(dateLayout), finish.Format(dateLayout)
 }
 
 func getTimeBound(from time.Time, to time.Time) (string, string) {
-	return from.Format("2006-01-02"), to.Add(24 * time.Hour).Format("2006-01-02")
+	return from.Format(dateLayout), to.Add(24 * time.Hour).Format(dateLayout)
 }
 
 func getFloat64(v *float64) float64 {
