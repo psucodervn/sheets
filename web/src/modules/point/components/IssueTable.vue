@@ -10,7 +10,7 @@
   >
     <template v-slot:body-cell-key="props">
       <q-td :props="props" class="key">
-        <a :href="`https://pm.vzota.com.vn/browse/${props.row.key}`" class="link" target="_blank">
+        <a :href="`https://pm.vzota.com.vn/browse/${props.row.key}`" class="link" target="_blank" rel="noreferrer">
           {{ props.value }}
         </a>
       </q-td>

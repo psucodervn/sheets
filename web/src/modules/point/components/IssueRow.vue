@@ -5,6 +5,7 @@
         :href="`https://pm.vzota.com.vn/browse/${issue.key}`"
         class="link"
         target="_blank"
+        rel="noreferrer"
       >
         <q-badge
           :color="color"
