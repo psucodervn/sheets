@@ -34,3 +34,4 @@ jobs:
           eslint_flags: '--ext vue,js,ts src'
           reviewdog_flags: '-tee'
           filter_mode: file
+          reporter: github-pr-check
