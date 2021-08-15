@@ -20,15 +20,16 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
-  import { TableColumn, TablePagination } from '@/types/datatable';
-  import { IUserPoint } from '@/model/point';
-  import { Routes } from '@/router/names';
-  import formatter from '@/utils/formatter';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { TableColumn, TablePagination } from '@/types/datatable';
+import { IUserPoint } from '@/model/point';
+import { Routes } from '@/router/names';
+import formatter from '@/utils/formatter';
 
   @Component
-  export default class PointTable extends Vue {
+export default class PointTable extends Vue {
     @Prop({ type: Boolean, required: true }) loading!: boolean;
+
     @Prop({ type: Array, required: true }) users!: IUserPoint[];
 
     columns: Array<TableColumn> = [
@@ -53,6 +54,7 @@
         format: formatter.storyPoint,
       },
     ];
+
     pagination: TablePagination = {
       sortBy: 'points',
       descending: true,
@@ -64,11 +66,10 @@
         return this.users.sort((a: IUserPoint, b: IUserPoint) => {
           if (a.pointTotal !== b.pointTotal) {
             return -(a.pointTotal - b.pointTotal);
-          } else if (a.issues.length !== b.issues.length) {
+          } if (a.issues.length !== b.issues.length) {
             return -(a.issues.length - b.issues.length);
-          } else {
-            return a.name > b.name ? 1 : -1;
           }
+          return a.name > b.name ? 1 : -1;
         });
       } catch (e) {
         return [];
@@ -78,7 +79,7 @@
     goToIssues(name: string) {
       this.$router.push({ name: Routes.PointIssues, params: { name } });
     }
-  }
+}
 </script>
 
 <style lang="scss" scoped>
