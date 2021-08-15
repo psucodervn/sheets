@@ -31,5 +31,5 @@ jobs:
       - uses: reviewdog/action-eslint@v1
         with:
           workdir: ./web
-          eslint_flags: '--ext vue,js,ts src'
+          eslint_flags: '-f stylish --ext vue,js,ts src'
           filter_mode: file
