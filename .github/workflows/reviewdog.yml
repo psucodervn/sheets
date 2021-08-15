@@ -32,3 +32,4 @@ jobs:
         with:
           workdir: ./web
           eslint_flags: '--ext vue,js,ts src'
+          filter_mode: file
