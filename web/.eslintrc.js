@@ -18,4 +18,8 @@ module.exports = {
   ],
   rules: {
   },
+  ignorePatterns: [
+    "dist",
+    "public"
+  ],
 };
