@@ -17,9 +17,11 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'import/extensions': 'off',
+    'import/no-unresolved': 'off',
   },
   ignorePatterns: [
-    "dist",
-    "public"
+    'dist',
+    'public',
   ],
 };

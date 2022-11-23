@@ -78,6 +78,7 @@ import IssueRow from '@/modules/point/components/IssueRow.vue';
 })
 export default class ReportTable extends Vue {
   @Prop({ type: Array, required: true }) points!: IUserPoint[];
+
   @Prop({ type: Boolean, default: false }) loading!: boolean;
 
   columns: TableColumn[] = [
@@ -103,25 +104,25 @@ export default class ReportTable extends Vue {
       align: 'right',
     },
   ];
+
   pagination: TablePagination = {
     rowsPerPage: 0,
     sortBy: 'name',
   };
+
   collapsed = false;
 
   get rows(): IUserPoint[] {
     return this.points.map((up: IUserPoint) => ({
       ...up,
-      issues: up.issues.sort((a: IIssue, b: IIssue) =>
-        a.status.localeCompare(b.status)
-      ),
+      issues: up.issues.sort((a: IIssue, b: IIssue) => a.status.localeCompare(b.status)),
     }));
   }
 
   onClickHeader(id: string) {
     this.collapsed = !this.collapsed;
     this.$nextTick().then(() => {
-      const el = this.$el.querySelector('#' + id)!;
+      const el = this.$el.querySelector(`#${id}`)!;
       el.scrollIntoView();
     });
   }

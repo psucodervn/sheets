@@ -32,7 +32,7 @@ export default class Issues extends Vue {
   }
 
   get issues() {
-    const user = PointModule.users.find(u => u.name === this.name);
+    const user = PointModule.users.find((u) => u.name === this.name);
     if (!user) return [];
     this.displayName = user.displayName;
     return user.issues;

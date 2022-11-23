@@ -12,10 +12,10 @@
 </template>
 
 <script lang="ts">
-  import { Component, Vue } from 'vue-property-decorator';
-  import { PointModule } from '@/store';
-  import { Month } from '@/types/datetime';
-  import formatter from '@/utils/formatter';
+import { Component, Vue } from 'vue-property-decorator';
+import { PointModule } from '@/store';
+import { Month } from '@/types/datetime';
+import formatter from '@/utils/formatter';
 
   interface MonthItem {
     label: string;
@@ -23,7 +23,7 @@
   }
 
   @Component
-  export default class PointTimeFilter extends Vue {
+export default class PointTimeFilter extends Vue {
     months: MonthItem[] = [];
 
     get month(): MonthItem {
@@ -56,5 +56,5 @@
       }
       this.months.reverse();
     }
-  }
+}
 </script>

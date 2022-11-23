@@ -30,12 +30,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { TimeRange } from '@/types/datetime';
 import { date } from 'quasar';
+import { TimeRange } from '@/types/datetime';
 
 @Component({})
 export default class ReportTimeFilter extends Vue {
   @Prop({ type: TimeRange, required: true }) range!: TimeRange;
+
   startDate!: string;
 
   created() {

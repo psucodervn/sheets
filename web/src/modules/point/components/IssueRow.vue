@@ -1,10 +1,11 @@
 <template>
   <div class="q-py-xs ellipsis">
-    <span style="display: inline-block; min-width: 100px;">
+    <span style="display: inline-block; min-width: 100px">
       <a
         :href="`https://pm.vzota.com.vn/browse/${issue.key}`"
         class="link"
         target="_blank"
+        rel="noreferrer"
       >
         <q-badge
           :color="color"
